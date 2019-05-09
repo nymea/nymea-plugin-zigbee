@@ -1,0 +1,75 @@
+{
+    "name": "zigbee",
+    "displayName": "Zigbee",
+    "id": "631431cf-4142-4d53-8ac7-3d5230b2972b",
+    "paramTypes": [
+        {
+            "id": "f02d6de0-24bf-4e47-929c-e07255978cb3",
+            "name": "enabled",
+            "displayName": "Zigbee enabled",
+            "type": "bool",
+            "defaultValue": true
+        },
+        {
+            "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
+            "name": "hardware",
+            "displayName": "Hardware",
+            "type": "QString",
+            "allowedValues": [ "NXP" ],
+            "defaultValue": "NXP"
+        },
+        {
+            "id": "c27df339-43c2-4b14-8bd8-aa051716e5d8",
+            "name": "serialPort",
+            "displayName": "Serial port",
+            "type": "QString",
+            "defaultValue": "/dev/ttyUSB0"
+        },
+        {
+            "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
+            "name": "baudrate",
+            "displayName": "Baudtate",
+            "type": "uint",
+            "defaultValue": "1000000"
+        }
+    ],
+    "vendors": [
+        {
+            "name": "zigbee",
+            "displayName": "Zigbee",
+            "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
+            "deviceClasses": [
+                {
+                    "name": "zigbeeCoordinator",
+                    "displayName": "Zigbee Network",
+                    "id": "ff29c3c5-9f0f-4a04-9cf6-aef34928d781",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "User" ],
+                    "interfaces": [ "gateway" ],
+                    "paramTypes": [
+
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "defaultValue": true
+                        }
+                    ],
+                    "actionTypes": [
+
+                    ],
+                    "eventTypes": [
+
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+
+
