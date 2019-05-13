@@ -9,28 +9,6 @@
             "displayName": "Zigbee enabled",
             "type": "bool",
             "defaultValue": true
-        },
-        {
-            "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
-            "name": "hardware",
-            "displayName": "Hardware",
-            "type": "QString",
-            "allowedValues": [ "NXP" ],
-            "defaultValue": "NXP"
-        },
-        {
-            "id": "c27df339-43c2-4b14-8bd8-aa051716e5d8",
-            "name": "serialPort",
-            "displayName": "Serial port",
-            "type": "QString",
-            "defaultValue": "/dev/ttyUSB0"
-        },
-        {
-            "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
-            "name": "baudrate",
-            "displayName": "Baudtate",
-            "type": "uint",
-            "defaultValue": "1000000"
         }
     ],
     "vendors": [
@@ -40,14 +18,35 @@
             "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
             "deviceClasses": [
                 {
-                    "name": "zigbeeCoordinator",
-                    "displayName": "Zigbee Network",
+                    "name": "zigbeeController",
+                    "displayName": "Zigbee controller",
                     "id": "ff29c3c5-9f0f-4a04-9cf6-aef34928d781",
                     "setupMethod": "JustAdd",
-                    "createMethods": [ "User" ],
+                    "createMethods": [ "User", "Discovery" ],
                     "interfaces": [ "gateway" ],
                     "paramTypes": [
-
+                        {
+                            "id": "c27df339-43c2-4b14-8bd8-aa051716e5d8",
+                            "name": "serialPort",
+                            "displayName": "Serial port",
+                            "type": "QString",
+                            "defaultValue": "/dev/ttyUSB0"
+                        },
+                        {
+                            "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
+                            "name": "baudrate",
+                            "displayName": "Baudtate",
+                            "type": "uint",
+                            "defaultValue": "1000000"
+                        },
+                        {
+                            "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
+                            "name": "hardware",
+                            "displayName": "Hardware",
+                            "type": "QString",
+                            "allowedValues": [ "NXP" ],
+                            "defaultValue": "NXP"
+                        }
                     ],
                     "stateTypes": [
                         {
@@ -56,7 +55,43 @@
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
                             "type": "bool",
-                            "defaultValue": true
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "3f3c742c-19d5-4d45-b3e2-7cfd25b0611a",
+                            "name": "version",
+                            "displayName": "Firmware version",
+                            "displayNameEvent": "Firmware version changed",
+                            "type": "QString",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "d95271bc-2b39-4ae8-8e67-efccf7fc3523",
+                            "name": "panId",
+                            "displayName": "Private network identification (PAN)",
+                            "displayNameEvent": "Private network identification (PAN) changed",
+                            "type": "QString",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "a7492f2a-4343-41f1-813f-768cdb84fdd3",
+                            "name": "channel",
+                            "displayName": "Zigbee channel",
+                            "displayNameEvent": "Zigbee channel changed",
+                            "type": "uint",
+                            "defaultValue": 20
+                        },
+                        {
+                            "id": "1cc99107-47e7-45a8-8a7f-47908e012337",
+                            "name": "permitJoin",
+                            "displayName": "Permit joining enabled",
+                            "displayNameEvent": "Permit joining enabled changed",
+                            "displayNameAction": "Permit joining",
+                            "type": "bool",
+                            "cached": false,
+                            "writable": true,
+                            "defaultValue": false
                         }
                     ],
                     "actionTypes": [

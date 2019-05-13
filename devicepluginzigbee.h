@@ -1,6 +1,6 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  *                                                                         *
- *  Copyright (C) 2018 Simon Stürz <simon.stuerz@nymea.io>                 *
+ *  Copyright (C) 2019 Simon Stürz <simon.stuerz@nymea.io>                 *
  *                                                                         *
  *  This file is part of nymea.                                            *
  *                                                                         *
@@ -43,15 +43,20 @@ public:
     void postSetupDevice(Device *device) override;
     void deviceRemoved(Device *device) override;
 
+    DeviceManager::DeviceError discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params) override;
     DeviceManager::DeviceSetupStatus setupDevice(Device *device) override;
     DeviceManager::DeviceError executeAction(Device *device, const Action &action) override;
 
 private:
-    ZigbeeNetworkManager *m_zigbeeNetworkManager = nullptr;
+    QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
 
 private slots:
     void onPluginConfigurationChanged(const ParamTypeId &paramTypeId, const QVariant &value);
 
+    void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
+    void onZigbeeControllerChannelChanged(uint channel);
+    void onZigbeeControllerPanIdChanged(quint64 extendedPanId);
+    void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
 };
 
 #endif // DEVICEPLUGINZIGBEE_H
