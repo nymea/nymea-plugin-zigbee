@@ -34,7 +34,6 @@ class DevicePluginZigbee: public DevicePlugin
     Q_PLUGIN_METADATA(IID "io.nymea.DevicePlugin" FILE "devicepluginzigbee.json")
     Q_INTERFACES(DevicePlugin)
 
-
 public:
     explicit DevicePluginZigbee();
 
@@ -50,6 +49,8 @@ public:
 private:
     QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
 
+    ZigbeeNetworkManager *findParentController(Device *device) const;
+
 private slots:
     void onPluginConfigurationChanged(const ParamTypeId &paramTypeId, const QVariant &value);
 
@@ -57,6 +58,8 @@ private slots:
     void onZigbeeControllerChannelChanged(uint channel);
     void onZigbeeControllerPanIdChanged(quint64 extendedPanId);
     void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
+    void onZigbeeControllerNodeAdded(ZigbeeNode *node);
+    void onZigbeeControllerNodeRemoved(ZigbeeNode *node);
 };
 
 #endif // DEVICEPLUGINZIGBEE_H

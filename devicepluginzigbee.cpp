@@ -104,6 +104,8 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         connect(zigbeeNetworkManager, &ZigbeeNetworkManager::channelChanged, this, &DevicePluginZigbee::onZigbeeControllerChannelChanged);
         connect(zigbeeNetworkManager, &ZigbeeNetworkManager::extendedPanIdChanged, this, &DevicePluginZigbee::onZigbeeControllerPanIdChanged);
         connect(zigbeeNetworkManager, &ZigbeeNetworkManager::permitJoiningChanged, this, &DevicePluginZigbee::onZigbeeControllerPermitJoiningChanged);
+        connect(zigbeeNetworkManager, &ZigbeeNetworkManager::nodeAdded, this, &DevicePluginZigbee::onZigbeeControllerNodeAdded);
+        connect(zigbeeNetworkManager, &ZigbeeNetworkManager::nodeRemoved, this, &DevicePluginZigbee::onZigbeeControllerNodeRemoved);
 
         m_zigbeeControllers.insert(device, zigbeeNetworkManager);
 
@@ -118,13 +120,51 @@ DeviceManager::DeviceError DevicePluginZigbee::executeAction(Device *device, con
     qCDebug(dcZigbee()) << "Executing action for device" << device->name() << action.actionTypeId().toString() << action.params();
 
     if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-        if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId) {
-            ZigbeeNetworkManager *networkManager = m_zigbeeControllers.value(device);
+        ZigbeeNetworkManager *networkManager = m_zigbeeControllers.value(device);
+        if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
+            return DeviceManager::DeviceErrorHardwareNotAvailable;
+
+        if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
+            networkManager->factoryResetNetwork();
+
+        if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
             networkManager->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
+
+    }
+
+    if (device->deviceClassId() == zigbeeNodeDeviceClassId) {
+        ZigbeeNetworkManager *networkManager = findParentController(device);
+
+        if (!networkManager)
+            return DeviceManager::DeviceErrorHardwareFailure;
+
+        if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
+            return DeviceManager::DeviceErrorHardwareNotAvailable;
+
+        quint16 shortAddress = static_cast<quint16>(device->paramValue(zigbeeNodeDeviceNwkAddressParamTypeId).toUInt());
+        ZigbeeAddress extendedAddress = ZigbeeAddress(device->paramValue(zigbeeNodeDeviceIeeeAddressParamTypeId).toString());
+
+        if (action.actionTypeId() == zigbeeNodeIdentifyActionTypeId) {
+            qCDebug(dcZigbee()) << extendedAddress.toString();
+        }
+
+        if (action.actionTypeId() == zigbeeNodeLqiRequestActionTypeId) {
+            networkManager->controller()->commandRequestLinkQuality(shortAddress);
         }
     }
 
     return DeviceManager::DeviceErrorNoError;
+}
+
+ZigbeeNetworkManager *DevicePluginZigbee::findParentController(Device *device) const
+{
+    foreach (Device *d, myDevices()) {
+        if (d->deviceClassId() == zigbeeControllerDeviceClassId && d->id() == device->parentId()) {
+            return m_zigbeeControllers.value(d);
+        }
+    }
+
+    return nullptr;
 }
 
 
@@ -148,10 +188,11 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
         break;
     case ZigbeeNetwork::StateRunning:
         device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
-        device->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetworkManager->controllerVersion());
+        device->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetworkManager->controllerFirmwareVersion());
         device->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetworkManager->extendedPanId());
         device->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetworkManager->channel());
         device->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetworkManager->permitJoining());
+        device->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetworkManager->coordinatorNode()->extendedAddress().toString());
 
         // TODO: connected true for all childs
 
@@ -186,7 +227,31 @@ void DevicePluginZigbee::onZigbeeControllerPermitJoiningChanged(bool permitJoini
 {
     ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
     Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
-    qCDebug(dcZigbee()) << "Zigbee permit joining changed" << permitJoining << device;
+    qCDebug(dcZigbee()) << device << "permit joining changed" << permitJoining;
     device->setStateValue(zigbeeControllerPermitJoinStateTypeId, permitJoining);
+}
 
+void DevicePluginZigbee::onZigbeeControllerNodeAdded(ZigbeeNode *node)
+{
+    ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
+    Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
+    qCDebug(dcZigbee()) <<  device << "node added" << device << node;
+
+    DeviceDescriptor descriptor;
+    descriptor.setTitle("Zigbee node");
+    descriptor.setParentDeviceId(device->id());
+
+    ParamList params;
+    params.append(Param(zigbeeNodeDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+    params.append(Param(zigbeeNodeDeviceNwkAddressParamTypeId, QVariant::fromValue(node->shortAddress())));
+    descriptor.setParams(params);
+
+    emit autoDevicesAppeared(zigbeeNodeDeviceClassId, { descriptor });
+}
+
+void DevicePluginZigbee::onZigbeeControllerNodeRemoved(ZigbeeNode *node)
+{
+    ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
+    Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
+    qCDebug(dcZigbee()) << device << "node removed" << device << node;
 }

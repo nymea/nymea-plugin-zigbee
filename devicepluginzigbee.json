@@ -67,6 +67,14 @@
                             "defaultValue": ""
                         },
                         {
+                            "id": "739140aa-5001-468f-a401-e68f2ed8b126",
+                            "name": "ieeeAddress",
+                            "displayName": "Coordinator IEEE adress",
+                            "displayNameEvent": "Coordinator IEEE adress changed",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        },
+                        {
                             "id": "d95271bc-2b39-4ae8-8e67-efccf7fc3523",
                             "name": "panId",
                             "displayName": "Private network identification (PAN)",
@@ -95,7 +103,123 @@
                         }
                     ],
                     "actionTypes": [
+                        {
+                            "id": "73ceb869-17e4-486e-971e-33979d613a49",
+                            "name": "factoryReset",
+                            "displayName": "Factory reset network"
+                        }
+                    ],
+                    "eventTypes": [
 
+                    ]
+                },
+                {
+                    "name": "zigbeeNode",
+                    "displayName": "Zigbee node",
+                    "id": "ce2083e1-148d-4285-8bd4-19349bb6fdba",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "77d28bb0-9e0b-49ba-bee9-0dedcc62811b",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        },
+                        {
+                            "id": "fe464521-76a7-4423-8cb9-1ee492629ef0",
+                            "name": "nwkAddress",
+                            "displayName": "Network adress",
+                            "type": "uint",
+                            "defaultValue": 0
+                        }
+
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "7851b92e-6571-4630-9979-e76c5d93c724",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "c4cee083-8cff-4424-8bd3-402308e402ea",
+                            "name": "lqiRequest",
+                            "displayName": "LQI request"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "xiaomi",
+            "displayName": "Xiaomi ",
+            "id": "f58dac98-0ba1-408f-946a-25d452080baa",
+            "deviceClasses": [
+                {
+                    "name": "xiaomiTemperatureHumidity",
+                    "displayName": "Temoerature and humidity sensor",
+                    "id": "dfabab0e-d483-43f8-82c6-720899e70c86",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable", "temperaturesensor", "humiditysensor" ],
+                    "paramTypes": [
+                        {
+                            "id": "bd0b2bf2-2ec3-497f-9679-a63850101257",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "152b475e-6bd8-4e6f-8765-0636c0bc8e9d",
+                            "name": "temperature",
+                            "type": "double",
+                            "unit": "DegreeCelsius",
+                            "defaultValue": 0.0
+                        },
+                        {
+                            "id": "e6559d9e-2c64-485d-bb2b-8a9aec0ac656",
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "name": "humidity",
+                            "unit": "Percentage",
+                            "type": "double",
+                            "defaultValue": 0.0
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "8061b868-ea52-4a61-8f34-f8e5d02ecf1d",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        }
                     ],
                     "eventTypes": [
 
