@@ -62,7 +62,7 @@ void DevicePluginZigbee::postSetupDevice(Device *device)
     if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
         XiaomiButtonSensor *sensor = m_xiaomiButtonSensors.value(device);
         device->setStateValue(xiaomiButtonSensorConnectedStateTypeId, sensor->connected());
-        device->setStateValue(xiaomiButtonSensorPressedStateTypeId, sensor->pressed());
+        //device->setStateValue(xiaomiButtonSensorPressedStateTypeId, sensor->pressed());
     }
 
     if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
@@ -660,7 +660,7 @@ void DevicePluginZigbee::onXiaomiButtonSensorPressedChanged(bool pressed)
 {
     XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
     Device *device = m_xiaomiButtonSensors.key(sensor);
-    device->setStateValue(xiaomiButtonSensorPressedStateTypeId, pressed);
+    //device->setStateValue(xiaomiButtonSensorPressedStateTypeId, pressed);
     qCDebug(dcZigbee()) << device << "Button" << (pressed ? "pressed" : "released");
 }
 

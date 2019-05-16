@@ -306,14 +306,6 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
-                        },
-                        {
-                            "id": "80ea7cfe-6e6d-430c-b116-513aa10c01bc",
-                            "name": "pressed",
-                            "displayName": "Pressed",
-                            "displayNameEvent": "Pressed changed",
-                            "type": "bool",
-                            "defaultValue": true
                         }
                     ],
                     "actionTypes": [

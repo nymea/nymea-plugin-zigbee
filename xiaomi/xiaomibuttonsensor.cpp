@@ -49,12 +49,12 @@ void XiaomiButtonSensor::setPressed(bool pressed)
     emit pressedChanged(m_pressed);
     if (m_pressed) {
         qCDebug(dcZigbee()) << "Button pressed";
-        emit buttonPressed();
         m_longPressedTimer->start();
     } else {
         qCDebug(dcZigbee()) << "Button released";
         if (m_longPressedTimer->isActive()) {
             m_longPressedTimer->stop();
+            emit buttonPressed();
         }
     }
 }
