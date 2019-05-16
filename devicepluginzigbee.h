@@ -50,8 +50,16 @@ private:
     QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
 
     ZigbeeNetworkManager *findParentController(Device *device) const;
+    ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
+    Device *findNodeDevice(ZigbeeNode *node);
+
+    void createDeviceForNode(Device *parentDevice, ZigbeeNode *node);
+    void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
 
 private slots:
+    void onZigbeeNodeStateChanged(ZigbeeNode::State nodeState);
+    void onZigbeeNodeClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
+
     void onPluginConfigurationChanged(const ParamTypeId &paramTypeId, const QVariant &value);
 
     void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);

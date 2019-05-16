@@ -37,7 +37,7 @@
                             "name": "baudrate",
                             "displayName": "Baudtate",
                             "type": "uint",
-                            "defaultValue": "1000000"
+                            "defaultValue": 1000000
                         },
                         {
                             "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
@@ -104,6 +104,16 @@
                     ],
                     "actionTypes": [
                         {
+                            "id": "afb612e6-1282-4a64-a5b9-d8c23104f1a1",
+                            "name": "touchlink",
+                            "displayName": "Initiate touchlink"
+                        },
+                        {
+                            "id": "9e77266b-0811-40a8-bdb5-a20c7a7df2b0",
+                            "name": "touchlinkReset",
+                            "displayName": "Touchlink reset"
+                        },
+                        {
                             "id": "73ceb869-17e4-486e-971e-33979d613a49",
                             "name": "factoryReset",
                             "displayName": "Factory reset network"
@@ -115,7 +125,7 @@
                 },
                 {
                     "name": "zigbeeNode",
-                    "displayName": "Zigbee node",
+                      "displayName": "Zigbee node",
                     "id": "ce2083e1-148d-4285-8bd4-19349bb6fdba",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -173,7 +183,7 @@
             "deviceClasses": [
                 {
                     "name": "xiaomiTemperatureHumidity",
-                    "displayName": "Temoerature and humidity sensor",
+                    "displayName": "Temperature humidity sensor",
                     "id": "dfabab0e-d483-43f8-82c6-720899e70c86",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -200,15 +210,19 @@
                         {
                             "id": "152b475e-6bd8-4e6f-8765-0636c0bc8e9d",
                             "name": "temperature",
+                            "displayName": "Temperature",
+                            "displayNameEvent": "Temperature changed",
                             "type": "double",
                             "unit": "DegreeCelsius",
                             "defaultValue": 0.0
                         },
                         {
                             "id": "e6559d9e-2c64-485d-bb2b-8a9aec0ac656",
+                            "name": "humidity",
+                            "displayName": "Humidity",
+                            "displayNameEvent": "Humidity changed",
                             "maxValue": 100,
                             "minValue": 0,
-                            "name": "humidity",
                             "unit": "Percentage",
                             "type": "double",
                             "defaultValue": 0.0
@@ -220,6 +234,48 @@
                             "name": "identify",
                             "displayName": "Identify"
                         }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "xiaomiMagnetSensor",
+                    "displayName": "Magnet sensor",
+                    "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable", "closablesensor" ],
+                    "paramTypes": [
+                        {
+                            "id": "36d8a40a-7f37-4d59-a0d9-6d4977ea63f3",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "76f6c739-73e0-4a36-97c9-043af5854af5",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "6fad76ec-9d36-408d-bbf1-00e5d18bf6b0",
+                            "name": "closed",
+                            "displayName": "Closed",
+                            "displayNameEvent": "Closed changed",
+                            "type": "bool",
+                            "defaultValue": true
+                        }
+                    ],
+                    "actionTypes": [
+
                     ],
                     "eventTypes": [
 

@@ -1,4 +1,4 @@
-include(/usr/include/nymea/plugin.pri)
+include(/home/timon/guh/development/nymea/nymea/libnymea/plugin/plugin.pri)
 
 TARGET = $$qtLibraryTarget(nymea_devicepluginzigbee)
 
@@ -12,8 +12,10 @@ LIBS += -L/home/timon/guh/development/nymea-zigbee/build-nymea-zigbee-Desktop-De
 INCLUDEPATH += /home/timon/guh/development/nymea-zigbee/nymea-zigbee/libnymea-zigbee
 
 SOURCES += \
-    devicepluginzigbee.cpp
+    devicepluginzigbee.cpp \
+    xiaomi/xiaomitemperaturesensor.cpp
 
 HEADERS += \
-    devicepluginzigbee.h
+    devicepluginzigbee.h \
+    xiaomi/xiaomitemperaturesensor.h
 
