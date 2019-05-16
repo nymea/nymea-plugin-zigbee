@@ -8,8 +8,7 @@ message("Building $$deviceplugin$${TARGET}.so")
 
 QT += serialport
 
-LIBS += -L/home/timon/guh/development/nymea-zigbee/build-nymea-zigbee-Desktop-Debug/libnymea-zigbee -lnymea-zigbee1
-INCLUDEPATH += /home/timon/guh/development/nymea-zigbee/nymea-zigbee/libnymea-zigbee
+LIBS += -lnymea-zigbee1
 
 SOURCES += \
     devicepluginzigbee.cpp \
