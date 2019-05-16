@@ -125,7 +125,7 @@
                 },
                 {
                     "name": "zigbeeNode",
-                      "displayName": "Zigbee node",
+                    "displayName": "Zigbee node",
                     "id": "ce2083e1-148d-4285-8bd4-19349bb6fdba",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -280,11 +280,110 @@
                     "eventTypes": [
 
                     ]
+                },
+                {
+                    "name": "xiaomiButtonSensor",
+                    "displayName": "Button sensor",
+                    "id": "42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable", "longpressbutton" ],
+                    "paramTypes": [
+                        {
+                            "id": "929eb2be-6d8f-46b7-8cc9-896e7e2c494a",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "f0da4762-4778-4b3b-ba68-466ff504a3d3",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "80ea7cfe-6e6d-430c-b116-513aa10c01bc",
+                            "name": "pressed",
+                            "displayName": "Pressed",
+                            "displayNameEvent": "Pressed changed",
+                            "type": "bool",
+                            "defaultValue": true
+                        }
+                    ],
+                    "actionTypes": [
+
+                    ],
+                    "eventTypes": [
+                        {
+                            "id": "2515e40a-8146-4f11-8d79-2be9e20224e5",
+                            "name": "pressed",
+                            "displayName": "Pressed"
+                        },
+                        {
+                            "id": "6e9dda9f-e51b-48c4-9839-01aa33085e2c",
+                            "name": "longPressed",
+                            "displayName": "Long pressed"
+                        }
+                    ]
+                },
+                {
+                    "name": "xiaomiMotionSensor",
+                    "displayName": "Motion sensor",
+                    "id": "b5530192-0891-4934-88a2-7338b069be24",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable", "presencesensor" ],
+                    "paramTypes": [
+                        {
+                            "id": "3a44ed47-5a70-4052-9a14-78f9033eab85",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "007e2fe5-80d5-4f98-941d-b458b555965a",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "fed7582b-c057-42ab-b7c0-d562a2e7917c",
+                            "name": "isPresent",
+                            "displayName": "Present",
+                            "displayNameEvent": "Present changed",
+                            "type": "bool",
+                            "defaultValue": true
+                        },
+                        {
+                            "id": "021ce190-a775-40e0-b19b-c6307c73e343",
+                            "name": "lastSeenTime",
+                            "displayName": "Last seen time",
+                            "displayNameEvent": "Last seen time changed",
+                            "type": "int",
+                            "unit": "UnixTime",
+                            "defaultValue": 0
+                        }
+                    ],
+                    "actionTypes": [
+
+                    ],
+                    "eventTypes": [
+
+                    ]
                 }
             ]
         }
     ]
 }
-
-
-

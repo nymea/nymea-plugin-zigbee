@@ -27,6 +27,11 @@
 #include "plugin/deviceplugin.h"
 #include "zigbeenetworkmanager.h"
 
+#include "xiaomi/xiaomibuttonsensor.h"
+#include "xiaomi/xiaomimotionsensor.h"
+#include "xiaomi/xiaomimagnetsensor.h"
+#include "xiaomi/xiaomitemperaturesensor.h"
+
 class DevicePluginZigbee: public DevicePlugin
 {
     Q_OBJECT
@@ -48,19 +53,22 @@ public:
 
 private:
     QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
+    QHash<Device *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
+    QHash<Device *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
+    QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
+    QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
 
     ZigbeeNetworkManager *findParentController(Device *device) const;
     ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
+
     Device *findNodeDevice(ZigbeeNode *node);
 
     void createDeviceForNode(Device *parentDevice, ZigbeeNode *node);
     void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
 
 private slots:
+    // In order to detect node initialized
     void onZigbeeNodeStateChanged(ZigbeeNode::State nodeState);
-    void onZigbeeNodeClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
-
-    void onPluginConfigurationChanged(const ParamTypeId &paramTypeId, const QVariant &value);
 
     void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
     void onZigbeeControllerChannelChanged(uint channel);
@@ -68,6 +76,26 @@ private slots:
     void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
     void onZigbeeControllerNodeAdded(ZigbeeNode *node);
     void onZigbeeControllerNodeRemoved(ZigbeeNode *node);
+
+    // Xiaomi temperature humidity sensor
+    void onXiaomiTemperatureSensorConnectedChanged(bool connected);
+    void onXiaomiTemperatureSensorTemperatureChanged(double temperature);
+    void onXiaomiTemperatureSensorHumidityChanged(double humidity);
+
+    // Xiaomi magnet sensor
+    void onXiaomiMagnetSensorConnectedChanged(bool connected);
+    void onXiaomiMagnetSensorClosedChanged(bool closed);
+
+    // Xiaomi button sensor
+    void onXiaomiButtonSensorConnectedChanged(bool connected);
+    void onXiaomiButtonSensorPressedChanged(bool pressed);
+    void onXiaomiButtonSensorPressed();
+    void onXiaomiButtonSensorLongPressed();
+
+    // Xiaomi motion sensor
+    void onXiaomiMotionSensorConnectedChanged(bool connected);
+    void onXiaomiMotionSensorPresentChanged(bool present);
+    void onXiaomiMotionSensorMotionDetected();
 };
 
 #endif // DEVICEPLUGINZIGBEE_H

@@ -24,11 +24,12 @@
 #include "nymeasettings.h"
 #include "devicepluginzigbee.h"
 
+#include <QDateTime>
 #include <QSerialPortInfo>
 
 DevicePluginZigbee::DevicePluginZigbee()
 {
-    connect(this, &DevicePluginZigbee::configValueChanged, this, &DevicePluginZigbee::onPluginConfigurationChanged);
+
 }
 
 void DevicePluginZigbee::init()
@@ -44,11 +45,30 @@ void DevicePluginZigbee::startMonitoringAutoDevices()
 void DevicePluginZigbee::postSetupDevice(Device *device)
 {
     qCDebug(dcZigbee()) << "Post setup device" << device->name() << device->params();
-    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-        ZigbeeNetworkManager *zigbeeNetworkManager = m_zigbeeControllers.value(device);
-        if (zigbeeNetworkManager) {
-            zigbeeNetworkManager->startNetwork();
-        }
+
+    if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
+        XiaomiTemperatureSensor *sensor = m_xiaomiTemperatureSensors.value(device);
+        device->setStateValue(xiaomiTemperatureHumidityConnectedStateTypeId, sensor->connected());
+        device->setStateValue(xiaomiTemperatureHumidityTemperatureStateTypeId, sensor->temperature());
+        device->setStateValue(xiaomiTemperatureHumidityHumidityStateTypeId, sensor->humidity());
+    }
+
+    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
+        XiaomiMagnetSensor *sensor = m_xiaomiMagnetSensors.value(device);
+        device->setStateValue(xiaomiMagnetSensorConnectedStateTypeId, sensor->connected());
+        device->setStateValue(xiaomiMagnetSensorClosedStateTypeId, sensor->closed());
+    }
+
+    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
+        XiaomiButtonSensor *sensor = m_xiaomiButtonSensors.value(device);
+        device->setStateValue(xiaomiButtonSensorConnectedStateTypeId, sensor->connected());
+        device->setStateValue(xiaomiButtonSensorPressedStateTypeId, sensor->pressed());
+    }
+
+    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
+        XiaomiMotionSensor *sensor = m_xiaomiMotionSensors.value(device);
+        device->setStateValue(xiaomiMotionSensorConnectedStateTypeId, sensor->connected());
+        device->setStateValue(xiaomiMotionSensorIsPresentStateTypeId, sensor->present());
     }
 }
 
@@ -56,7 +76,32 @@ void DevicePluginZigbee::deviceRemoved(Device *device)
 {
     qCDebug(dcZigbee()) << "Remove device" << device->name() << device->params();
 
-    // Clean up all data related to this device
+    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
+        ZigbeeNetworkManager *zigbeeNetworkManager = m_zigbeeControllers.take(device);
+        if (zigbeeNetworkManager) {
+            zigbeeNetworkManager->deleteLater();
+        }
+    }
+
+    if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
+        XiaomiTemperatureSensor *sensor = m_xiaomiTemperatureSensors.take(device);
+        sensor->deleteLater();
+    }
+
+    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
+        XiaomiMagnetSensor *sensor = m_xiaomiMagnetSensors.take(device);
+        sensor->deleteLater();
+    }
+
+    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
+        XiaomiButtonSensor *sensor = m_xiaomiButtonSensors.take(device);
+        sensor->deleteLater();
+    }
+
+    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
+        XiaomiMotionSensor *sensor = m_xiaomiMotionSensors.take(device);
+        sensor->deleteLater();
+    }
 }
 
 DeviceManager::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params)
@@ -64,7 +109,6 @@ DeviceManager::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClass
     Q_UNUSED(params)
 
     QList<DeviceDescriptor> deviceDescriptors;
-
     if (deviceClassId == zigbeeControllerDeviceClassId) {
         // Scan serial ports
         foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
@@ -118,12 +162,85 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         connect(zigbeeNetworkManager, &ZigbeeNetworkManager::nodeRemoved, this, &DevicePluginZigbee::onZigbeeControllerNodeRemoved);
 
         m_zigbeeControllers.insert(device, zigbeeNetworkManager);
+
+        zigbeeNetworkManager->startNetwork();
     }
 
     if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
-        qCDebug(dcZigbee()) << "Create zigbee network manager for controller" << device;
+        qCDebug(dcZigbee()) << "Xiaomi temperature humidiry sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return DeviceManager::DeviceSetupStatusFailure;
+        }
+
+        XiaomiTemperatureSensor *sensor = new XiaomiTemperatureSensor(node, this);
+        connect(sensor, &XiaomiTemperatureSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorConnectedChanged);
+        connect(sensor, &XiaomiTemperatureSensor::temperatureChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorTemperatureChanged);
+        connect(sensor, &XiaomiTemperatureSensor::humidityChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorHumidityChanged);
+        m_xiaomiTemperatureSensors.insert(device, sensor);
+    }
 
 
+    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi magnet sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return DeviceManager::DeviceSetupStatusFailure;
+        }
+
+        XiaomiMagnetSensor *sensor = new XiaomiMagnetSensor(node, this);
+        connect(sensor, &XiaomiMagnetSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiMagnetSensorConnectedChanged);
+        connect(sensor, &XiaomiMagnetSensor::closedChanged, this, &DevicePluginZigbee::onXiaomiMagnetSensorClosedChanged);
+
+        m_xiaomiMagnetSensors.insert(device, sensor);
+    }
+
+    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi button sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiButtonSensorDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return DeviceManager::DeviceSetupStatusFailure;
+        }
+
+        XiaomiButtonSensor *sensor = new XiaomiButtonSensor(node, this);
+        connect(sensor, &XiaomiButtonSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiButtonSensorConnectedChanged);
+        connect(sensor, &XiaomiButtonSensor::pressedChanged, this, &DevicePluginZigbee::onXiaomiButtonSensorPressedChanged);
+        connect(sensor, &XiaomiButtonSensor::buttonPressed, this, &DevicePluginZigbee::onXiaomiButtonSensorPressed);
+        connect(sensor, &XiaomiButtonSensor::buttonLongPressed, this, &DevicePluginZigbee::onXiaomiButtonSensorLongPressed);
+
+        m_xiaomiButtonSensors.insert(device, sensor);
+    }
+
+    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi motion sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiMotionSensorDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return DeviceManager::DeviceSetupStatusFailure;
+        }
+
+        XiaomiMotionSensor *sensor = new XiaomiMotionSensor(node, this);
+        connect(sensor, &XiaomiMotionSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiMotionSensorConnectedChanged);
+        connect(sensor, &XiaomiMotionSensor::presentChanged, this, &DevicePluginZigbee::onXiaomiMotionSensorPresentChanged);
+        connect(sensor, &XiaomiMotionSensor::motionDetected, this, &DevicePluginZigbee::onXiaomiMotionSensorMotionDetected);
+
+        m_xiaomiMotionSensors.insert(device, sensor);
     }
 
     return DeviceManager::DeviceSetupStatusSuccess;
@@ -214,6 +331,14 @@ Device * DevicePluginZigbee::findNodeDevice(ZigbeeNode *node)
             deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
         }
 
+        if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
+            deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiButtonSensorDeviceIeeeAddressParamTypeId).toString());
+        }
+
+        if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
+            deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiMotionSensorDeviceIeeeAddressParamTypeId).toString());
+        }
+
         if (node->extendedAddress() == deviceIeeeAddress) {
             return device;
         }
@@ -224,7 +349,6 @@ Device * DevicePluginZigbee::findNodeDevice(ZigbeeNode *node)
 
 void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *node)
 {
-
     // We already know this device ieee address has not already been added
     // Try to figure out which device this is from the node properties and cluster information
 
@@ -249,7 +373,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
 
                 DeviceDescriptor descriptor;
                 descriptor.setParentDeviceId(parentDevice->id());
-                descriptor.setTitle("Temperature humidity sensor");
+                descriptor.setTitle(tr("Xiaomi temperature and humidity sensor"));
 
                 ParamList params;
                 params.append(Param(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
@@ -275,7 +399,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
 
                 DeviceDescriptor descriptor;
                 descriptor.setParentDeviceId(parentDevice->id());
-                descriptor.setTitle("Magnet sensor");
+                descriptor.setTitle(tr("Xiaomi magnet sensor"));
 
                 ParamList params;
                 params.append(Param(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
@@ -284,12 +408,63 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 emit autoDevicesAppeared(xiaomiMagnetSensorDeviceClassId, { descriptor });
                 return;
             }
+
+            // Xiaomi Button Sensor
+            if (modelIdentifier == "lumi.sensor_switch") {
+                qCDebug(dcZigbee()) << "Xiaomi button sensor added";
+
+                qCDebug(dcZigbee()) << "Output cluster:";
+                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                qCDebug(dcZigbee()) << "Input cluster:";
+                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                DeviceDescriptor descriptor;
+                descriptor.setParentDeviceId(parentDevice->id());
+                descriptor.setTitle(tr("Xiaomi button"));
+
+                ParamList params;
+                params.append(Param(xiaomiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+
+                emit autoDevicesAppeared(xiaomiButtonSensorDeviceClassId, { descriptor });
+                return;
+            }
+
+            // Xiaomi Motion Sensor
+            if (modelIdentifier == "lumi.sensor_motion") {
+                qCDebug(dcZigbee()) << "Xiaomi motion sensor added";
+
+                qCDebug(dcZigbee()) << "Output cluster:";
+                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                qCDebug(dcZigbee()) << "Input cluster:";
+                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                DeviceDescriptor descriptor;
+                descriptor.setParentDeviceId(parentDevice->id());
+                descriptor.setTitle(tr("Xiaomi motion sensor"));
+
+                ParamList params;
+                params.append(Param(xiaomiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+
+                emit autoDevicesAppeared(xiaomiMotionSensorDeviceClassId, { descriptor });
+                return;
+            }
         }
     }
 
     // If nothing recognized this device, create the generic node device
-    createGenericNodeDeviceForNode(parentDevice, node);
-
+    //createGenericNodeDeviceForNode(parentDevice, node);
 }
 
 void DevicePluginZigbee::createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node)
@@ -333,23 +508,6 @@ void DevicePluginZigbee::onZigbeeNodeStateChanged(ZigbeeNode::State nodeState)
 
 }
 
-void DevicePluginZigbee::onZigbeeNodeClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    ZigbeeNode *node = static_cast<ZigbeeNode *>(sender());
-    Device *device = findNodeDevice(node);
-    if (!device) {
-        qCWarning(dcZigbee()) << "No device set up yet!!" << cluster << "changed attribute" << attribute;
-    } else {
-        qCWarning(dcZigbee()) << device << cluster << "changed attribute" << attribute;
-    }
-
-}
-
-void DevicePluginZigbee::onPluginConfigurationChanged(const ParamTypeId &paramTypeId, const QVariant &value)
-{
-    qCDebug(dcZigbee()) << "Plugin configuration changed:" << paramTypeId.toString() << value;
-}
-
 void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State state)
 {
     ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
@@ -359,11 +517,10 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
     qCDebug(dcZigbee()) << "Controller state changed" << state << device;
 
     switch (state) {
+    case ZigbeeNetwork::StateUninitialized:
+        break;
     case ZigbeeNetwork::StateDisconnected:
         device->setStateValue(zigbeeControllerConnectedStateTypeId, false);
-
-        // TODO: disconnected for all childs
-
         break;
     case ZigbeeNetwork::StateRunning:
         device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
@@ -372,8 +529,6 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
         device->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetworkManager->channel());
         device->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetworkManager->permitJoining());
         device->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetworkManager->coordinatorNode()->extendedAddress().toString());
-
-        // TODO: connected true for all childs
 
         // Initalize nodes
         foreach (ZigbeeNode *node, zigbeeNetworkManager->nodes()) {
@@ -384,12 +539,7 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
             }
 
             connect(node, &ZigbeeNode::stateChanged, this, &DevicePluginZigbee::onZigbeeNodeStateChanged);
-
-            // Connect node signals
-            if (node->state() == ZigbeeNode::StateInitialized) {
-                qCDebug(dcZigbee()) << "Node already initialized.";
-                createDeviceForNode(device, node);
-            }
+            createDeviceForNode(device, node);
         }
 
         break;
@@ -435,7 +585,6 @@ void DevicePluginZigbee::onZigbeeControllerNodeAdded(ZigbeeNode *node)
 
     // Connect node signals
     connect(node, &ZigbeeNode::stateChanged, this, &DevicePluginZigbee::onZigbeeNodeStateChanged);
-    connect(node, &ZigbeeNode::clusterAttributeChanged, this, &DevicePluginZigbee::onZigbeeNodeClusterAttributeChanged);
 
     if (findNodeDevice(node)) {
         qCDebug(dcZigbee()) << "Devices for" << node << "already created." << device;
@@ -452,12 +601,7 @@ void DevicePluginZigbee::onZigbeeControllerNodeRemoved(ZigbeeNode *node)
 {
     ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
     Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
-    qCDebug(dcZigbee()) << device << "node removed" << device << node;
-
-    // Connect node signals
-    disconnect(node, &ZigbeeNode::stateChanged, this, &DevicePluginZigbee::onZigbeeNodeStateChanged);
-    disconnect(node, &ZigbeeNode::clusterAttributeChanged, this, &DevicePluginZigbee::onZigbeeNodeClusterAttributeChanged);
-
+    qCDebug(dcZigbee()) << device << "node removed" << node;
     Device * nodeDevice = findNodeDevice(node);
     if (!nodeDevice) {
         qCWarning(dcZigbee()) << "There is no nymea device for this node" << node;
@@ -465,4 +609,96 @@ void DevicePluginZigbee::onZigbeeControllerNodeRemoved(ZigbeeNode *node)
     }
 
     emit autoDeviceDisappeared(nodeDevice->id());
+}
+
+void DevicePluginZigbee::onXiaomiTemperatureSensorConnectedChanged(bool connected)
+{
+    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
+    Device *device = m_xiaomiTemperatureSensors.key(sensor);
+    device->setStateValue(xiaomiTemperatureHumidityConnectedStateTypeId, connected);
+}
+
+void DevicePluginZigbee::onXiaomiTemperatureSensorTemperatureChanged(double temperature)
+{
+    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
+    Device *device = m_xiaomiTemperatureSensors.key(sensor);
+    device->setStateValue(xiaomiTemperatureHumidityTemperatureStateTypeId, temperature);
+    qCDebug(dcZigbee()) << device << "temperature changed" << temperature << "°C";
+}
+
+void DevicePluginZigbee::onXiaomiTemperatureSensorHumidityChanged(double humidity)
+{
+    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
+    Device *device = m_xiaomiTemperatureSensors.key(sensor);
+    device->setStateValue(xiaomiTemperatureHumidityHumidityStateTypeId, humidity);
+    qCDebug(dcZigbee()) << device << "humidity changed" << humidity << "%";
+}
+
+void DevicePluginZigbee::onXiaomiMagnetSensorConnectedChanged(bool connected)
+{
+    XiaomiMagnetSensor *sensor = static_cast<XiaomiMagnetSensor *>(sender());
+    Device *device = m_xiaomiMagnetSensors.key(sensor);
+    device->setStateValue(xiaomiMagnetSensorConnectedStateTypeId, connected);
+}
+
+void DevicePluginZigbee::onXiaomiMagnetSensorClosedChanged(bool closed)
+{
+    XiaomiMagnetSensor *sensor = static_cast<XiaomiMagnetSensor *>(sender());
+    Device *device = m_xiaomiMagnetSensors.key(sensor);
+    device->setStateValue(xiaomiMagnetSensorClosedStateTypeId, closed);
+    qCDebug(dcZigbee()) << device << (closed ? "closed" : "opened");
+}
+
+void DevicePluginZigbee::onXiaomiButtonSensorConnectedChanged(bool connected)
+{
+    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
+    Device *device = m_xiaomiButtonSensors.key(sensor);
+    device->setStateValue(xiaomiButtonSensorConnectedStateTypeId, connected);
+}
+
+void DevicePluginZigbee::onXiaomiButtonSensorPressedChanged(bool pressed)
+{
+    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
+    Device *device = m_xiaomiButtonSensors.key(sensor);
+    device->setStateValue(xiaomiButtonSensorPressedStateTypeId, pressed);
+    qCDebug(dcZigbee()) << device << "Button" << (pressed ? "pressed" : "released");
+}
+
+void DevicePluginZigbee::onXiaomiButtonSensorPressed()
+{
+    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
+    Device *device = m_xiaomiButtonSensors.key(sensor);
+    emitEvent(Event(xiaomiButtonSensorPressedEventTypeId, device->id()));
+    qCDebug(dcZigbee()) << device << "Button clicked";
+}
+
+void DevicePluginZigbee::onXiaomiButtonSensorLongPressed()
+{
+    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
+    Device *device = m_xiaomiButtonSensors.key(sensor);
+    emitEvent(Event(xiaomiButtonSensorLongPressedEventTypeId, device->id()));
+    qCDebug(dcZigbee()) << device << "Button long pressed";
+}
+
+void DevicePluginZigbee::onXiaomiMotionSensorConnectedChanged(bool connected)
+{
+    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
+    Device *device = m_xiaomiMotionSensors.key(sensor);
+    device->setStateValue(xiaomiMotionSensorConnectedStateTypeId, connected);
+}
+
+void DevicePluginZigbee::onXiaomiMotionSensorPresentChanged(bool present)
+{
+    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
+    Device *device = m_xiaomiMotionSensors.key(sensor);
+    device->setStateValue(xiaomiMotionSensorIsPresentStateTypeId, present);
+    qCDebug(dcZigbee()) << device << "present changed" << present;
+}
+
+void DevicePluginZigbee::onXiaomiMotionSensorMotionDetected()
+{
+    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
+    Device *device = m_xiaomiMotionSensors.key(sensor);
+    device->setStateValue(xiaomiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTimeUtc().toTime_t());
+    qCDebug(dcZigbee()) << device << "motion detected" << QDateTime::currentDateTimeUtc().toTime_t();
 }

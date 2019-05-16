@@ -13,9 +13,15 @@ INCLUDEPATH += /home/timon/guh/development/nymea-zigbee/nymea-zigbee/libnymea-zi
 
 SOURCES += \
     devicepluginzigbee.cpp \
+    xiaomi/xiaomibuttonsensor.cpp \
+    xiaomi/xiaomimagnetsensor.cpp \
+    xiaomi/xiaomimotionsensor.cpp \
     xiaomi/xiaomitemperaturesensor.cpp
 
 HEADERS += \
     devicepluginzigbee.h \
+    xiaomi/xiaomibuttonsensor.h \
+    xiaomi/xiaomimagnetsensor.h \
+    xiaomi/xiaomimotionsensor.h \
     xiaomi/xiaomitemperaturesensor.h
 
