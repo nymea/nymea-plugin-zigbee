@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "zigbeenode.h"
+#include "nymea-zigbee/zigbeenode.h"
 
 class XiaomiTemperatureSensor : public QObject
 {

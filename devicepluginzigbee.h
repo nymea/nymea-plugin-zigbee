@@ -25,7 +25,7 @@
 
 #include "devicemanager.h"
 #include "plugin/deviceplugin.h"
-#include "zigbeenetworkmanager.h"
+#include "nymea-zigbee/zigbeenetworkmanager.h"
 
 #include "xiaomi/xiaomibuttonsensor.h"
 #include "xiaomi/xiaomimotionsensor.h"

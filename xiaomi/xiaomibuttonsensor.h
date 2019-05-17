@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QTimer>
 
-#include "zigbeenode.h"
+#include "nymea-zigbee/zigbeenode.h"
 
 class XiaomiButtonSensor : public QObject
 {
