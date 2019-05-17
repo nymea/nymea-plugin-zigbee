@@ -1,4 +1,4 @@
-include(/usr/include/nymea/plugin/plugin.pri)
+include(/usr/include/nymea/plugin.pri)
 
 TARGET = $$qtLibraryTarget(nymea_devicepluginzigbee)
 
