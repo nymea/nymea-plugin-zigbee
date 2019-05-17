@@ -258,11 +258,11 @@ DeviceManager::DeviceError DevicePluginZigbee::executeAction(Device *device, con
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             networkManager->factoryResetNetwork();
 
-        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
-            networkManager->controller()->commandInitiateTouchLink();
+//        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
+//            networkManager->controller()->commandInitiateTouchLink();
 
-        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
-            networkManager->controller()->commandTouchLinkFactoryReset();
+//        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
+//            networkManager->controller()->commandTouchLinkFactoryReset();
 
         if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
             networkManager->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
@@ -486,28 +486,6 @@ void DevicePluginZigbee::createGenericNodeDeviceForNode(Device *parentDevice, Zi
     emit autoDevicesAppeared(zigbeeNodeDeviceClassId, { descriptor });
 }
 
-void DevicePluginZigbee::onZigbeeNodeStateChanged(ZigbeeNode::State nodeState)
-{
-    ZigbeeNode *node = static_cast<ZigbeeNode *>(sender());
-    qCDebug(dcZigbee()) << "Zigbee node state changed" << node << nodeState;
-
-    switch (nodeState) {
-    case ZigbeeNode::StateInitialized: {
-        Device *parentDevice = m_zigbeeControllers.key(findNodeController(node));
-        Q_ASSERT(parentDevice);
-        createDeviceForNode(parentDevice, node);
-        break;
-    }
-    case ZigbeeNode::StateUninitialized:
-
-        break;
-    case ZigbeeNode::StateInitializing:
-
-        break;
-    }
-
-}
-
 void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State state)
 {
     ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
@@ -538,7 +516,6 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
                 break;
             }
 
-            connect(node, &ZigbeeNode::stateChanged, this, &DevicePluginZigbee::onZigbeeNodeStateChanged);
             createDeviceForNode(device, node);
         }
 
@@ -583,18 +560,12 @@ void DevicePluginZigbee::onZigbeeControllerNodeAdded(ZigbeeNode *node)
     Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
     qCDebug(dcZigbee()) <<  device << "node added" << device << node;
 
-    // Connect node signals
-    connect(node, &ZigbeeNode::stateChanged, this, &DevicePluginZigbee::onZigbeeNodeStateChanged);
-
     if (findNodeDevice(node)) {
-        qCDebug(dcZigbee()) << "Devices for" << node << "already created." << device;
+        qCDebug(dcZigbee()) << "Device for" << node << "already created." << device;
         return;
     }
 
-    if (node->state() == ZigbeeNode::StateInitialized) {
-        qCDebug(dcZigbee()) << "Node already initialized.";
-        createDeviceForNode(device, node);
-    }
+    createDeviceForNode(device, node);
 }
 
 void DevicePluginZigbee::onZigbeeControllerNodeRemoved(ZigbeeNode *node)

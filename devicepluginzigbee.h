@@ -67,9 +67,6 @@ private:
     void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
 
 private slots:
-    // In order to detect node initialized
-    void onZigbeeNodeStateChanged(ZigbeeNode::State nodeState);
-
     void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
     void onZigbeeControllerChannelChanged(uint channel);
     void onZigbeeControllerPanIdChanged(quint64 extendedPanId);

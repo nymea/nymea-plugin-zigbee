@@ -30,14 +30,14 @@
                             "name": "serialPort",
                             "displayName": "Serial port",
                             "type": "QString",
-                            "defaultValue": "/dev/ttyUSB0"
+                            "defaultValue": "/dev/ttyS0"
                         },
                         {
                             "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
                             "name": "baudrate",
                             "displayName": "Baudtate",
                             "type": "uint",
-                            "defaultValue": 1000000
+                            "defaultValue": 115200
                         },
                         {
                             "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
@@ -103,16 +103,6 @@
                         }
                     ],
                     "actionTypes": [
-                        {
-                            "id": "afb612e6-1282-4a64-a5b9-d8c23104f1a1",
-                            "name": "touchlink",
-                            "displayName": "Initiate touchlink"
-                        },
-                        {
-                            "id": "9e77266b-0811-40a8-bdb5-a20c7a7df2b0",
-                            "name": "touchlinkReset",
-                            "displayName": "Touchlink reset"
-                        },
                         {
                             "id": "73ceb869-17e4-486e-971e-33979d613a49",
                             "name": "factoryReset",
