@@ -8,7 +8,8 @@ message("Building $$deviceplugin$${TARGET}.so")
 
 QT += serialport
 
-LIBS += -lnymea-zigbee1
+CONFIG += link_pkgconfig
+PKGCONFIG += nymea-zigbee
 
 SOURCES += \
     devicepluginzigbee.cpp \
