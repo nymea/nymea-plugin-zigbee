@@ -2,15 +2,6 @@
     "name": "zigbee",
     "displayName": "Zigbee",
     "id": "631431cf-4142-4d53-8ac7-3d5230b2972b",
-    "paramTypes": [
-        {
-            "id": "f02d6de0-24bf-4e47-929c-e07255978cb3",
-            "name": "enabled",
-            "displayName": "Zigbee enabled",
-            "type": "bool",
-            "defaultValue": true
-        }
-    ],
     "vendors": [
         {
             "name": "zigbee",
@@ -22,7 +13,7 @@
                     "displayName": "Zigbee controller",
                     "id": "ff29c3c5-9f0f-4a04-9cf6-aef34928d781",
                     "setupMethod": "JustAdd",
-                    "createMethods": [ "User", "Discovery" ],
+                    "createMethods": [ "Discovery" ],
                     "interfaces": [ "gateway" ],
                     "paramTypes": [
                         {
