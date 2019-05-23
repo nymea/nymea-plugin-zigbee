@@ -124,7 +124,7 @@ DeviceManager::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClass
                 qCDebug(dcZigbee()) << "   Vendor identifier:" << info.vendorIdentifier();
             }
 
-            uint baudrate = 1000000;
+            uint baudrate = 115200;
             ParamList params;
             params.append(Param(zigbeeControllerDeviceSerialPortParamTypeId, info.systemLocation()));
             params.append(Param(zigbeeControllerDeviceBaudrateParamTypeId, baudrate));
