@@ -358,7 +358,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
             QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(Zigbee::ClusterAttributeBasicModelIdentifier).data());
 
             // Xiaomi HT Sensor
-            if (modelIdentifier == "lumi.sensor_ht") {
+            if (modelIdentifier.contains("lumi.sensor_ht")) {
                 qCDebug(dcZigbee()) << "Xiaomi humidity/temperature sensor added";
 
                 qCDebug(dcZigbee()) << "Output cluster:";
@@ -384,7 +384,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
             }
 
             // Xiaomi Magnet Sensor
-            if (modelIdentifier == "lumi.sensor_magnet") {
+            if (modelIdentifier.contains("lumi.sensor_magnet")) {
                 qCDebug(dcZigbee()) << "Xiaomi magnet sensor added";
 
                 qCDebug(dcZigbee()) << "Output cluster:";
@@ -410,7 +410,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
             }
 
             // Xiaomi Button Sensor
-            if (modelIdentifier == "lumi.sensor_switch") {
+            if (modelIdentifier.contains("lumi.sensor_switch")) {
                 qCDebug(dcZigbee()) << "Xiaomi button sensor added";
 
                 qCDebug(dcZigbee()) << "Output cluster:";
@@ -436,7 +436,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
             }
 
             // Xiaomi Motion Sensor
-            if (modelIdentifier == "lumi.sensor_motion") {
+            if (modelIdentifier.contains("lumi.sensor_motion")) {
                 qCDebug(dcZigbee()) << "Xiaomi motion sensor added";
 
                 qCDebug(dcZigbee()) << "Output cluster:";
