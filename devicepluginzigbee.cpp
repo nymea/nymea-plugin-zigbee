@@ -104,7 +104,7 @@ void DevicePluginZigbee::deviceRemoved(Device *device)
     }
 }
 
-DeviceManager::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params)
+Device::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params)
 {
     Q_UNUSED(params)
 
@@ -140,10 +140,10 @@ DeviceManager::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClass
     }
 
     emit devicesDiscovered(deviceClassId, deviceDescriptors);
-    return DeviceManager::DeviceErrorAsync;
+    return Device::DeviceErrorAsync;
 }
 
-DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
+Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
 {
     qCDebug(dcZigbee()) << "Setup device" << device->name() << device->params();
 
@@ -175,7 +175,7 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
 
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return DeviceManager::DeviceSetupStatusFailure;
+            return Device::DeviceSetupStatusFailure;
         }
 
         XiaomiTemperatureSensor *sensor = new XiaomiTemperatureSensor(node, this);
@@ -194,7 +194,7 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return DeviceManager::DeviceSetupStatusFailure;
+            return Device::DeviceSetupStatusFailure;
         }
 
         XiaomiMagnetSensor *sensor = new XiaomiMagnetSensor(node, this);
@@ -212,7 +212,7 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return DeviceManager::DeviceSetupStatusFailure;
+            return Device::DeviceSetupStatusFailure;
         }
 
         XiaomiButtonSensor *sensor = new XiaomiButtonSensor(node, this);
@@ -232,7 +232,7 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return DeviceManager::DeviceSetupStatusFailure;
+            return Device::DeviceSetupStatusFailure;
         }
 
         XiaomiMotionSensor *sensor = new XiaomiMotionSensor(node, this);
@@ -243,17 +243,17 @@ DeviceManager::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         m_xiaomiMotionSensors.insert(device, sensor);
     }
 
-    return DeviceManager::DeviceSetupStatusSuccess;
+    return Device::DeviceSetupStatusSuccess;
 }
 
-DeviceManager::DeviceError DevicePluginZigbee::executeAction(Device *device, const Action &action)
+Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Action &action)
 {
     qCDebug(dcZigbee()) << "Executing action for device" << device->name() << action.actionTypeId().toString() << action.params();
 
     if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
         ZigbeeNetworkManager *networkManager = m_zigbeeControllers.value(device);
         if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
-            return DeviceManager::DeviceErrorHardwareNotAvailable;
+            return Device::DeviceErrorHardwareNotAvailable;
 
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             networkManager->factoryResetNetwork();
@@ -273,10 +273,10 @@ DeviceManager::DeviceError DevicePluginZigbee::executeAction(Device *device, con
         ZigbeeNetworkManager *networkManager = findParentController(device);
 
         if (!networkManager)
-            return DeviceManager::DeviceErrorHardwareFailure;
+            return Device::DeviceErrorHardwareFailure;
 
         if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
-            return DeviceManager::DeviceErrorHardwareNotAvailable;
+            return Device::DeviceErrorHardwareNotAvailable;
 
         quint16 shortAddress = static_cast<quint16>(device->paramValue(zigbeeNodeDeviceNwkAddressParamTypeId).toUInt());
         ZigbeeAddress extendedAddress = ZigbeeAddress(device->paramValue(zigbeeNodeDeviceIeeeAddressParamTypeId).toString());
@@ -290,7 +290,7 @@ DeviceManager::DeviceError DevicePluginZigbee::executeAction(Device *device, con
         }
     }
 
-    return DeviceManager::DeviceErrorNoError;
+    return Device::DeviceErrorNoError;
 }
 
 ZigbeeNetworkManager *DevicePluginZigbee::findParentController(Device *device) const

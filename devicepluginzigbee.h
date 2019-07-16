@@ -23,8 +23,8 @@
 #ifndef DEVICEPLUGINZIGBEE_H
 #define DEVICEPLUGINZIGBEE_H
 
-#include "devicemanager.h"
-#include "plugin/deviceplugin.h"
+#include "devices/devicemanager.h"
+#include "devices/deviceplugin.h"
 #include "nymea-zigbee/zigbeenetworkmanager.h"
 
 #include "xiaomi/xiaomibuttonsensor.h"
@@ -47,9 +47,9 @@ public:
     void postSetupDevice(Device *device) override;
     void deviceRemoved(Device *device) override;
 
-    DeviceManager::DeviceError discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params) override;
-    DeviceManager::DeviceSetupStatus setupDevice(Device *device) override;
-    DeviceManager::DeviceError executeAction(Device *device, const Action &action) override;
+    Device::DeviceError discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params) override;
+    Device::DeviceSetupStatus setupDevice(Device *device) override;
+    Device::DeviceError executeAction(Device *device, const Action &action) override;
 
 private:
     QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
