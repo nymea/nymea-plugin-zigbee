@@ -1,3 +1,11 @@
+nymea-plugin-zigbee (0.0.2) xenial; urgency=medium
+
+  [ Michael Zanetti ]
+  * ZigBee: Update to latest plugin api
+  * Be more flexible in finding plugin.pri (required for yocto)
+
+ -- Jenkins <jenkins@nymea.io>  Thu, 08 Aug 2019 22:54:34 +0200
+
 nymea-plugin-zigbee (0.0.1) xenial; urgency=medium
 
   * Initial release.
