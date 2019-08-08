@@ -1,10 +1,4 @@
-include(/usr/include/nymea/plugin.pri)
-
-TARGET = $$qtLibraryTarget(nymea_devicepluginzigbee)
-
-message(============================================)
-message("Qt version: $$[QT_VERSION]")
-message("Building $$deviceplugin$${TARGET}.so")
+include($$[QT_INSTALL_PREFIX]/include/nymea/plugin.pri)
 
 QT += serialport
 
