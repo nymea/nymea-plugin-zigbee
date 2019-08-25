@@ -70,6 +70,16 @@ void DevicePluginZigbee::postSetupDevice(Device *device)
         device->setStateValue(xiaomiMotionSensorConnectedStateTypeId, sensor->connected());
         device->setStateValue(xiaomiMotionSensorIsPresentStateTypeId, sensor->present());
     }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId) {
+        XiaomiRemoteSwitch *remoteSwitch = m_xiaomiRemoteSwitches.value(device);
+        device->setStateValue(xiaomiRemoteSwitchSingleRockerConnectedStateTypeId, remoteSwitch->connected());
+    }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        XiaomiRemoteSwitch *remoteSwitch = m_xiaomiRemoteSwitches.value(device);
+        device->setStateValue(xiaomiRemoteSwitchDoubleRockerConnectedStateTypeId, remoteSwitch->connected());
+    }
 }
 
 void DevicePluginZigbee::deviceRemoved(Device *device)
@@ -102,6 +112,12 @@ void DevicePluginZigbee::deviceRemoved(Device *device)
         XiaomiMotionSensor *sensor = m_xiaomiMotionSensors.take(device);
         sensor->deleteLater();
     }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId ||
+            device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        XiaomiRemoteSwitch *remoteSwitch = m_xiaomiRemoteSwitches.take(device);
+        remoteSwitch->deleteLater();
+    }
 }
 
 Device::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params)
@@ -128,10 +144,17 @@ Device::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &dev
             ParamList params;
             params.append(Param(zigbeeControllerDeviceSerialPortParamTypeId, info.systemLocation()));
             params.append(Param(zigbeeControllerDeviceBaudrateParamTypeId, baudrate));
+            params.append(Param(zigbeeControllerDeviceSerialNumberParamTypeId, info.serialNumber()));
 
             qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerDeviceBaudrateParamTypeId);
 
             DeviceDescriptor descriptor(zigbeeControllerDeviceClassId);
+            //Check if this stick is already added, needed for device rediscovery e.g. when the systemlocation has changed
+            foreach(Device *existingDevice, myDevices().filterByParam(zigbeeControllerDeviceSerialNumberParamTypeId, info.serialNumber())) {
+                descriptor.deviceId() = existingDevice->id();
+                break;
+            }
+
             descriptor.setTitle(info.manufacturer() + " - " + info.description());
             descriptor.setDescription(info.systemLocation());
             descriptor.setParams(params);
@@ -243,6 +266,45 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         m_xiaomiMotionSensors.insert(device, sensor);
     }
 
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi remote switch single rocker" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiRemoteSwitchSingleRockerDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return Device::DeviceSetupStatusFailure;
+        }
+
+        XiaomiRemoteSwitch *remoteSwitch = new XiaomiRemoteSwitch(node, this);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::connectedChanged, this, &DevicePluginZigbee::onXiaomiRemoteSwitchConnectedChanged);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::pressedChanged, this, &DevicePluginZigbee::onXiaomiRemoteSwitchPressedChanged);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::buttonPressed, this, &DevicePluginZigbee::onXiaomiRemoteSwitchPressed);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::buttonLongPressed, this, &DevicePluginZigbee::onXiaomiRemoteSwitchLongPressed);
+
+        m_xiaomiRemoteSwitches.insert(device, remoteSwitch);
+    }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi remote switch double rocker" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiRemoteSwitchDoubleRockerDeviceIeeeAddressParamTypeId).toString());
+        // Get the parent controller and node for this device
+        ZigbeeNetworkManager *zigbeeNetworkManager = findParentController(device);
+        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
+        if (!node) {
+            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
+            return Device::DeviceSetupStatusFailure;
+        }
+
+        XiaomiRemoteSwitch *remoteSwitch = new XiaomiRemoteSwitch(node, this);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::connectedChanged, this, &DevicePluginZigbee::onXiaomiRemoteSwitchConnectedChanged);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::pressedChanged, this, &DevicePluginZigbee::onXiaomiRemoteSwitchPressedChanged);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::buttonPressed, this, &DevicePluginZigbee::onXiaomiRemoteSwitchPressed);
+        connect(remoteSwitch, &XiaomiRemoteSwitch::buttonLongPressed, this, &DevicePluginZigbee::onXiaomiRemoteSwitchLongPressed);
+
+        m_xiaomiRemoteSwitches.insert(device, remoteSwitch);
+    }
     return Device::DeviceSetupStatusSuccess;
 }
 
@@ -258,11 +320,11 @@ Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Acti
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             networkManager->factoryResetNetwork();
 
-//        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
-//            networkManager->controller()->commandInitiateTouchLink();
+        //        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
+        //            networkManager->controller()->commandInitiateTouchLink();
 
-//        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
-//            networkManager->controller()->commandTouchLinkFactoryReset();
+        //        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
+        //            networkManager->controller()->commandTouchLinkFactoryReset();
 
         if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
             networkManager->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
@@ -339,6 +401,14 @@ Device * DevicePluginZigbee::findNodeDevice(ZigbeeNode *node)
             deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiMotionSensorDeviceIeeeAddressParamTypeId).toString());
         }
 
+        if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+            deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiRemoteSwitchSingleRockerDeviceIeeeAddressParamTypeId).toString());
+        }
+
+        if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+            deviceIeeeAddress = ZigbeeAddress (device->paramValue(xiaomiRemoteSwitchDoubleRockerDeviceIeeeAddressParamTypeId).toString());
+        }
+
         if (node->extendedAddress() == deviceIeeeAddress) {
             return device;
         }
@@ -356,6 +426,8 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
         ZigbeeCluster *basicCluster = node->getOutputCluster(Zigbee::ClusterIdBasic);
         if (basicCluster->hasAttribute(Zigbee::ClusterAttributeBasicModelIdentifier)) {
             QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(Zigbee::ClusterAttributeBasicModelIdentifier).data());
+
+            qWarning(dcZigbee()) << "Model identifier" << modelIdentifier;
 
             // Xiaomi HT Sensor
             if (modelIdentifier.contains("lumi.sensor_ht")) {
@@ -460,6 +532,58 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 emit autoDevicesAppeared(xiaomiMotionSensorDeviceClassId, { descriptor });
                 return;
             }
+
+            // Xiaomi Remote Switch Single Rocker
+            if (modelIdentifier.contains("lumi.remote.b1")) {
+                qCDebug(dcZigbee()) << "Xiaomi remote switch single rocker added";
+
+                qCDebug(dcZigbee()) << "Output cluster:";
+                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                qCDebug(dcZigbee()) << "Input cluster:";
+                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                DeviceDescriptor descriptor;
+                descriptor.setParentDeviceId(parentDevice->id());
+                descriptor.setTitle(tr("Xiaomi remote switch single rocker"));
+
+                ParamList params;
+                params.append(Param(xiaomiRemoteSwitchSingleRockerDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+
+                emit autoDevicesAppeared(xiaomiRemoteSwitchSingleRockerDeviceClassId, { descriptor });
+                return;
+            }
+
+            // Xiaomi Remote Switch Double Rocker
+            if (modelIdentifier.contains("lumi.remote.b2")) {
+                qCDebug(dcZigbee()) << "Xiaomi remote switch double rocker added";
+
+                qCDebug(dcZigbee()) << "Output cluster:";
+                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                qCDebug(dcZigbee()) << "Input cluster:";
+                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
+                    qCDebug(dcZigbee()) << "    " << cluster;
+                }
+
+                DeviceDescriptor descriptor;
+                descriptor.setParentDeviceId(parentDevice->id());
+                descriptor.setTitle(tr("Xiaomi remote switch"));
+
+                ParamList params;
+                params.append(Param(xiaomiRemoteSwitchDoubleRockerDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+
+                emit autoDevicesAppeared(xiaomiRemoteSwitchDoubleRockerDeviceClassId, { descriptor });
+                return;
+            }
         }
     }
 
@@ -489,34 +613,33 @@ void DevicePluginZigbee::createGenericNodeDeviceForNode(Device *parentDevice, Zi
 void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State state)
 {
     ZigbeeNetworkManager *zigbeeNetworkManager = static_cast<ZigbeeNetworkManager *>(sender());
-    Device *device = m_zigbeeControllers.key(zigbeeNetworkManager);
-    if (!device) return;
+    Device *controllerDevice = m_zigbeeControllers.key(zigbeeNetworkManager);
+    if (!controllerDevice) return;
 
-    qCDebug(dcZigbee()) << "Controller state changed" << state << device;
+    qCDebug(dcZigbee()) << "Controller state changed" << state << controllerDevice;
 
     switch (state) {
     case ZigbeeNetwork::StateUninitialized:
         break;
     case ZigbeeNetwork::StateDisconnected:
-        device->setStateValue(zigbeeControllerConnectedStateTypeId, false);
+        controllerDevice->setStateValue(zigbeeControllerConnectedStateTypeId, false);
         break;
     case ZigbeeNetwork::StateRunning:
-        device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
-        device->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetworkManager->controllerFirmwareVersion());
-        device->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetworkManager->extendedPanId());
-        device->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetworkManager->channel());
-        device->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetworkManager->permitJoining());
-        device->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetworkManager->coordinatorNode()->extendedAddress().toString());
+        controllerDevice->setStateValue(zigbeeControllerConnectedStateTypeId, true);
+        controllerDevice->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetworkManager->controllerFirmwareVersion());
+        controllerDevice->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetworkManager->extendedPanId());
+        controllerDevice->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetworkManager->channel());
+        controllerDevice->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetworkManager->permitJoining());
+        controllerDevice->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetworkManager->coordinatorNode()->extendedAddress().toString());
 
         // Initalize nodes
         foreach (ZigbeeNode *node, zigbeeNetworkManager->nodes()) {
-            Device *device = findNodeDevice(node);
-            if (device) {
-                qCDebug(dcZigbee()) << "Devices for" << node << "already created." << device;
+            Device *nodeDevice = findNodeDevice(node);
+            if (nodeDevice) {
+                qCDebug(dcZigbee()) << "Devices for" << node << "already created." << nodeDevice;
                 break;
             }
-
-            createDeviceForNode(device, node);
+            createDeviceForNode(controllerDevice, node);
         }
 
         break;
@@ -672,4 +795,60 @@ void DevicePluginZigbee::onXiaomiMotionSensorMotionDetected()
     Device *device = m_xiaomiMotionSensors.key(sensor);
     device->setStateValue(xiaomiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTimeUtc().toTime_t());
     qCDebug(dcZigbee()) << device << "motion detected" << QDateTime::currentDateTimeUtc().toTime_t();
+}
+
+void DevicePluginZigbee::onXiaomiRemoteSwitchConnectedChanged(bool connected)
+{
+    XiaomiRemoteSwitch *remoteSwitch = static_cast<XiaomiRemoteSwitch *>(sender());
+    Device *device = m_xiaomiRemoteSwitches.key(remoteSwitch);
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId) {
+        device->setStateValue(xiaomiRemoteSwitchSingleRockerConnectedStateTypeId, connected);
+    }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        device->setStateValue(xiaomiRemoteSwitchDoubleRockerConnectedStateTypeId, connected);
+    }
+}
+
+void DevicePluginZigbee::onXiaomiRemoteSwitchPressedChanged(bool pressed)
+{
+    XiaomiRemoteSwitch *sensor = static_cast<XiaomiRemoteSwitch *>(sender());
+    Device *device = m_xiaomiRemoteSwitches.key(sensor);
+    qCDebug(dcZigbee()) << device << "Remote Switch" << (pressed ? "pressed" : "released") << "Button:";
+}
+
+void DevicePluginZigbee::onXiaomiRemoteSwitchPressed()
+{
+    XiaomiRemoteSwitch *sensor = static_cast<XiaomiRemoteSwitch *>(sender());
+    Device *device = m_xiaomiRemoteSwitches.key(sensor);
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId) {
+        emitEvent(Event(xiaomiRemoteSwitchSingleRockerPressedEventTypeId, device->id()));
+    }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        if (true) { //TODO
+            emitEvent(Event(xiaomiRemoteSwitchDoubleRockerPressedEventTypeId, device->id(), ParamList() << Param(xiaomiRemoteSwitchDoubleRockerPressedEventButtonNameParamTypeId, "left")));
+        }else {
+            emitEvent(Event(xiaomiRemoteSwitchDoubleRockerPressedEventTypeId, device->id(), ParamList() << Param(xiaomiRemoteSwitchDoubleRockerPressedEventButtonNameParamTypeId, "right")));
+        }
+    }
+    qCDebug(dcZigbee()) << device << "remote switch pressed";
+}
+
+void DevicePluginZigbee::onXiaomiRemoteSwitchLongPressed()
+{
+    XiaomiRemoteSwitch *remoteSwitch = static_cast<XiaomiRemoteSwitch *>(sender());
+    Device *device = m_xiaomiRemoteSwitches.key(remoteSwitch);
+    if (device->deviceClassId() == xiaomiRemoteSwitchSingleRockerDeviceClassId) {
+        emitEvent(Event(xiaomiRemoteSwitchSingleRockerLongPressedEventTypeId, device->id()));
+    }
+
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        if (true) { //TODO
+            emitEvent(Event(xiaomiRemoteSwitchDoubleRockerLongPressedEventTypeId, device->id(), ParamList() << Param(xiaomiRemoteSwitchDoubleRockerLongPressedEventButtonNameParamTypeId, "left")));
+        }else {
+            emitEvent(Event(xiaomiRemoteSwitchDoubleRockerLongPressedEventTypeId, device->id(), ParamList() << Param(xiaomiRemoteSwitchDoubleRockerLongPressedEventButtonNameParamTypeId, "right")));
+        }
+    }
+    qCDebug(dcZigbee()) << device << "remote switch long pressed";
 }

@@ -10,12 +10,14 @@ SOURCES += \
     xiaomi/xiaomibuttonsensor.cpp \
     xiaomi/xiaomimagnetsensor.cpp \
     xiaomi/xiaomimotionsensor.cpp \
-    xiaomi/xiaomitemperaturesensor.cpp
+    xiaomi/xiaomitemperaturesensor.cpp \
+    xiaomi/xiaomiremoteswitch.cpp \
 
 HEADERS += \
     devicepluginzigbee.h \
     xiaomi/xiaomibuttonsensor.h \
     xiaomi/xiaomimagnetsensor.h \
     xiaomi/xiaomimotionsensor.h \
-    xiaomi/xiaomitemperaturesensor.h
+    xiaomi/xiaomitemperaturesensor.h \
+    xiaomi/xiaomiremoteswitch.h \
 

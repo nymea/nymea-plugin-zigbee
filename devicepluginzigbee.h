@@ -31,6 +31,7 @@
 #include "xiaomi/xiaomimotionsensor.h"
 #include "xiaomi/xiaomimagnetsensor.h"
 #include "xiaomi/xiaomitemperaturesensor.h"
+#include "xiaomi/xiaomiremoteswitch.h"
 
 class DevicePluginZigbee: public DevicePlugin
 {
@@ -57,6 +58,7 @@ private:
     QHash<Device *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
     QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
     QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
+    QHash<Device *, XiaomiRemoteSwitch *> m_xiaomiRemoteSwitches;
 
     ZigbeeNetworkManager *findParentController(Device *device) const;
     ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
@@ -93,6 +95,14 @@ private slots:
     void onXiaomiMotionSensorConnectedChanged(bool connected);
     void onXiaomiMotionSensorPresentChanged(bool present);
     void onXiaomiMotionSensorMotionDetected();
+
+
+    // Xiaomi remote switch
+    void onXiaomiRemoteSwitchConnectedChanged(bool connected);
+    void onXiaomiRemoteSwitchPressedChanged(bool pressed);
+    void onXiaomiRemoteSwitchPressed();
+    void onXiaomiRemoteSwitchLongPressed();
+
 };
 
 #endif // DEVICEPLUGINZIGBEE_H
