@@ -1,3 +1,10 @@
+nymea-plugin-zigbee (0.0.3) xenial; urgency=medium
+
+  [ Michael Zanetti ]
+  * Update to new plugin api
+
+ -- Jenkins <jenkins@nymea.io>  Thu, 10 Oct 2019 22:58:14 +0200
+
 nymea-plugin-zigbee (0.0.2) xenial; urgency=medium
 
   [ Michael Zanetti ]
