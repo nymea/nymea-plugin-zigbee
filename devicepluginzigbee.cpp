@@ -104,47 +104,44 @@ void DevicePluginZigbee::deviceRemoved(Device *device)
     }
 }
 
-Device::DeviceError DevicePluginZigbee::discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params)
+void DevicePluginZigbee::discoverDevices(DeviceDiscoveryInfo *info)
 {
-    Q_UNUSED(params)
-
-    QList<DeviceDescriptor> deviceDescriptors;
-    if (deviceClassId == zigbeeControllerDeviceClassId) {
+    if (info->deviceClassId() == zigbeeControllerDeviceClassId) {
         // Scan serial ports
-        foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
-            qCDebug(dcZigbee()) << "Found serial port" << info.portName();
-            qCDebug(dcZigbee()) << "   Description:" << info.description();
-            qCDebug(dcZigbee()) << "   System location:" << info.systemLocation();
-            qCDebug(dcZigbee()) << "   Manufacturer:" << info.manufacturer();
-            qCDebug(dcZigbee()) << "   Serialnumber:" << info.serialNumber();
-            if (info.hasProductIdentifier()) {
-                qCDebug(dcZigbee()) << "   Product identifier:" << info.productIdentifier();
+        foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts()) {
+            qCDebug(dcZigbee()) << "Found serial port" << serialPortInfo.portName();
+            qCDebug(dcZigbee()) << "   Description:" << serialPortInfo.description();
+            qCDebug(dcZigbee()) << "   System location:" << serialPortInfo.systemLocation();
+            qCDebug(dcZigbee()) << "   Manufacturer:" << serialPortInfo.manufacturer();
+            qCDebug(dcZigbee()) << "   Serialnumber:" << serialPortInfo.serialNumber();
+            if (serialPortInfo.hasProductIdentifier()) {
+                qCDebug(dcZigbee()) << "   Product identifier:" << serialPortInfo.productIdentifier();
             }
-            if (info.hasVendorIdentifier()) {
-                qCDebug(dcZigbee()) << "   Vendor identifier:" << info.vendorIdentifier();
+            if (serialPortInfo.hasVendorIdentifier()) {
+                qCDebug(dcZigbee()) << "   Vendor identifier:" << serialPortInfo.vendorIdentifier();
             }
 
             uint baudrate = 115200;
             ParamList params;
-            params.append(Param(zigbeeControllerDeviceSerialPortParamTypeId, info.systemLocation()));
+            params.append(Param(zigbeeControllerDeviceSerialPortParamTypeId, serialPortInfo.systemLocation()));
             params.append(Param(zigbeeControllerDeviceBaudrateParamTypeId, baudrate));
 
             qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerDeviceBaudrateParamTypeId);
 
             DeviceDescriptor descriptor(zigbeeControllerDeviceClassId);
-            descriptor.setTitle(info.manufacturer() + " - " + info.description());
-            descriptor.setDescription(info.systemLocation());
+            descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
+            descriptor.setDescription(serialPortInfo.systemLocation());
             descriptor.setParams(params);
-            deviceDescriptors.append(descriptor);
+            info->addDeviceDescriptor(descriptor);
         }
     }
 
-    emit devicesDiscovered(deviceClassId, deviceDescriptors);
-    return Device::DeviceErrorAsync;
+    info->finish(Device::DeviceErrorNoError);
 }
 
-Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
+void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
 {
+    Device *device = info->device();
     qCDebug(dcZigbee()) << "Setup device" << device->name() << device->params();
 
     if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
@@ -175,7 +172,7 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
 
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return Device::DeviceSetupStatusFailure;
+            return info->finish(Device::DeviceErrorSetupFailed);
         }
 
         XiaomiTemperatureSensor *sensor = new XiaomiTemperatureSensor(node, this);
@@ -194,7 +191,7 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return Device::DeviceSetupStatusFailure;
+            return info->finish(Device::DeviceErrorSetupFailed);
         }
 
         XiaomiMagnetSensor *sensor = new XiaomiMagnetSensor(node, this);
@@ -212,7 +209,7 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return Device::DeviceSetupStatusFailure;
+            return info->finish(Device::DeviceErrorSetupFailed);
         }
 
         XiaomiButtonSensor *sensor = new XiaomiButtonSensor(node, this);
@@ -232,7 +229,7 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
         if (!node) {
             qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-            return Device::DeviceSetupStatusFailure;
+            return info->finish(Device::DeviceErrorSetupFailed);
         }
 
         XiaomiMotionSensor *sensor = new XiaomiMotionSensor(node, this);
@@ -243,17 +240,19 @@ Device::DeviceSetupStatus DevicePluginZigbee::setupDevice(Device *device)
         m_xiaomiMotionSensors.insert(device, sensor);
     }
 
-    return Device::DeviceSetupStatusSuccess;
+    info->finish(Device::DeviceErrorNoError);
 }
 
-Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Action &action)
+void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
 {
+    Device *device = info->device();
+    Action action = info->action();
     qCDebug(dcZigbee()) << "Executing action for device" << device->name() << action.actionTypeId().toString() << action.params();
 
     if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
         ZigbeeNetworkManager *networkManager = m_zigbeeControllers.value(device);
         if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
-            return Device::DeviceErrorHardwareNotAvailable;
+            return info->finish(Device::DeviceErrorHardwareNotAvailable);
 
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             networkManager->factoryResetNetwork();
@@ -273,10 +272,10 @@ Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Acti
         ZigbeeNetworkManager *networkManager = findParentController(device);
 
         if (!networkManager)
-            return Device::DeviceErrorHardwareFailure;
+            return info->finish(Device::DeviceErrorHardwareFailure);
 
         if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
-            return Device::DeviceErrorHardwareNotAvailable;
+            return info->finish(Device::DeviceErrorHardwareNotAvailable);
 
         quint16 shortAddress = static_cast<quint16>(device->paramValue(zigbeeNodeDeviceNwkAddressParamTypeId).toUInt());
         ZigbeeAddress extendedAddress = ZigbeeAddress(device->paramValue(zigbeeNodeDeviceIeeeAddressParamTypeId).toString());
@@ -290,7 +289,7 @@ Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Acti
         }
     }
 
-    return Device::DeviceErrorNoError;
+    return info->finish(Device::DeviceErrorNoError);
 }
 
 ZigbeeNetworkManager *DevicePluginZigbee::findParentController(Device *device) const
@@ -379,7 +378,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 params.append(Param(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 descriptor.setParams(params);
 
-                emit autoDevicesAppeared(xiaomiTemperatureHumidityDeviceClassId, { descriptor });
+                emit autoDevicesAppeared({ descriptor });
                 return;
             }
 
@@ -405,7 +404,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 params.append(Param(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 descriptor.setParams(params);
 
-                emit autoDevicesAppeared(xiaomiMagnetSensorDeviceClassId, { descriptor });
+                emit autoDevicesAppeared({ descriptor });
                 return;
             }
 
@@ -431,7 +430,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 params.append(Param(xiaomiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 descriptor.setParams(params);
 
-                emit autoDevicesAppeared(xiaomiButtonSensorDeviceClassId, { descriptor });
+                emit autoDevicesAppeared({ descriptor });
                 return;
             }
 
@@ -457,7 +456,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                 params.append(Param(xiaomiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 descriptor.setParams(params);
 
-                emit autoDevicesAppeared(xiaomiMotionSensorDeviceClassId, { descriptor });
+                emit autoDevicesAppeared({ descriptor });
                 return;
             }
         }
@@ -483,7 +482,7 @@ void DevicePluginZigbee::createGenericNodeDeviceForNode(Device *parentDevice, Zi
     params.append(Param(zigbeeNodeDeviceNwkAddressParamTypeId, QVariant::fromValue(node->shortAddress())));
     descriptor.setParams(params);
 
-    emit autoDevicesAppeared(zigbeeNodeDeviceClassId, { descriptor });
+    emit autoDevicesAppeared({ descriptor });
 }
 
 void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State state)

@@ -47,9 +47,9 @@ public:
     void postSetupDevice(Device *device) override;
     void deviceRemoved(Device *device) override;
 
-    Device::DeviceError discoverDevices(const DeviceClassId &deviceClassId, const ParamList &params) override;
-    Device::DeviceSetupStatus setupDevice(Device *device) override;
-    Device::DeviceError executeAction(Device *device, const Action &action) override;
+    void discoverDevices(DeviceDiscoveryInfo *info) override;
+    void setupDevice(DeviceSetupInfo *info) override;
+    void executeAction(DeviceActionInfo *info) override;
 
 private:
     QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
