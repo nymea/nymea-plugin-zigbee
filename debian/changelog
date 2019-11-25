@@ -1,3 +1,10 @@
+nymea-plugin-zigbee (0.0.4) xenial; urgency=medium
+
+  [ Michael Zanetti ]
+  * update minimum libnymea version to 0.16
+
+ -- Jenkins <jenkins@nymea.io>  Mon, 25 Nov 2019 23:33:21 +0100
+
 nymea-plugin-zigbee (0.0.3) xenial; urgency=medium
 
   [ Michael Zanetti ]
