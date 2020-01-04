@@ -370,7 +370,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                     qCDebug(dcZigbee()) << "    " << cluster;
                 }
 
-                DeviceDescriptor descriptor;
+                DeviceDescriptor descriptor(xiaomiTemperatureHumidityDeviceClassId);
                 descriptor.setParentDeviceId(parentDevice->id());
                 descriptor.setTitle(tr("Xiaomi temperature and humidity sensor"));
 
@@ -396,7 +396,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                     qCDebug(dcZigbee()) << "    " << cluster;
                 }
 
-                DeviceDescriptor descriptor;
+                DeviceDescriptor descriptor(xiaomiMagnetSensorDeviceClassId);
                 descriptor.setParentDeviceId(parentDevice->id());
                 descriptor.setTitle(tr("Xiaomi magnet sensor"));
 
@@ -422,7 +422,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                     qCDebug(dcZigbee()) << "    " << cluster;
                 }
 
-                DeviceDescriptor descriptor;
+                DeviceDescriptor descriptor(xiaomiButtonSensorDeviceClassId);
                 descriptor.setParentDeviceId(parentDevice->id());
                 descriptor.setTitle(tr("Xiaomi button"));
 
@@ -448,7 +448,7 @@ void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *n
                     qCDebug(dcZigbee()) << "    " << cluster;
                 }
 
-                DeviceDescriptor descriptor;
+                DeviceDescriptor descriptor(xiaomiMotionSensorDeviceClassId);
                 descriptor.setParentDeviceId(parentDevice->id());
                 descriptor.setTitle(tr("Xiaomi motion sensor"));
 
