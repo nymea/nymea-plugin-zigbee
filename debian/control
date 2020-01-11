@@ -7,6 +7,7 @@ Build-depends: debhelper (>= 9.0.0),
                libnymea-zigbee1-dev,
                libqt5serialport5-dev,
                nymea-dev-tools:native,
+               qt5-default,
 Standards-Version: 3.9.3
 
 Package: nymea-plugin-zigbee
