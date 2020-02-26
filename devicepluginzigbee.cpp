@@ -352,6 +352,26 @@ Device::DeviceError DevicePluginZigbee::executeAction(Device *device, const Acti
         }
     }
 
+    if (device->deviceClassId() == xiaomiRemoteSwitchDoubleRockerDeviceClassId) {
+        ZigbeeNetworkManager *networkManager = findParentController(device);
+
+        if (!networkManager)
+            return Device::DeviceErrorHardwareFailure;
+
+        if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
+            return Device::DeviceErrorHardwareNotAvailable;
+
+        quint16 shortAddress = static_cast<quint16>(device->paramValue(zigbeeNodeDeviceNwkAddressParamTypeId).toUInt());
+        ZigbeeNode *node = networkManager->getZigbeeNode(shortAddress);
+        if (!node)
+            return Device::DeviceErrorHardwareNotAvailable;
+
+        if (action.actionTypeId() == xiaomiRemoteSwitchDoubleRockerIdentifyActionTypeId) {
+            networkManager->identifyNode(node);
+        }
+    }
+
+
     return Device::DeviceErrorNoError;
 }
 
@@ -624,7 +644,7 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
     case ZigbeeNetwork::StateDisconnected:
         controllerDevice->setStateValue(zigbeeControllerConnectedStateTypeId, false);
         break;
-    case ZigbeeNetwork::StateRunning:
+    case ZigbeeNetwork::StateRunning: {
         controllerDevice->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         controllerDevice->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetworkManager->controllerFirmwareVersion());
         controllerDevice->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetworkManager->extendedPanId());
@@ -642,7 +662,23 @@ void DevicePluginZigbee::onZigbeeControllerStateChanged(ZigbeeNetwork::State sta
             createDeviceForNode(controllerDevice, node);
         }
 
+        // FIXME: change this
+        ZigbeeInterfaceReply *reply = zigbeeNetworkManager->controller()->commandMatchDescriptor();
+        connect(reply, &ZigbeeInterfaceReply::finished, this, [reply](){
+            reply->deleteLater();
+
+            if (reply->status() != ZigbeeInterfaceReply::Success) {
+                qCWarning(dcZigbee()) << "Could not" << reply->request().description() << reply->status() << reply->statusErrorMessage();
+                return;
+            }
+
+            qCWarning(dcZigbee()) << reply->request().description() << "finished successfully";
+            qCWarning(dcZigbee()) << reply->additionalMessage();
+
+        });
+
         break;
+    }
     case ZigbeeNetwork::StateStarting:
         //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         break;

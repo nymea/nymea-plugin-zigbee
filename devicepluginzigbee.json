@@ -433,7 +433,11 @@
                         }
                     ],
                     "actionTypes": [
-
+                        {
+                            "id": "45c2bb9f-ecd7-40c6-aeea-47a88df2a46b",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        }
                     ],
                     "eventTypes": [
                         {
