@@ -52,13 +52,13 @@ public:
     void executeAction(DeviceActionInfo *info) override;
 
 private:
-    QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
+    QHash<Device *, ZigbeeNetwork *> m_zigbeeNetworks;
     QHash<Device *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
     QHash<Device *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
     QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
     QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
 
-    ZigbeeNetworkManager *findParentController(Device *device) const;
+    ZigbeeNetwork *findParentNetwork(Device *device) const;
     ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
 
     Device *findNodeDevice(ZigbeeNode *node);
@@ -67,12 +67,12 @@ private:
     void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
 
 private slots:
-    void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
-    void onZigbeeControllerChannelChanged(uint channel);
-    void onZigbeeControllerPanIdChanged(quint64 extendedPanId);
-    void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
-    void onZigbeeControllerNodeAdded(ZigbeeNode *node);
-    void onZigbeeControllerNodeRemoved(ZigbeeNode *node);
+    void onZigbeeNetworkStateChanged(ZigbeeNetwork::State state);
+    void onZigbeeNetworkChannelChanged(uint channel);
+    void onZigbeeNetworkPanIdChanged(quint64 extendedPanId);
+    void onZigbeeNetworkPermitJoiningChanged(bool permitJoining);
+    void onZigbeeNetworkNodeAdded(ZigbeeNode *node);
+    void onZigbeeNetworkNodeRemoved(ZigbeeNode *node);
 
     // Xiaomi temperature humidity sensor
     void onXiaomiTemperatureSensorConnectedChanged(bool connected);

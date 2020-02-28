@@ -41,7 +41,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "eaa16ea3-73aa-45f3-ad64-be894b9167d8",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
@@ -98,6 +98,11 @@
                             "id": "73ceb869-17e4-486e-971e-33979d613a49",
                             "name": "factoryReset",
                             "displayName": "Factory reset network"
+                        },
+                        {
+                            "id": "d6153a98-f1a8-4bc4-a1d7-6f986886bf46",
+                            "name": "reset",
+                            "displayName": "Reset controller"
                         }
                     ],
                     "eventTypes": [
@@ -180,7 +185,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "eb09e3f4-44ea-4ca9-9eac-9a693595fe37",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",

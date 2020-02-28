@@ -7,33 +7,33 @@ XiaomiTemperatureSensor::XiaomiTemperatureSensor(ZigbeeNode *node, QObject *pare
     QObject(parent),
     m_node(node)
 {
-    // Init values
-    if (m_node->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement)) {
-        ZigbeeCluster *cluster = m_node->getOutputCluster(Zigbee::ClusterIdTemperatureMeasurement);
-        QByteArray temperatureData = cluster->attribute(0x0000).data();
-        if (!temperatureData.isEmpty()) {
-            QDataStream stream(&temperatureData, QIODevice::ReadOnly);
-            qint16 temperatureRaw = 0;
-            stream >> temperatureRaw;
-            setTemperature(temperatureRaw / 100.0);
-        }
-    }
+//    // Init values
+//    if (m_node->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement)) {
+//        ZigbeeCluster *cluster = m_node->getOutputCluster(Zigbee::ClusterIdTemperatureMeasurement);
+//        QByteArray temperatureData = cluster->attribute(0x0000).data();
+//        if (!temperatureData.isEmpty()) {
+//            QDataStream stream(&temperatureData, QIODevice::ReadOnly);
+//            qint16 temperatureRaw = 0;
+//            stream >> temperatureRaw;
+//            setTemperature(temperatureRaw / 100.0);
+//        }
+//    }
 
-    if (m_node->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
-        ZigbeeCluster *cluster = m_node->getOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement);
-        QByteArray humidityData = cluster->attribute(0x0000).data();
-        if (!humidityData.isEmpty()) {
-            QDataStream stream(&humidityData, QIODevice::ReadOnly);
-            quint16 humidityRaw = 0;
-            stream >> humidityRaw;
-            setHumidity(humidityRaw / 100.0);
-        }
-    }
+//    if (m_node->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
+//        ZigbeeCluster *cluster = m_node->getOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement);
+//        QByteArray humidityData = cluster->attribute(0x0000).data();
+//        if (!humidityData.isEmpty()) {
+//            QDataStream stream(&humidityData, QIODevice::ReadOnly);
+//            quint16 humidityRaw = 0;
+//            stream >> humidityRaw;
+//            setHumidity(humidityRaw / 100.0);
+//        }
+//    }
 
-    setConnected(m_node->connected());
+//    setConnected(m_node->connected());
 
-    connect(node, &ZigbeeNode::connectedChanged, this, &XiaomiTemperatureSensor::onNodeConnectedChanged);
-    connect(node, &ZigbeeNode::clusterAttributeChanged, this, &XiaomiTemperatureSensor::onClusterAttributeChanged);
+//    connect(node, &ZigbeeNode::connectedChanged, this, &XiaomiTemperatureSensor::onNodeConnectedChanged);
+//    connect(node, &ZigbeeNode::clusterAttributeChanged, this, &XiaomiTemperatureSensor::onClusterAttributeChanged);
 }
 
 bool XiaomiTemperatureSensor::connected() const
