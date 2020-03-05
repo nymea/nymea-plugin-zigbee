@@ -20,11 +20,10 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef DEVICEPLUGINZIGBEE_H
-#define DEVICEPLUGINZIGBEE_H
+#ifndef INTEGRATIONPLUGINZIGBEE_H
+#define INTEGRATIONPLUGINZIGBEE_H
 
-#include "devices/devicemanager.h"
-#include "devices/deviceplugin.h"
+#include "integrations/integrationplugin.h"
 #include "nymea-zigbee/zigbeenetworkmanager.h"
 
 #include "xiaomi/xiaomibuttonsensor.h"
@@ -32,39 +31,39 @@
 #include "xiaomi/xiaomimagnetsensor.h"
 #include "xiaomi/xiaomitemperaturesensor.h"
 
-class DevicePluginZigbee: public DevicePlugin
+class IntegrationPluginZigbee: public IntegrationPlugin
 {
     Q_OBJECT
 
-    Q_PLUGIN_METADATA(IID "io.nymea.DevicePlugin" FILE "devicepluginzigbee.json")
-    Q_INTERFACES(DevicePlugin)
+    Q_PLUGIN_METADATA(IID "io.nymea.IntegrationPlugin" FILE "integrationpluginzigbee.json")
+    Q_INTERFACES(IntegrationPlugin)
 
 public:
-    explicit DevicePluginZigbee();
+    explicit IntegrationPluginZigbee();
 
     void init() override;
-    void startMonitoringAutoDevices() override;
-    void postSetupDevice(Device *device) override;
-    void deviceRemoved(Device *device) override;
+    void startMonitoringAutoThings() override;
+    void postSetupThing(Thing *thing) override;
+    void thingRemoved(Thing *thing) override;
 
-    void discoverDevices(DeviceDiscoveryInfo *info) override;
-    void setupDevice(DeviceSetupInfo *info) override;
-    void executeAction(DeviceActionInfo *info) override;
+    void discoverThings(ThingDiscoveryInfo *info) override;
+    void setupThing(ThingSetupInfo *info) override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
-    QHash<Device *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
-    QHash<Device *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
-    QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
-    QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
+    QHash<Thing *, ZigbeeNetworkManager *> m_zigbeeControllers;
+    QHash<Thing *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
+    QHash<Thing *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
+    QHash<Thing *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
+    QHash<Thing *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
 
-    ZigbeeNetworkManager *findParentController(Device *device) const;
+    ZigbeeNetworkManager *findParentController(Thing *thing) const;
     ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
 
-    Device *findNodeDevice(ZigbeeNode *node);
+    Thing *findNodeThing(ZigbeeNode *node);
 
-    void createDeviceForNode(Device *parentDevice, ZigbeeNode *node);
-    void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
+    void createThingForNode(Thing *parent, ZigbeeNode *node);
+    void createGenericNodeThingForNode(Thing *parent, ZigbeeNode *node);
 
 private slots:
     void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
@@ -95,4 +94,4 @@ private slots:
     void onXiaomiMotionSensorMotionDetected();
 };
 
-#endif // DEVICEPLUGINZIGBEE_H
+#endif // INTEGRATIONPLUGINZIGBEE_H

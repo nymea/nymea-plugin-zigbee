@@ -6,14 +6,14 @@ CONFIG += link_pkgconfig
 PKGCONFIG += nymea-zigbee
 
 SOURCES += \
-    devicepluginzigbee.cpp \
+    integrationpluginzigbee.cpp \
     xiaomi/xiaomibuttonsensor.cpp \
     xiaomi/xiaomimagnetsensor.cpp \
     xiaomi/xiaomimotionsensor.cpp \
     xiaomi/xiaomitemperaturesensor.cpp
 
 HEADERS += \
-    devicepluginzigbee.h \
+    integrationpluginzigbee.h \
     xiaomi/xiaomibuttonsensor.h \
     xiaomi/xiaomimagnetsensor.h \
     xiaomi/xiaomimotionsensor.h \
