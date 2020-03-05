@@ -7,7 +7,7 @@
             "name": "zigbee",
             "displayName": "Zigbee",
             "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "zigbeeController",
                     "displayName": "Zigbee controller",
@@ -161,7 +161,7 @@
             "name": "xiaomi",
             "displayName": "Xiaomi ",
             "id": "f58dac98-0ba1-408f-946a-25d452080baa",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "xiaomiTemperatureHumidity",
                     "displayName": "Temperature humidity sensor",
