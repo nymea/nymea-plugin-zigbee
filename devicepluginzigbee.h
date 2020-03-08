@@ -27,6 +27,10 @@
 #include "devices/deviceplugin.h"
 #include "nymea-zigbee/zigbeenetworkmanager.h"
 
+#include "ikea/tradfriremote.h"
+#include "ikea/tradfricolorlight.h"
+#include "feibit/feibitonofflight.h"
+
 #include "xiaomi/xiaomibuttonsensor.h"
 #include "xiaomi/xiaomimotionsensor.h"
 #include "xiaomi/xiaomimagnetsensor.h"
@@ -58,10 +62,13 @@ private:
     QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
     QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
 
+    QHash<Device *, ZigbeeDevice *> m_zigbeeDevices;
+
     ZigbeeNetwork *findParentNetwork(Device *device) const;
     ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
 
     Device *findNodeDevice(ZigbeeNode *node);
+    ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
 
     void createDeviceForNode(Device *parentDevice, ZigbeeNode *node);
     void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
