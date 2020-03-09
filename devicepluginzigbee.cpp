@@ -24,6 +24,7 @@
 #include "nymeasettings.h"
 #include "devicepluginzigbee.h"
 
+#include "nymea-zigbee/zigbeeutils.h"
 #include "nymea-zigbee/zigbeenetworkkey.h"
 
 #include <QDateTime>
@@ -36,6 +37,23 @@ DevicePluginZigbee::DevicePluginZigbee()
 
 void DevicePluginZigbee::init()
 {       
+    // Color converting tests
+
+//    QColor testColor(255, 128, 12, 255);
+//    qCWarning(dcZigbee()) << "Testcolor" << testColor.toRgb();
+//    QPointF colorXy = ZigbeeUtils::convertColorToXY(testColor);
+//    quint16 normalizedX = static_cast<quint16>(qRound(colorXy.x() * 65536));
+//    quint16 normalizedY = static_cast<quint16>(qRound(colorXy.y() * 65536));
+//    qCWarning(dcZigbee()) << "Testcolor" << colorXy << normalizedX << normalizedY;
+
+
+//    QColor resultColor= ZigbeeUtils::convertXYToColor(QPointF(normalizedX / 65536.0, normalizedY / 65536.0));
+//    qCWarning(dcZigbee()) << "Converted back" << resultColor.toRgb();
+
+
+
+    // Zigbee network key tests
+
     //    ZigbeeNetworkKey key;
     //    qCWarning(dcZigbee()) << "Key" << key.isNull() << key.isValid() << key.toString() << qUtf8Printable(key.toByteArray());
 
