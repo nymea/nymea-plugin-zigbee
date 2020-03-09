@@ -21,8 +21,16 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    quint16 m_currentX = 0;
+    quint16 m_currentY = 0;
 
-    void readAttribute();
+    int m_colorAttributesArrived = 0;
+
+    void readColorCapabilities();
+    void readOnOffState();
+    void readLevelValue();
+    void readColorXy();
+
     void configureReporting();
 
 private slots:
