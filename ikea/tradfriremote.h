@@ -15,12 +15,14 @@ public:
     void readAttribute();
     void configureReporting();
 
+    void checkOnlineStatus() override;
+
 private:
-    ZigbeeNodeEndpoint *m_remoteEndpoint = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint = nullptr;
 
 signals:
 
-private slots:
+public slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
 
 };

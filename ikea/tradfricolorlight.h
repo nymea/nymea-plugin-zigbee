@@ -14,6 +14,8 @@ public:
 
     void identify();
 
+    void checkOnlineStatus() override;
+
     void setPower(bool power);
     void setBrightness(int brightness);
     void setColorTemperature(int colorTemperature);

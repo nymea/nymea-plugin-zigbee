@@ -12,22 +12,23 @@ SOURCES += \
     devicepluginzigbee.cpp \
     feibit/feibitonofflight.cpp \
     ikea/tradfricolorlight.cpp \
+    ikea/tradfrionoffswitch.cpp \
     ikea/tradfriremote.cpp \
-    xiaomi/xiaomibuttonsensor.cpp \
-    xiaomi/xiaomimagnetsensor.cpp \
-    xiaomi/xiaomimotionsensor.cpp \
-    xiaomi/xiaomitemperaturesensor.cpp \
+    lumi/lumibuttonsensor.cpp \
+    lumi/lumimagnetsensor.cpp \
+    lumi/lumimotionsensor.cpp \
+    lumi/lumitemperaturesensor.cpp \
     zigbeedevice.cpp
 
 HEADERS += \
     devicepluginzigbee.h \
     feibit/feibitonofflight.h \
-    genericnoncolourscenecontroller.h \
     ikea/tradfricolorlight.h \
+    ikea/tradfrionoffswitch.h \
     ikea/tradfriremote.h \
-    xiaomi/xiaomibuttonsensor.h \
-    xiaomi/xiaomimagnetsensor.h \
-    xiaomi/xiaomimotionsensor.h \
-    xiaomi/xiaomitemperaturesensor.h \
+    lumi/lumibuttonsensor.h \
+    lumi/lumimagnetsensor.h \
+    lumi/lumimotionsensor.h \
+    lumi/lumitemperaturesensor.h \
     zigbeedevice.h
 

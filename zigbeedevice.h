@@ -19,6 +19,8 @@ public:
     ZigbeeAddress ieeeAddress() const;
     Device *device() const;
 
+    virtual void checkOnlineStatus() = 0;
+
 protected:
     ZigbeeNetwork *m_network = nullptr;
     ZigbeeAddress m_ieeeAddress;
