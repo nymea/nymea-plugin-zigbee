@@ -1,24 +1,19 @@
-#ifndef FEIBITONOFFLIGHT_H
-#define FEIBITONOFFLIGHT_H
+#ifndef LUMITEMPERATURESENSOR_H
+#define LUMITEMPERATURESENSOR_H
 
 #include <QObject>
 
 #include "zigbeedevice.h"
 
-class FeiBitOnOffLight : public ZigbeeDevice
+class LumiTemperatureSensor : public ZigbeeDevice
 {
     Q_OBJECT
-
 public:
-    FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
-    void readAttribute();
-    void configureReporting();
 
     void checkOnlineStatus() override;
-
-    void setPower(bool power);
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
@@ -29,7 +24,6 @@ private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
     void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
-
 };
 
-#endif // FEIBITONOFFLIGHT_H
+#endif // LUMITEMPERATURESENSOR_H

@@ -9,19 +9,19 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
     // Initialize the endpoint
     foreach (ZigbeeNodeEndpoint *endpoit, m_node->endpoints()) {
         if (endpoit->deviceId() == Zigbee::LightLinkDeviceNonColourSceneController) {
-            m_remoteEndpoint = endpoit;
+            m_endpoint = endpoit;
             break;
         }
     }
 
-    qCDebug(dcZigbee()) << m_device << m_remoteEndpoint;
+    qCDebug(dcZigbee()) << m_device << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
-    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->inputClusters()) {
+    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
     qCDebug(dcZigbee()) << "Output clusters";
-    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->outputClusters()) {
+    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
@@ -37,40 +37,42 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
 
 void TradfriRemote::readAttribute()
 {
-    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->inputClusters()) {
+    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdBasic) {
-            m_remoteEndpoint->readAttribute(cluster, {0x0004, 0x0005});
+            m_endpoint->readAttribute(cluster, {0x0004, 0x0005});
         }
     }
 }
 
 void TradfriRemote::configureReporting()
 {
-    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->outputClusters()) {
-        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-            m_remoteEndpoint->configureReporting(cluster, {0x0000});
-        }
+//    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
+//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
+//            ZigbeeClusterReportConfigurationRecord reportConfiguration;
+//            reportConfiguration.attributeId = 0x0000;
+
+//            m_endpoint->configureReporting(cluster, {0x0000});
+//        }
+    //    }
+}
+
+void TradfriRemote::checkOnlineStatus()
+{
+    if (m_network->state() == ZigbeeNetwork::StateRunning) {
+        device()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
+    } else {
+        device()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
     }
 }
 
 void TradfriRemote::identify()
 {
-    //m_remoteEndpoint->identify(5);
-    //configureReporting();
-    //readAttribute();
+    //m_endpoint->identify(5);
 
-//    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->outputClusters()) {
-//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-//            m_remoteEndpoint->readAttribute(cluster, {0x0000});
-//        }
-//    }
-    // Add the coordinator endpoint to the group
-    //m_network->coordinatorNode()->getEndpoint(0x01)->addGroup(0x01, 0x0001);
-
-    //m_remoteEndpoint->addGroup(0x01, 0x0001);
-    m_remoteEndpoint->bindUnicast(Zigbee::ClusterIdOnOff, m_network->coordinatorNode()->extendedAddress(), 0x01);
-    //m_remoteEndpoint->bindGroup(Zigbee::ClusterIdOnOff, 0x0001, 0x01);
-//    foreach (ZigbeeCluster *cluster, m_remoteEndpoint->outputClusters()) {
+    //m_endpoint->addGroup(0x01, 0x0000);
+    //m_endpoint->bindUnicast(Zigbee::ClusterIdOnOff, m_network->coordinatorNode()->extendedAddress(), 0x01);
+    m_endpoint->bindGroup(Zigbee::ClusterIdOnOff, 0x0000, 0x01);
+//    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
 //        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
 //        }
 //    }
@@ -79,9 +81,6 @@ void TradfriRemote::identify()
 
 void TradfriRemote::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
-    if (state == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
-    } else {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
-    }
+    Q_UNUSED(state)
+    checkOnlineStatus();
 }

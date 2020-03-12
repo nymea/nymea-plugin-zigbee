@@ -37,46 +37,6 @@ DevicePluginZigbee::DevicePluginZigbee()
 
 void DevicePluginZigbee::init()
 {       
-    // Color converting tests
-
-//    QColor testColor(255, 128, 12, 255);
-//    qCWarning(dcZigbee()) << "Testcolor" << testColor.toRgb();
-//    QPointF colorXy = ZigbeeUtils::convertColorToXY(testColor);
-//    quint16 normalizedX = static_cast<quint16>(qRound(colorXy.x() * 65536));
-//    quint16 normalizedY = static_cast<quint16>(qRound(colorXy.y() * 65536));
-//    qCWarning(dcZigbee()) << "Testcolor" << colorXy << normalizedX << normalizedY;
-
-
-//    QColor resultColor= ZigbeeUtils::convertXYToColor(QPointF(normalizedX / 65536.0, normalizedY / 65536.0));
-//    qCWarning(dcZigbee()) << "Converted back" << resultColor.toRgb();
-
-
-
-    // Zigbee network key tests
-
-    //    ZigbeeNetworkKey key;
-    //    qCWarning(dcZigbee()) << "Key" << key.isNull() << key.isValid() << key.toString() << qUtf8Printable(key.toByteArray());
-
-    //    key = ZigbeeNetworkKey(QString("5A:69:67:42:65:65:41:6C:6C:69:61:6E:63:65:30:39"));
-    //    qCWarning(dcZigbee()) << "Key" << key.isNull() << key.isValid() << key << qUtf8Printable(key.toByteArray());
-
-    //    key = ZigbeeNetworkKey(QString("5A6967426565416C6C69616E63653039"));
-    //    qCWarning(dcZigbee()) << "Key" << key.isNull() << key.isValid() << key << qUtf8Printable(key.toByteArray());
-
-    //    key = ZigbeeNetworkKey::generateKey();
-    //    qCWarning(dcZigbee()) << "Generated key" << key;
-
-    //    key = ZigbeeNetworkKey::generateKey();
-    //    qCWarning(dcZigbee()) << "Generated key" << key;
-
-    //    key = ZigbeeNetworkKey::generateKey();
-    //    qCWarning(dcZigbee()) << "Generated key" << key;
-
-    //    key = ZigbeeNetworkKey::generateKey();
-    //    qCWarning(dcZigbee()) << "Generated key" << key;
-
-    //    key = ZigbeeNetworkKey::generateKey();
-    //    qCWarning(dcZigbee()) << "Generated key" << key;
 
 }
 
@@ -89,60 +49,9 @@ void DevicePluginZigbee::postSetupDevice(Device *device)
 {
     qCDebug(dcZigbee()) << "Post setup device" << device->name() << device->params();
 
-    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-
-    }
-
-    if (device->deviceClassId() == tradfriRemoteDeviceClassId) {
+    if (m_zigbeeDevices.contains(device)) {
         ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(device);
-        if (zigbeeDevice->network()->state() == ZigbeeNetwork::StateRunning) {
-            device->setStateValue(tradfriRemoteConnectedStateTypeId, true);
-        } else {
-            device->setStateValue(tradfriRemoteConnectedStateTypeId, false);
-        }
-    }
-
-    if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
-        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(device);
-        if (zigbeeDevice->network()->state() == ZigbeeNetwork::StateRunning) {
-            device->setStateValue(tradfriColorLightConnectedStateTypeId, true);
-        } else {
-            device->setStateValue(tradfriColorLightConnectedStateTypeId, false);
-        }
-    }
-
-    if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
-        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(device);
-        if (zigbeeDevice->network()->state() == ZigbeeNetwork::StateRunning) {
-            device->setStateValue(feibitOnOffLightConnectedStateTypeId, true);
-        } else {
-            device->setStateValue(feibitOnOffLightConnectedStateTypeId, false);
-        }
-    }
-
-    if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
-        XiaomiTemperatureSensor *sensor = m_xiaomiTemperatureSensors.value(device);
-        device->setStateValue(xiaomiTemperatureHumidityConnectedStateTypeId, sensor->connected());
-        device->setStateValue(xiaomiTemperatureHumidityTemperatureStateTypeId, sensor->temperature());
-        device->setStateValue(xiaomiTemperatureHumidityHumidityStateTypeId, sensor->humidity());
-    }
-
-    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
-        XiaomiMagnetSensor *sensor = m_xiaomiMagnetSensors.value(device);
-        device->setStateValue(xiaomiMagnetSensorConnectedStateTypeId, sensor->connected());
-        device->setStateValue(xiaomiMagnetSensorClosedStateTypeId, sensor->closed());
-    }
-
-    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
-        XiaomiButtonSensor *sensor = m_xiaomiButtonSensors.value(device);
-        device->setStateValue(xiaomiButtonSensorConnectedStateTypeId, sensor->connected());
-        //device->setStateValue(xiaomiButtonSensorPressedStateTypeId, sensor->pressed());
-    }
-
-    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
-        XiaomiMotionSensor *sensor = m_xiaomiMotionSensors.value(device);
-        device->setStateValue(xiaomiMotionSensorConnectedStateTypeId, sensor->connected());
-        device->setStateValue(xiaomiMotionSensorIsPresentStateTypeId, sensor->present());
+        zigbeeDevice->checkOnlineStatus();
     }
 }
 
@@ -160,28 +69,6 @@ void DevicePluginZigbee::deviceRemoved(Device *device)
         if (zigbeeDevice)
             delete zigbeeDevice;
     }
-
-
-
-    //    if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
-    //        XiaomiTemperatureSensor *sensor = m_xiaomiTemperatureSensors.take(device);
-    //        sensor->deleteLater();
-    //    }
-
-    //    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
-    //        XiaomiMagnetSensor *sensor = m_xiaomiMagnetSensors.take(device);
-    //        sensor->deleteLater();
-    //    }
-
-    //    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
-    //        XiaomiButtonSensor *sensor = m_xiaomiButtonSensors.take(device);
-    //        sensor->deleteLater();
-    //    }
-
-    //    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
-    //        XiaomiMotionSensor *sensor = m_xiaomiMotionSensors.take(device);
-    //        sensor->deleteLater();
-    //    }
 }
 
 void DevicePluginZigbee::discoverDevices(DeviceDiscoveryInfo *info)
@@ -258,6 +145,15 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
         m_zigbeeDevices.insert(device, remote);
     }
 
+    if (device->deviceClassId() == tradfriOnOffSwitchDeviceClassId) {
+        qCDebug(dcZigbee()) << "Tradfri on/off remote" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        TradfriOnOffSwitch *remote = new TradfriOnOffSwitch(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, remote);
+    }
+
+
     if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
         qCDebug(dcZigbee()) << "Tradfri colour light" << device;
         ZigbeeAddress ieeeAddress(device->paramValue(tradfriColorLightDeviceIeeeAddressParamTypeId).toString());
@@ -274,81 +170,44 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
         m_zigbeeDevices.insert(device, light);
     }
 
-    if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
-        //        qCDebug(dcZigbee()) << "Xiaomi temperature humidiry sensor" << device;
-        //        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId).toString());
-        //        // Get the parent controller and node for this device
-        //        ZigbeeNetworkManager *zigbeeNetworkManager = findParentNetwork(device);
-        //        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
-
-        //        if (!node) {
-        //            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-        //            return info->finish(Device::DeviceErrorSetupFailed);
-        //        }
-
-        //        XiaomiTemperatureSensor *sensor = new XiaomiTemperatureSensor(node, this);
-        //        connect(sensor, &XiaomiTemperatureSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorConnectedChanged);
-        //        connect(sensor, &XiaomiTemperatureSensor::temperatureChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorTemperatureChanged);
-        //        connect(sensor, &XiaomiTemperatureSensor::humidityChanged, this, &DevicePluginZigbee::onXiaomiTemperatureSensorHumidityChanged);
-        //        m_xiaomiTemperatureSensors.insert(device, sensor);
+    if (device->deviceClassId() == lumiTemperatureHumidityDeviceClassId) {
+        qCDebug(dcZigbee()) << "Lumi temperature humidity" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, sensor);
     }
 
 
-    if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
-        //        qCDebug(dcZigbee()) << "Xiaomi magnet sensor" << device;
-        //        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
-        //        // Get the parent controller and node for this device
-        //        ZigbeeNetworkManager *zigbeeNetworkManager = findParentNetwork(device);
-        //        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
-        //        if (!node) {
-        //            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-        //            return info->finish(Device::DeviceErrorSetupFailed);
-        //        }
-
-        //        XiaomiMagnetSensor *sensor = new XiaomiMagnetSensor(node, this);
-        //        connect(sensor, &XiaomiMagnetSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiMagnetSensorConnectedChanged);
-        //        connect(sensor, &XiaomiMagnetSensor::closedChanged, this, &DevicePluginZigbee::onXiaomiMagnetSensorClosedChanged);
-
-        //        m_xiaomiMagnetSensors.insert(device, sensor);
+    if (device->deviceClassId() == lumiMagnetSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Lumi magnet sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(lumiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, sensor);
     }
 
-    if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
-        //        qCDebug(dcZigbee()) << "Xiaomi button sensor" << device;
-        //        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiButtonSensorDeviceIeeeAddressParamTypeId).toString());
-        //        // Get the parent controller and node for this device
-        //        ZigbeeNetworkManager *zigbeeNetworkManager = findParentNetwork(device);
-        //        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
-        //        if (!node) {
-        //            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-        //            return info->finish(Device::DeviceErrorSetupFailed);
-        //        }
+    if (device->deviceClassId() == lumiButtonSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Lumi button sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(lumiButtonSensorDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, device, this);
+        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, device](){
+            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, device->id()));
+        });
+        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, device](){
+            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, device->id()));
+        });
 
-        //        XiaomiButtonSensor *sensor = new XiaomiButtonSensor(node, this);
-        //        connect(sensor, &XiaomiButtonSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiButtonSensorConnectedChanged);
-        //        connect(sensor, &XiaomiButtonSensor::pressedChanged, this, &DevicePluginZigbee::onXiaomiButtonSensorPressedChanged);
-        //        connect(sensor, &XiaomiButtonSensor::buttonPressed, this, &DevicePluginZigbee::onXiaomiButtonSensorPressed);
-        //        connect(sensor, &XiaomiButtonSensor::buttonLongPressed, this, &DevicePluginZigbee::onXiaomiButtonSensorLongPressed);
-
-        //        m_xiaomiButtonSensors.insert(device, sensor);
+        m_zigbeeDevices.insert(device, sensor);
     }
 
-    if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
-        //        qCDebug(dcZigbee()) << "Xiaomi motion sensor" << device;
-        //        ZigbeeAddress ieeeAddress(device->paramValue(xiaomiMotionSensorDeviceIeeeAddressParamTypeId).toString());
-        //        // Get the parent controller and node for this device
-        //        ZigbeeNetworkManager *zigbeeNetworkManager = findParentNetwork(device);
-        //        ZigbeeNode *node = zigbeeNetworkManager->getZigbeeNode(ieeeAddress);
-        //        if (!node) {
-        //            qCWarning(dcZigbee()) << "Could not find node for this device. The setup failed";
-        //            return info->finish(Device::DeviceErrorSetupFailed);
-        //        }
-
-        //        XiaomiMotionSensor *sensor = new XiaomiMotionSensor(node, this);
-        //        connect(sensor, &XiaomiMotionSensor::connectedChanged, this, &DevicePluginZigbee::onXiaomiMotionSensorConnectedChanged);
-        //        connect(sensor, &XiaomiMotionSensor::presentChanged, this, &DevicePluginZigbee::onXiaomiMotionSensorPresentChanged);
-        //        connect(sensor, &XiaomiMotionSensor::motionDetected, this, &DevicePluginZigbee::onXiaomiMotionSensorMotionDetected);
-
-        //        m_xiaomiMotionSensors.insert(device, sensor);
+    if (device->deviceClassId() == lumiMotionSensorDeviceClassId) {
+        qCDebug(dcZigbee()) << "Lumi motion sensor" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(lumiMotionSensorDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, sensor);
     }
 
     info->finish(Device::DeviceErrorNoError);
@@ -363,19 +222,14 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
         ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.value(device);
 
+        // Note: following actions do not require a running network
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             zigbeeNetwork->factoryResetNetwork();
 
         if (action.actionTypeId() == zigbeeControllerResetActionTypeId)
             zigbeeNetwork->reset();
 
-
-        //        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
-        //            networkManager->controller()->commandInitiateTouchLink();
-
-        //        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
-        //            networkManager->controller()->commandTouchLinkFactoryReset();
-
+        // Note: following actions require a running network
         if (zigbeeNetwork->state() != ZigbeeNetwork::StateRunning)
             return info->finish(Device::DeviceErrorHardwareNotAvailable);
 
@@ -384,16 +238,21 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
 
         if (action.actionTypeId() == zigbeeControllerTest1ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 1";
-
+            ZigbeeNodeEndpoint *endpoint = zigbeeNetwork->coordinatorNode()->getEndpoint(0x01);
+            if (!endpoint) {
+                qCWarning(dcZigbee()) << "Could not find node endpoint";
+            } else {
+                endpoint->addGroup(01, 0x0000);
+            }
         }
 
         if (action.actionTypeId() == zigbeeControllerTest2ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 2";
 
         }
-
     }
 
+    // Tradfri remote
     if (device->deviceClassId() == tradfriRemoteDeviceClassId) {
         TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(device));
         if (action.actionTypeId() == tradfriRemoteIdentifyActionTypeId) {
@@ -401,7 +260,17 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         }
     }
 
+    // Tradfri on/off switch
+    if (device->deviceClassId() == tradfriOnOffSwitchDeviceClassId) {
+        TradfriOnOffSwitch *remote = qobject_cast<TradfriOnOffSwitch *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == tradfriOnOffSwitchIdentifyActionTypeId) {
+            remote->identify();
+        } else if (action.actionTypeId() == tradfriOnOffSwitchFactoryResetActionTypeId) {
+            remote->factoryResetNode();
+        }
+    }
 
+    // Tradfri color light
     if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
         TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(device));
         if (action.actionTypeId() == tradfriColorLightIdentifyActionTypeId) {
@@ -417,7 +286,7 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         }
     }
 
-
+    // FeiBit on/off light switch
     if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
         FeiBitOnOffLight *light = qobject_cast<FeiBitOnOffLight *>(m_zigbeeDevices.value(device));
         if (action.actionTypeId() == feibitOnOffLightIdentifyActionTypeId) {
@@ -462,50 +331,6 @@ ZigbeeNetwork *DevicePluginZigbee::findParentNetwork(Device *device) const
     return nullptr;
 }
 
-ZigbeeNetworkManager *DevicePluginZigbee::findNodeController(ZigbeeNode *node) const
-{
-    Q_UNUSED(node)
-    //    foreach (ZigbeeNetworkManager *controller, m_zigbeeControllers.values()) {
-    //        if (controller->nodes().contains(node)) {
-    //            return controller;
-    //        }
-    //    }
-
-    return nullptr;
-}
-
-Device * DevicePluginZigbee::findNodeDevice(ZigbeeNode *node)
-{
-    foreach (Device *device, myDevices()) {
-        ZigbeeAddress deviceIeeeAddress;
-        if (device->deviceClassId() == zigbeeNodeDeviceClassId) {
-            deviceIeeeAddress = ZigbeeAddress(device->paramValue(zigbeeNodeDeviceIeeeAddressParamTypeId).toString());
-        }
-
-        if (device->deviceClassId() == xiaomiTemperatureHumidityDeviceClassId) {
-            deviceIeeeAddress = ZigbeeAddress(device->paramValue(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId).toString());
-        }
-
-        if (device->deviceClassId() == xiaomiMagnetSensorDeviceClassId) {
-            deviceIeeeAddress = ZigbeeAddress(device->paramValue(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
-        }
-
-        if (device->deviceClassId() == xiaomiButtonSensorDeviceClassId) {
-            deviceIeeeAddress = ZigbeeAddress(device->paramValue(xiaomiButtonSensorDeviceIeeeAddressParamTypeId).toString());
-        }
-
-        if (device->deviceClassId() == xiaomiMotionSensorDeviceClassId) {
-            deviceIeeeAddress = ZigbeeAddress(device->paramValue(xiaomiMotionSensorDeviceIeeeAddressParamTypeId).toString());
-        }
-
-        if (node->extendedAddress() == deviceIeeeAddress) {
-            return device;
-        }
-    }
-
-    return nullptr;
-}
-
 ZigbeeDevice *DevicePluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
 {
     foreach (ZigbeeDevice *zigbeeDevice, m_zigbeeDevices.values()) {
@@ -515,159 +340,6 @@ ZigbeeDevice *DevicePluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
     }
 
     return nullptr;
-}
-
-void DevicePluginZigbee::createDeviceForNode(Device *parentDevice, ZigbeeNode *node)
-{
-    Q_UNUSED(parentDevice)
-    Q_UNUSED(node)
-    // We already know this device ieee address has not already been added
-    // Try to figure out which device this is from the node properties and cluster information
-
-    //    if (node->hasOutputCluster(Zigbee::ClusterIdBasic)) {
-    //        ZigbeeCluster *basicCluster = node->getOutputCluster(Zigbee::ClusterIdBasic);
-    //        if (basicCluster->hasAttribute(Zigbee::ClusterAttributeBasicModelIdentifier)) {
-    //            QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(Zigbee::ClusterAttributeBasicModelIdentifier).data());
-
-    //            // Xiaomi HT Sensor
-    //            if (modelIdentifier.contains("lumi.sensor_ht")) {
-    //                qCDebug(dcZigbee()) << "Xiaomi humidity/temperature sensor added";
-
-    //                qCDebug(dcZigbee()) << "Output cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                qCDebug(dcZigbee()) << "Input cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                DeviceDescriptor descriptor(xiaomiTemperatureHumidityDeviceClassId);
-    //                descriptor.setParentDeviceId(parentDevice->id());
-    //                descriptor.setTitle(tr("Xiaomi temperature and humidity sensor"));
-
-    //                ParamList params;
-    //                params.append(Param(xiaomiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
-    //                descriptor.setParams(params);
-
-    //                emit autoDevicesAppeared({ descriptor });
-    //                return;
-    //            }
-
-    //            // Xiaomi Magnet Sensor
-    //            if (modelIdentifier.contains("lumi.sensor_magnet")) {
-    //                qCDebug(dcZigbee()) << "Xiaomi magnet sensor added";
-
-    //                qCDebug(dcZigbee()) << "Output cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                qCDebug(dcZigbee()) << "Input cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                DeviceDescriptor descriptor(xiaomiMagnetSensorDeviceClassId);
-    //                descriptor.setParentDeviceId(parentDevice->id());
-    //                descriptor.setTitle(tr("Xiaomi magnet sensor"));
-
-    //                ParamList params;
-    //                params.append(Param(xiaomiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
-    //                descriptor.setParams(params);
-
-    //                emit autoDevicesAppeared({ descriptor });
-    //                return;
-    //            }
-
-    //            // Xiaomi Button Sensor
-    //            if (modelIdentifier.contains("lumi.sensor_switch")) {
-    //                qCDebug(dcZigbee()) << "Xiaomi button sensor added";
-
-    //                qCDebug(dcZigbee()) << "Output cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                qCDebug(dcZigbee()) << "Input cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                DeviceDescriptor descriptor(xiaomiButtonSensorDeviceClassId);
-    //                descriptor.setParentDeviceId(parentDevice->id());
-    //                descriptor.setTitle(tr("Xiaomi button"));
-
-    //                ParamList params;
-    //                params.append(Param(xiaomiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
-    //                descriptor.setParams(params);
-
-    //                emit autoDevicesAppeared({ descriptor });
-    //                return;
-    //            }
-
-    //            // Xiaomi Motion Sensor
-    //            if (modelIdentifier.contains("lumi.sensor_motion")) {
-    //                qCDebug(dcZigbee()) << "Xiaomi motion sensor added";
-
-    //                qCDebug(dcZigbee()) << "Output cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->outputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                qCDebug(dcZigbee()) << "Input cluster:";
-    //                foreach (ZigbeeCluster *cluster, node->inputClusters()) {
-    //                    qCDebug(dcZigbee()) << "    " << cluster;
-    //                }
-
-    //                DeviceDescriptor descriptor(xiaomiMotionSensorDeviceClassId);
-    //                descriptor.setParentDeviceId(parentDevice->id());
-    //                descriptor.setTitle(tr("Xiaomi motion sensor"));
-
-    //                ParamList params;
-    //                params.append(Param(xiaomiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
-    //                descriptor.setParams(params);
-
-    //                emit autoDevicesAppeared({ descriptor });
-    //                return;
-    //            }
-    //        }
-    //    }
-
-    //    qCDebug(dcZigbee()) << "Unhandled zigbee node added. Create a generic node device for it";
-
-    //    // If nothing recognized this device, create the generic node device
-    //    createGenericNodeDeviceForNode(parentDevice, node);
-}
-
-void DevicePluginZigbee::createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node)
-{
-    if (!parentDevice) {
-        qCWarning(dcZigbee()) << "No parent device passed";
-        return;
-    }
-
-    if (!node) {
-        qCWarning(dcZigbee()) << "No node passed";
-        return;
-    }
-
-    DeviceDescriptor descriptor(zigbeeNodeDeviceClassId);
-    descriptor.setParentDeviceId(parentDevice->id());
-
-    if (node->shortAddress() == 0) {
-        descriptor.setTitle("Zigbee node (coordinator)");
-    } else {
-        descriptor.setTitle("Zigbee node");
-    }
-
-    ParamList params;
-    params.append(Param(zigbeeNodeDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
-    params.append(Param(zigbeeNodeDeviceNwkAddressParamTypeId, QVariant::fromValue(node->shortAddress())));
-    descriptor.setParams(params);
-
-    emit autoDevicesAppeared({ descriptor });
 }
 
 void DevicePluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
@@ -691,18 +363,6 @@ void DevicePluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
         device->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetwork->channel());
         device->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
         device->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
-
-        //        // Initalize nodes
-        //        foreach (ZigbeeNode *node, zigbeeNetworkManager->nodes()) {
-        //            Device *device = findNodeDevice(node);
-        //            if (device) {
-        //                qCDebug(dcZigbee()) << "Devices for" << node << "already created." << device;
-        //                break;
-        //            }
-
-        //            createDeviceForNode(device, node);
-        //        }
-
         break;
     case ZigbeeNetwork::StateStarting:
         //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
@@ -711,7 +371,6 @@ void DevicePluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
         //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         break;
     }
-
 }
 
 void DevicePluginZigbee::onZigbeeNetworkChannelChanged(uint channel)
@@ -744,7 +403,25 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     Device *networkManagerDevice = m_zigbeeNetworks.key(zigbeeNetwork);
     if (!networkManagerDevice) return;
 
-    qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node << node->endpoints();
+    qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
+    foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
+        qCDebug(dcZigbee()) << endpoint;
+        qCDebug(dcZigbee()) << "  Input clusters";
+        foreach (ZigbeeCluster *cluster, endpoint->inputClusters()) {
+            qCDebug(dcZigbee()) << "   -" << cluster;
+            foreach(const ZigbeeClusterAttribute &attribute, cluster->attributes()) {
+                qCDebug(dcZigbee()) << "     - " << attribute;
+            }
+        }
+
+        qCDebug(dcZigbee()) << "  Output clusters";
+        foreach (ZigbeeCluster *cluster, endpoint->outputClusters()) {
+            qCDebug(dcZigbee()) << "   -" << cluster;
+            foreach(const ZigbeeClusterAttribute &attribute, cluster->attributes()) {
+                qCDebug(dcZigbee()) << "     - " << attribute;
+            }
+        }
+    }
 
     // Check ikea devices
     if (node->manufacturerCode() == Zigbee::Manufacturer::Ikea) {
@@ -763,6 +440,25 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     descriptor.setTitle(supportedDevices().findById(tradfriRemoteDeviceClassId).displayName());
                     ParamList params;
                     params.append(Param(tradfriRemoteDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            } else if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                       endpoint->deviceId() == Zigbee::HomeAutomationDevice::HomeAutomationDeviceNonColourController) {
+
+                qCDebug(dcZigbee()) << "Found Ikea Tradfri On/Off remote";
+                // Check if node already added
+                if (myDevices().filterByDeviceClassId(tradfriOnOffSwitchDeviceClassId)
+                        .filterByParam(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new tradfri on/off remote";
+                    DeviceDescriptor descriptor(tradfriOnOffSwitchDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(tradfriOnOffSwitchDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
                     descriptor.setParentDeviceId(networkManagerDevice->id());
                     emit autoDevicesAppeared({descriptor});
@@ -813,6 +509,112 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                 }
             }
         }
+    } else if (node->manufacturerCode() == 0x1037) {
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        qCDebug(dcZigbee()) << "This device is from Lumi";
+        foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
+
+            // Get the model identifier if present from the first endpoint. Also this is out of spec
+            if (!endpoint->hasInputCluster(Zigbee::ClusterIdBasic)) {
+                qCWarning(dcZigbee()) << "This lumi device does not have the basic input cluster yet.";
+                continue;
+            }
+
+            ZigbeeCluster *basicCluster = endpoint->getInputCluster(Zigbee::ClusterIdBasic);
+            if (!basicCluster->hasAttribute(ZigbeeCluster::BasicAttributeModelIdentifier)) {
+                qCWarning(dcZigbee()) << "This lumi device does not have the model identifier yet.";
+                continue;
+            }
+
+            QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(ZigbeeCluster::BasicAttributeModelIdentifier).data());
+            qCDebug(dcZigbee()) << "Model identifier" << modelIdentifier;
+
+            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                    modelIdentifier.startsWith("lumi.sensor_ht") &&
+                    endpoint->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement) &&
+                    endpoint->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
+
+                qCDebug(dcZigbee()) << "This device is a lumi temperature humidity sensor";
+                if (myDevices().filterByDeviceClassId(lumiTemperatureHumidityDeviceClassId)
+                        .filterByParam(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new lumi temperature humidity sensor";
+                    DeviceDescriptor descriptor(lumiTemperatureHumidityDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(lumiTemperatureHumidityDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            }
+
+            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                    modelIdentifier.startsWith("lumi.sensor_magnet")) {
+
+                qCDebug(dcZigbee()) << "This device is a lumi magnet sensor";
+                if (myDevices().filterByDeviceClassId(lumiMagnetSensorDeviceClassId)
+                        .filterByParam(lumiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new lumi magnet sensor";
+                    DeviceDescriptor descriptor(lumiMagnetSensorDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(lumiMagnetSensorDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(lumiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            }
+
+            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                    modelIdentifier.startsWith("lumi.sensor_switch")) {
+
+                qCDebug(dcZigbee()) << "This device is a lumi button sensor";
+                if (myDevices().filterByDeviceClassId(lumiButtonSensorDeviceClassId)
+                        .filterByParam(lumiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new lumi button sensor";
+                    DeviceDescriptor descriptor(lumiButtonSensorDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(lumiButtonSensorDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(lumiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            }
+
+            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                    modelIdentifier.startsWith("lumi.sensor_motion")) {
+
+                qCDebug(dcZigbee()) << "This device is a lumi motion sensor";
+                if (myDevices().filterByDeviceClassId(lumiMotionSensorDeviceClassId)
+                        .filterByParam(lumiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new lumi motion sensor";
+                    DeviceDescriptor descriptor(lumiMotionSensorDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(lumiMotionSensorDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(lumiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            }
+        }
     }
 }
 
@@ -835,96 +637,4 @@ void DevicePluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
     delete zigbeeDevice;
 
     emit autoDeviceDisappeared(device->id());
-}
-
-void DevicePluginZigbee::onXiaomiTemperatureSensorConnectedChanged(bool connected)
-{
-    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
-    Device *device = m_xiaomiTemperatureSensors.key(sensor);
-    device->setStateValue(xiaomiTemperatureHumidityConnectedStateTypeId, connected);
-}
-
-void DevicePluginZigbee::onXiaomiTemperatureSensorTemperatureChanged(double temperature)
-{
-    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
-    Device *device = m_xiaomiTemperatureSensors.key(sensor);
-    device->setStateValue(xiaomiTemperatureHumidityTemperatureStateTypeId, temperature);
-    qCDebug(dcZigbee()) << device << "temperature changed" << temperature << "°C";
-}
-
-void DevicePluginZigbee::onXiaomiTemperatureSensorHumidityChanged(double humidity)
-{
-    XiaomiTemperatureSensor *sensor = static_cast<XiaomiTemperatureSensor *>(sender());
-    Device *device = m_xiaomiTemperatureSensors.key(sensor);
-    device->setStateValue(xiaomiTemperatureHumidityHumidityStateTypeId, humidity);
-    qCDebug(dcZigbee()) << device << "humidity changed" << humidity << "%";
-}
-
-void DevicePluginZigbee::onXiaomiMagnetSensorConnectedChanged(bool connected)
-{
-    XiaomiMagnetSensor *sensor = static_cast<XiaomiMagnetSensor *>(sender());
-    Device *device = m_xiaomiMagnetSensors.key(sensor);
-    device->setStateValue(xiaomiMagnetSensorConnectedStateTypeId, connected);
-}
-
-void DevicePluginZigbee::onXiaomiMagnetSensorClosedChanged(bool closed)
-{
-    XiaomiMagnetSensor *sensor = static_cast<XiaomiMagnetSensor *>(sender());
-    Device *device = m_xiaomiMagnetSensors.key(sensor);
-    device->setStateValue(xiaomiMagnetSensorClosedStateTypeId, closed);
-    qCDebug(dcZigbee()) << device << (closed ? "closed" : "opened");
-}
-
-void DevicePluginZigbee::onXiaomiButtonSensorConnectedChanged(bool connected)
-{
-    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
-    Device *device = m_xiaomiButtonSensors.key(sensor);
-    device->setStateValue(xiaomiButtonSensorConnectedStateTypeId, connected);
-}
-
-void DevicePluginZigbee::onXiaomiButtonSensorPressedChanged(bool pressed)
-{
-    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
-    Device *device = m_xiaomiButtonSensors.key(sensor);
-    //device->setStateValue(xiaomiButtonSensorPressedStateTypeId, pressed);
-    qCDebug(dcZigbee()) << device << "Button" << (pressed ? "pressed" : "released");
-}
-
-void DevicePluginZigbee::onXiaomiButtonSensorPressed()
-{
-    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
-    Device *device = m_xiaomiButtonSensors.key(sensor);
-    emitEvent(Event(xiaomiButtonSensorPressedEventTypeId, device->id()));
-    qCDebug(dcZigbee()) << device << "Button clicked";
-}
-
-void DevicePluginZigbee::onXiaomiButtonSensorLongPressed()
-{
-    XiaomiButtonSensor *sensor = static_cast<XiaomiButtonSensor *>(sender());
-    Device *device = m_xiaomiButtonSensors.key(sensor);
-    emitEvent(Event(xiaomiButtonSensorLongPressedEventTypeId, device->id()));
-    qCDebug(dcZigbee()) << device << "Button long pressed";
-}
-
-void DevicePluginZigbee::onXiaomiMotionSensorConnectedChanged(bool connected)
-{
-    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
-    Device *device = m_xiaomiMotionSensors.key(sensor);
-    device->setStateValue(xiaomiMotionSensorConnectedStateTypeId, connected);
-}
-
-void DevicePluginZigbee::onXiaomiMotionSensorPresentChanged(bool present)
-{
-    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
-    Device *device = m_xiaomiMotionSensors.key(sensor);
-    device->setStateValue(xiaomiMotionSensorIsPresentStateTypeId, present);
-    qCDebug(dcZigbee()) << device << "present changed" << present;
-}
-
-void DevicePluginZigbee::onXiaomiMotionSensorMotionDetected()
-{
-    XiaomiMotionSensor *sensor = static_cast<XiaomiMotionSensor *>(sender());
-    Device *device = m_xiaomiMotionSensors.key(sensor);
-    device->setStateValue(xiaomiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTimeUtc().toTime_t());
-    qCDebug(dcZigbee()) << device << "motion detected" << QDateTime::currentDateTimeUtc().toTime_t();
 }

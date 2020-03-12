@@ -174,12 +174,12 @@
             ]
         },
         {
-            "name": "xiaomi",
-            "displayName": "Xiaomi ",
+            "name": "lumi",
+            "displayName": "Lumi",
             "id": "f58dac98-0ba1-408f-946a-25d452080baa",
             "deviceClasses": [
                 {
-                    "name": "xiaomiTemperatureHumidity",
+                    "name": "lumiTemperatureHumidity",
                     "displayName": "Temperature humidity sensor",
                     "id": "dfabab0e-d483-43f8-82c6-720899e70c86",
                     "setupMethod": "JustAdd",
@@ -237,7 +237,7 @@
                     ]
                 },
                 {
-                    "name": "xiaomiMagnetSensor",
+                    "name": "lumiMagnetSensor",
                     "displayName": "Magnet sensor",
                     "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",
                     "setupMethod": "JustAdd",
@@ -279,7 +279,7 @@
                     ]
                 },
                 {
-                    "name": "xiaomiButtonSensor",
+                    "name": "lumiButtonSensor",
                     "displayName": "Button sensor",
                     "id": "42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e",
                     "setupMethod": "JustAdd",
@@ -322,12 +322,12 @@
                     ]
                 },
                 {
-                    "name": "xiaomiMotionSensor",
+                    "name": "lumiMotionSensor",
                     "displayName": "Motion sensor",
                     "id": "b5530192-0891-4934-88a2-7338b069be24",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable", "presencesensor" ],
+                    "interfaces": [ "presencesensor", "lightsensor", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "3a44ed47-5a70-4052-9a14-78f9033eab85",
@@ -335,6 +335,17 @@
                             "displayName": "IEEE adress",
                             "type": "QString",
                             "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "settingsTypes": [
+                        {
+                            "id": "4aeb84fa-e3ef-495e-8754-a5f6c3aa934a",
+                            "name": "timeout",
+                            "displayName": "Time period",
+                            "type": "uint",
+                            "unit": "Seconds",
+                            "defaultValue": 10,
+                            "minValue": 10
                         }
                     ],
                     "stateTypes": [
@@ -363,6 +374,15 @@
                             "type": "int",
                             "unit": "UnixTime",
                             "defaultValue": 0
+                        },
+                        {
+                            "id": "eb3fb43e-a9bb-4498-880b-464cbb752ff6",
+                            "name": "lightIntensity",
+                            "displayName": "Light intensity",
+                            "displayNameEvent": "Light intensity changed",
+                            "type": "double",
+                            "unit": "Lux",
+                            "defaultValue": 0
                         }
                     ],
                     "actionTypes": [
@@ -381,7 +401,7 @@
             "deviceClasses": [
                 {
                     "name": "tradfriRemote",
-                    "displayName": "TRÅDFRI Remote",
+                    "displayName": "TRÅDFRI remote",
                     "id": "f16386d8-afe5-4d7d-b5dc-a2613d2cefc4",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -418,8 +438,51 @@
                     ]
                 },
                 {
+                    "name": "tradfriOnOffSwitch",
+                    "displayName": "TRÅDFRI on/off switch",
+                    "id": "cec4b104-6076-4a6d-9ee2-595be25a2dcc",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "7ec1beb6-c21b-4cc6-9e2a-fcb2182c8046",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "90792f5b-9621-4c8c-be2c-7868efb2e4dd",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "8e38c74e-26a3-419c-af8f-6eb9a86cd29b",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "285be42a-16fb-48bb-aa85-6c3ad7c6adfb",
+                            "name": "factoryReset",
+                            "displayName": "Factory reset node"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
                     "name": "tradfriColorLight",
-                    "displayName": "TRÅDFRI Color Light",
+                    "displayName": "TRÅDFRI color light",
                     "id": "1cf18470-5193-4800-8f45-1f11b2dff204",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -494,6 +557,11 @@
                             "id": "5c5bc2e7-df75-4a15-89aa-ac0d77d11fea",
                             "name": "identify",
                             "displayName": "Identify"
+                        },
+                        {
+                            "id": "4ce06b12-fbc5-41de-8ce7-fd0913f98737",
+                            "name": "factoryReset",
+                            "displayName": "Factory reset node"
                         }
                     ],
                     "eventTypes": [
@@ -502,7 +570,7 @@
                 },
                 {
                     "name": "tradfriColorTemperatureLight",
-                    "displayName": "TRÅDFRI Color Temperature Light",
+                    "displayName": "TRÅDFRI color temperature light",
                     "id": "92ff113a-9205-451b-a172-361e20ebb873",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
@@ -582,7 +650,7 @@
             "deviceClasses": [
                 {
                     "name": "feibitOnOffLight",
-                    "displayName": "FeiBit On/Off Light",
+                    "displayName": "FeiBit on/off light",
                     "id": "97e5e1b3-542c-449d-a865-5a60961d8556",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
