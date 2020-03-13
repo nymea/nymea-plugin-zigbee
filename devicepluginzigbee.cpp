@@ -138,7 +138,7 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
     }
 
     if (device->deviceClassId() == tradfriRemoteDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri remot" << device;
+        qCDebug(dcZigbee()) << "Tradfri remote" << device;
         ZigbeeAddress ieeeAddress(device->paramValue(tradfriRemoteDeviceIeeeAddressParamTypeId).toString());
         ZigbeeNetwork *network = findParentNetwork(device);
         TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, device, this);
@@ -162,6 +162,22 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
         m_zigbeeDevices.insert(device, light);
     }
 
+    if (device->deviceClassId() == tradfriColorTemperatureLightDeviceClassId) {
+        qCDebug(dcZigbee()) << "Tradfri colour light" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, light);
+    }
+
+    if (device->deviceClassId() == tradfriPowerSocketDeviceClassId) {
+        qCDebug(dcZigbee()) << "Tradfri power socket" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(tradfriPowerSocketDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, socket);
+    }
+
     if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
         qCDebug(dcZigbee()) << "FeiBit On/OFF light" << device;
         ZigbeeAddress ieeeAddress(device->paramValue(feibitOnOffLightDeviceIeeeAddressParamTypeId).toString());
@@ -177,7 +193,6 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
         LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, device, this);
         m_zigbeeDevices.insert(device, sensor);
     }
-
 
     if (device->deviceClassId() == lumiMagnetSensorDeviceClassId) {
         qCDebug(dcZigbee()) << "Lumi magnet sensor" << device;
@@ -270,6 +285,16 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         }
     }
 
+    // Tradfri power socket
+    if (device->deviceClassId() == tradfriPowerSocketDeviceClassId) {
+        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == tradfriPowerSocketIdentifyActionTypeId) {
+            socket->identify();
+        } else if (action.actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
+            socket->setPower(action.param(tradfriPowerSocketPowerActionPowerParamTypeId).value().toBool());
+        }
+    }
+
     // Tradfri color light
     if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
         TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(device));
@@ -286,6 +311,20 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         }
     }
 
+    // Tradfri color temperature light
+    if (device->deviceClassId() == tradfriColorTemperatureLightDeviceClassId) {
+        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == tradfriColorTemperatureLightIdentifyActionTypeId) {
+            light->identify();
+        } else if (action.actionTypeId() == tradfriColorTemperatureLightPowerActionTypeId) {
+            light->setPower(action.param(tradfriColorTemperatureLightPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == tradfriColorTemperatureLightBrightnessActionTypeId) {
+            light->setBrightness(action.param(tradfriColorTemperatureLightBrightnessActionBrightnessParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == tradfriColorTemperatureLightColorTemperatureActionTypeId) {
+            light->setColorTemperature(action.param(tradfriColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
+        }
+    }
+
     // FeiBit on/off light switch
     if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
         FeiBitOnOffLight *light = qobject_cast<FeiBitOnOffLight *>(m_zigbeeDevices.value(device));
@@ -294,27 +333,6 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         } else if (action.actionTypeId() == feibitOnOffLightPowerActionTypeId) {
             light->setPower(action.param(feibitOnOffLightPowerActionPowerParamTypeId).value().toBool());
         }
-    }
-
-    if (device->deviceClassId() == zigbeeNodeDeviceClassId) {
-        //        ZigbeeNetworkManager *networkManager = findParentNetwork(device);
-
-        //        if (!networkManager)
-        //            return info->finish(Device::DeviceErrorHardwareFailure);
-
-        //        if (networkManager->state() != ZigbeeNetworkManager::StateRunning)
-        //            return info->finish(Device::DeviceErrorHardwareNotAvailable);
-
-        //        quint16 shortAddress = static_cast<quint16>(device->paramValue(zigbeeNodeDeviceNwkAddressParamTypeId).toUInt());
-        //        ZigbeeAddress extendedAddress = ZigbeeAddress(device->paramValue(zigbeeNodeDeviceIeeeAddressParamTypeId).toString());
-
-        //        if (action.actionTypeId() == zigbeeNodeIdentifyActionTypeId) {
-        //            qCDebug(dcZigbee()) << extendedAddress.toString();
-        //        }
-
-        //        if (action.actionTypeId() == zigbeeNodeLqiRequestActionTypeId) {
-        //            networkManager->controller()->commandRequestLinkQuality(shortAddress);
-        //        }
     }
 
     return info->finish(Device::DeviceErrorNoError);
@@ -478,6 +496,44 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     descriptor.setTitle(supportedDevices().findById(tradfriColorLightDeviceClassId).displayName());
                     ParamList params;
                     params.append(Param(tradfriColorLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
+                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
+
+                qCDebug(dcZigbee()) << "Found Ikea tradfri power socket";
+                // Check if node already added
+                if (myDevices().filterByDeviceClassId(tradfriPowerSocketDeviceClassId)
+                        .filterByParam(tradfriPowerSocketDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new tradfri power socket";
+                    DeviceDescriptor descriptor(tradfriPowerSocketDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(tradfriPowerSocketDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(tradfriPowerSocketDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
+                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceColourTemperatureLight) {
+
+                qCDebug(dcZigbee()) << "Found Ikea tradfri color temperature light";
+                // Check if node already added
+                if (myDevices().filterByDeviceClassId(tradfriColorTemperatureLightDeviceClassId)
+                        .filterByParam(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new tradfri color temperature light";
+                    DeviceDescriptor descriptor(tradfriColorTemperatureLightDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(tradfriColorTemperatureLightDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
                     descriptor.setParentDeviceId(networkManagerDevice->id());
                     emit autoDevicesAppeared({descriptor});

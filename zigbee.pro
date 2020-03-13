@@ -12,7 +12,9 @@ SOURCES += \
     devicepluginzigbee.cpp \
     feibit/feibitonofflight.cpp \
     ikea/tradfricolorlight.cpp \
+    ikea/tradfricolortemperaturelight.cpp \
     ikea/tradfrionoffswitch.cpp \
+    ikea/tradfripowersocket.cpp \
     ikea/tradfriremote.cpp \
     lumi/lumibuttonsensor.cpp \
     lumi/lumimagnetsensor.cpp \
@@ -24,7 +26,9 @@ HEADERS += \
     devicepluginzigbee.h \
     feibit/feibitonofflight.h \
     ikea/tradfricolorlight.h \
+    ikea/tradfricolortemperaturelight.h \
     ikea/tradfrionoffswitch.h \
+    ikea/tradfripowersocket.h \
     ikea/tradfriremote.h \
     lumi/lumibuttonsensor.h \
     lumi/lumimagnetsensor.h \
