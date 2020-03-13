@@ -640,6 +640,54 @@
                     "eventTypes": [
 
                     ]
+                },
+                {
+                    "name": "tradfriPowerSocket",
+                    "displayName": "TRÅDFRI power socket",
+                    "id": "56181685-6703-4640-a14f-6a7ced10d6ed",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "powersocket", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "145ff3d6-02d7-4533-9878-027da89de723",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "f9a27525-aef3-48a2-aa55-6aedd3d52133",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "fde59e2e-49cb-4247-bf4e-a06bbb86108c",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "42c8c602-9f25-4c93-a73f-14ea370b7ced",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
                 }
             ]
         },

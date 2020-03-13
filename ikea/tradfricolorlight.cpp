@@ -91,7 +91,7 @@ void TradfriColorLight::setColorTemperature(int colorTemperature)
     readColorXy();
 
     //    // Note: time unit is 1/10 s
-    //    m_endpoint->sendMoveToColorTemperature(static_cast<quint16>(colorTemperature), 5);
+//        m_endpoint->sendMoveToColorTemperature(static_cast<quint16>(colorTemperature), 5);
 }
 
 void TradfriColorLight::setColor(const QColor &color)
