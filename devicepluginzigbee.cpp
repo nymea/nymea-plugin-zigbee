@@ -178,6 +178,14 @@ void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
         m_zigbeeDevices.insert(device, socket);
     }
 
+    if (device->deviceClassId() == tradfriRangeExtenderDeviceClassId) {
+        qCDebug(dcZigbee()) << "Tradfri range extender" << device;
+        ZigbeeAddress ieeeAddress(device->paramValue(tradfriRangeExtenderDeviceIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(device);
+        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, device, this);
+        m_zigbeeDevices.insert(device, extender);
+    }
+
     if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
         qCDebug(dcZigbee()) << "FeiBit On/OFF light" << device;
         ZigbeeAddress ieeeAddress(device->paramValue(feibitOnOffLightDeviceIeeeAddressParamTypeId).toString());
@@ -263,7 +271,6 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
 
         if (action.actionTypeId() == zigbeeControllerTest2ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 2";
-
         }
     }
 
@@ -272,6 +279,19 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
         TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(device));
         if (action.actionTypeId() == tradfriRemoteIdentifyActionTypeId) {
             remote->identify();
+        } else if (action.actionTypeId() == tradfriRemoteRemoveFromNetworkActionTypeId) {
+            remote->removeFromNetwork();
+        }
+    }
+
+
+    // Tradfri range extender
+    if (device->deviceClassId() == tradfriRangeExtenderDeviceClassId) {
+        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
+            extender->identify();
+        } else if (action.actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
+            extender->removeFromNetwork();
         }
     }
 
@@ -282,6 +302,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
             remote->identify();
         } else if (action.actionTypeId() == tradfriOnOffSwitchFactoryResetActionTypeId) {
             remote->factoryResetNode();
+        } else if (action.actionTypeId() == tradfriOnOffSwitchRemoveFromNetworkActionTypeId) {
+            remote->removeFromNetwork();
         }
     }
 
@@ -292,6 +314,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
             socket->identify();
         } else if (action.actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
             socket->setPower(action.param(tradfriPowerSocketPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == tradfriPowerSocketRemoveFromNetworkActionTypeId) {
+            socket->removeFromNetwork();
         }
     }
 
@@ -308,6 +332,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
             light->setColorTemperature(action.param(tradfriColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
         } else if (action.actionTypeId() == tradfriColorLightColorActionTypeId) {
             light->setColor(action.param(tradfriColorLightColorActionColorParamTypeId).value().value<QColor>());
+        } else if (action.actionTypeId() == tradfriColorLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
         }
     }
 
@@ -322,6 +348,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
             light->setBrightness(action.param(tradfriColorTemperatureLightBrightnessActionBrightnessParamTypeId).value().toInt());
         } else if (action.actionTypeId() == tradfriColorTemperatureLightColorTemperatureActionTypeId) {
             light->setColorTemperature(action.param(tradfriColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == tradfriColorTemperatureLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
         }
     }
 
@@ -332,10 +360,38 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
             light->identify();
         } else if (action.actionTypeId() == feibitOnOffLightPowerActionTypeId) {
             light->setPower(action.param(feibitOnOffLightPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == feibitOnOffLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
         }
     }
 
-    return info->finish(Device::DeviceErrorNoError);
+    // Lumi temperature/humidity sensor
+    if (device->deviceClassId() == lumiTemperatureHumidityDeviceClassId) {
+        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == lumiTemperatureHumidityIdentifyActionTypeId) {
+            sensor->identify();
+        } else if (action.actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
+            sensor->removeFromNetwork();
+        }
+    }
+
+    // Lumi magnet sensor
+    if (device->deviceClassId() == lumiMagnetSensorDeviceClassId) {
+        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == lumiMagnetSensorRemoveFromNetworkActionTypeId) {
+            sensor->removeFromNetwork();
+        }
+    }
+
+    // Lumi motion sensor
+    if (device->deviceClassId() == lumiMotionSensorDeviceClassId) {
+        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(device));
+        if (action.actionTypeId() == lumiMotionSensorRemoveFromNetworkActionTypeId) {
+            sensor->removeFromNetwork();
+        }
+    }
+
+    info->finish(Device::DeviceErrorNoError);
 }
 
 ZigbeeNetwork *DevicePluginZigbee::findParentNetwork(Device *device) const
@@ -424,7 +480,10 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
     foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
         qCDebug(dcZigbee()) << endpoint;
-        qCDebug(dcZigbee()) << "  Input clusters";
+        qCDebug(dcZigbee()) << "  Manufacturer" << endpoint->manufacturerName();
+        qCDebug(dcZigbee()) << "  Model" << endpoint->modelIdentifier();
+        qCDebug(dcZigbee()) << "  Version" << endpoint->softwareBuildId();
+        qCDebug(dcZigbee()) << "  Input clusters (" << endpoint->inputClusters().count() << ")";
         foreach (ZigbeeCluster *cluster, endpoint->inputClusters()) {
             qCDebug(dcZigbee()) << "   -" << cluster;
             foreach(const ZigbeeClusterAttribute &attribute, cluster->attributes()) {
@@ -432,7 +491,7 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
             }
         }
 
-        qCDebug(dcZigbee()) << "  Output clusters";
+        qCDebug(dcZigbee()) << "  Output clusters (" << endpoint->outputClusters().count() << ")";
         foreach (ZigbeeCluster *cluster, endpoint->outputClusters()) {
             qCDebug(dcZigbee()) << "   -" << cluster;
             foreach(const ZigbeeClusterAttribute &attribute, cluster->attributes()) {
@@ -534,6 +593,25 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     descriptor.setTitle(supportedDevices().findById(tradfriColorTemperatureLightDeviceClassId).displayName());
                     ParamList params;
                     params.append(Param(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentDeviceId(networkManagerDevice->id());
+                    emit autoDevicesAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
+                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceRangeExtender) {
+
+                qCDebug(dcZigbee()) << "Found Ikea tradfri range extender";
+                // Check if node already added
+                if (myDevices().filterByDeviceClassId(tradfriRangeExtenderDeviceClassId)
+                        .filterByParam(tradfriRangeExtenderDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new tradfri range extender";
+                    DeviceDescriptor descriptor(tradfriRangeExtenderDeviceClassId);
+                    descriptor.setTitle(supportedDevices().findById(tradfriRangeExtenderDeviceClassId).displayName());
+                    ParamList params;
+                    params.append(Param(tradfriRangeExtenderDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
                     descriptor.setParentDeviceId(networkManagerDevice->id());
                     emit autoDevicesAppeared({descriptor});

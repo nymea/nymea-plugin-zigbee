@@ -63,10 +63,16 @@ void TradfriOnOffSwitch::factoryResetNode()
     m_endpoint->factoryReset();
 }
 
+void TradfriOnOffSwitch::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void TradfriOnOffSwitch::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, true);
+        device()->setStateValue(tradfriOnOffSwitchVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, false);
     }

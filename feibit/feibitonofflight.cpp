@@ -14,6 +14,8 @@ FeiBitOnOffLight::FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         }
     }
 
+    Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
+
     qCDebug(dcZigbee()) << m_device << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
@@ -37,6 +39,29 @@ void FeiBitOnOffLight::identify()
     m_endpoint->identify(2);
 }
 
+void FeiBitOnOffLight::checkOnlineStatus()
+{
+    if (m_network->state() == ZigbeeNetwork::StateRunning) {
+        device()->setStateValue(feibitOnOffLightConnectedStateTypeId, true);
+        device()->setStateValue(feibitOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        readAttribute();
+    } else {
+        device()->setStateValue(feibitOnOffLightConnectedStateTypeId, false);
+    }
+}
+
+void FeiBitOnOffLight::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
+void FeiBitOnOffLight::setPower(bool power)
+{
+    qCDebug(dcZigbee()) << m_device << "set power" << power;
+    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
+    readAttribute();
+}
+
 void FeiBitOnOffLight::readAttribute()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
@@ -48,34 +73,9 @@ void FeiBitOnOffLight::readAttribute()
 
 void FeiBitOnOffLight::configureReporting()
 {
-    // Configure reporting
-//    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-//            m_endpoint->configureReporting(cluster, { ZigbeeCluster::OnOffClusterAttributeOnOff });
-//        }
 
-//        if (cluster->clusterId() == Zigbee::ClusterIdLevelControl) {
-//            m_endpoint->configureReporting(cluster, { ZigbeeCluster::LevelClusterAttributeCurrentLevel });
-//        }
-    //    }
 }
 
-void FeiBitOnOffLight::checkOnlineStatus()
-{
-    if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(feibitOnOffLightConnectedStateTypeId, true);
-        readAttribute();
-    } else {
-        device()->setStateValue(feibitOnOffLightConnectedStateTypeId, false);
-    }
-}
-
-void FeiBitOnOffLight::setPower(bool power)
-{
-    qCDebug(dcZigbee()) << m_device << "set power" << power;
-    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    readAttribute();
-}
 
 void FeiBitOnOffLight::onNetworkStateChanged(ZigbeeNetwork::State state)
 {

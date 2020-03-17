@@ -1,15 +1,15 @@
-#ifndef LUMIMAGNETSENSOR_H
-#define LUMIMAGNETSENSOR_H
+#ifndef TRADFRIRANGEEXTENDER_H
+#define TRADFRIRANGEEXTENDER_H
 
 #include <QObject>
 
 #include "zigbeedevice.h"
 
-class LumiMagnetSensor : public ZigbeeDevice
+class TradfriRangeExtender : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
     void removeFromNetwork() override;
@@ -18,12 +18,10 @@ public:
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
 
-signals:
-
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
     void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 
-#endif // LUMIMAGNETSENSOR_H
+#endif // TRADFRIRANGEEXTENDER_H

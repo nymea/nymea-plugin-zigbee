@@ -14,6 +14,8 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
         }
     }
 
+    Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
+
     qCDebug(dcZigbee()) << m_device << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
@@ -25,15 +27,32 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
-    // Enable reporting
-
-
-    // Read stuff
-
+    configureReporting();
 
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriRemote::onNetworkStateChanged);
 }
+
+void TradfriRemote::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
+void TradfriRemote::checkOnlineStatus()
+{
+    if (m_network->state() == ZigbeeNetwork::StateRunning) {
+        device()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
+        device()->setStateValue(tradfriRemoteVersionStateTypeId, m_endpoint->softwareBuildId());
+    } else {
+        device()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
+    }
+}
+
+void TradfriRemote::identify()
+{
+    m_endpoint->identify(5);
+}
+
 
 void TradfriRemote::readAttribute()
 {
@@ -46,38 +65,27 @@ void TradfriRemote::readAttribute()
 
 void TradfriRemote::configureReporting()
 {
-//    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-//            ZigbeeClusterReportConfigurationRecord reportConfiguration;
-//            reportConfiguration.attributeId = 0x0000;
+    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
+        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
+            qCWarning(dcZigbee()) << "===============";
+            ZigbeeClusterReportConfigurationRecord reportConfiguration;
+            reportConfiguration.direction = 0x00;
+            reportConfiguration.dataType = Zigbee::Bool;
+            reportConfiguration.attributeId = 0x0000; // OnOff
+            reportConfiguration.minInterval = 0x0000;
+            reportConfiguration.maxInterval = 0x0001;
+            reportConfiguration.timeout = 0x0001;
+            reportConfiguration.change = 0x02;
 
-//            m_endpoint->configureReporting(cluster, {0x0000});
-//        }
-    //    }
-}
-
-void TradfriRemote::checkOnlineStatus()
-{
-    if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
-    } else {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
+            m_endpoint->configureReporting(cluster, { reportConfiguration });
+        }
     }
 }
 
-void TradfriRemote::identify()
+void TradfriRemote::addGroup()
 {
-    //m_endpoint->identify(5);
-
-    //m_endpoint->addGroup(0x01, 0x0000);
-    //m_endpoint->bindUnicast(Zigbee::ClusterIdOnOff, m_network->coordinatorNode()->extendedAddress(), 0x01);
-    m_endpoint->bindGroup(Zigbee::ClusterIdOnOff, 0x0000, 0x01);
-//    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-//        }
-//    }
-
 }
+
 
 void TradfriRemote::onNetworkStateChanged(ZigbeeNetwork::State state)
 {

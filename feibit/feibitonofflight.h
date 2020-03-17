@@ -12,16 +12,17 @@ class FeiBitOnOffLight : public ZigbeeDevice
 public:
     FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
-    void identify();
-    void readAttribute();
-    void configureReporting();
-
     void checkOnlineStatus() override;
+    void removeFromNetwork() override;
 
+    void identify();
     void setPower(bool power);
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+
+    void readAttribute();
+    void configureReporting();
 
 signals:
 

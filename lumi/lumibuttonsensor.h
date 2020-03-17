@@ -14,6 +14,7 @@ public:
 
     void identify();
 
+    void removeFromNetwork() override;
     void checkOnlineStatus() override;
 
 private:

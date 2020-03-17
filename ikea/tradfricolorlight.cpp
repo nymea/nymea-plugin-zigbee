@@ -45,10 +45,16 @@ void TradfriColorLight::identify()
     m_endpoint->identify(1);
 }
 
+void TradfriColorLight::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void TradfriColorLight::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(tradfriColorLightConnectedStateTypeId, true);
+        device()->setStateValue(tradfriColorLightVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(tradfriColorLightConnectedStateTypeId, false);
     }
@@ -89,9 +95,6 @@ void TradfriColorLight::setColorTemperature(int colorTemperature)
     m_endpoint->sendMoveToColor(temperatureColorXy.x(), temperatureColorXy.y(), 5);
     device()->setStateValue(tradfriColorLightColorTemperatureStateTypeId, colorTemperature);
     readColorXy();
-
-    //    // Note: time unit is 1/10 s
-//        m_endpoint->sendMoveToColorTemperature(static_cast<quint16>(colorTemperature), 5);
 }
 
 void TradfriColorLight::setColor(const QColor &color)

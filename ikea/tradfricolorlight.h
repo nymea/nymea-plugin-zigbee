@@ -13,6 +13,7 @@ public:
     explicit TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
+    void removeFromNetwork() override;
 
     void checkOnlineStatus() override;
 

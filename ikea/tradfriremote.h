@@ -12,13 +12,18 @@ public:
     explicit TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
-    void readAttribute();
-    void configureReporting();
 
+    void removeFromNetwork() override;
     void checkOnlineStatus() override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+
+    void readAttribute();
+    void configureReporting();
+
+    void addGroup();
+    void bindCluster();
 
 signals:
 
