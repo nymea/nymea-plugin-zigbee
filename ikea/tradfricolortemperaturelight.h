@@ -13,7 +13,7 @@ public:
     explicit TradfriColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
-
+    void removeFromNetwork() override;
     void checkOnlineStatus() override;
 
     void setPower(bool power);
@@ -22,11 +22,10 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-    void readColorCapabilities();
+
     void readOnOffState();
     void readLevelValue();
-
-    void configureReporting();
+    void readColorTemperature();
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);

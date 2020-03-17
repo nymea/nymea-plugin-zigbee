@@ -14,6 +14,8 @@ TradfriPowerSocket::TradfriPowerSocket(ZigbeeNetwork *network, ZigbeeAddress iee
         }
     }
 
+    Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
+
     qCDebug(dcZigbee()) << m_device << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
@@ -34,10 +36,16 @@ void TradfriPowerSocket::identify()
     m_endpoint->identify(2);
 }
 
+void TradfriPowerSocket::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void TradfriPowerSocket::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(tradfriPowerSocketConnectedStateTypeId, true);
+        device()->setStateValue(tradfriPowerSocketVersionStateTypeId, m_endpoint->softwareBuildId());
         readAttribute();
     } else {
         device()->setStateValue(tradfriPowerSocketConnectedStateTypeId, false);

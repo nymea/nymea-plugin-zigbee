@@ -27,10 +27,16 @@ void LumiMotionSensor::identify()
     m_endpoint->identify(2);
 }
 
+void LumiMotionSensor::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void LumiMotionSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(lumiMotionSensorConnectedStateTypeId, true);
+        device()->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
     }

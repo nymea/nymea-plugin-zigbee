@@ -19,10 +19,16 @@ void LumiTemperatureSensor::identify()
     m_endpoint->identify(2);
 }
 
+void LumiTemperatureSensor::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void LumiTemperatureSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
+        device()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
     }

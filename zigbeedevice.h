@@ -20,6 +20,7 @@ public:
     Device *device() const;
 
     virtual void checkOnlineStatus() = 0;
+    virtual void removeFromNetwork() = 0;
 
 protected:
     ZigbeeNetwork *m_network = nullptr;

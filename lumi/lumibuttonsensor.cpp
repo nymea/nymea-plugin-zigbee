@@ -24,10 +24,16 @@ void LumiButtonSensor::identify()
     m_endpoint->identify(2);
 }
 
+void LumiButtonSensor::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void LumiButtonSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(lumiButtonSensorConnectedStateTypeId, true);
+        device()->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
     }

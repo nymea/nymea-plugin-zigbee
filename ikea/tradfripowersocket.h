@@ -12,7 +12,9 @@ public:
     explicit TradfriPowerSocket(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
 
     void identify();
+    void removeFromNetwork() override;
     void checkOnlineStatus() override;
+
     void setPower(bool power);
 
 private:

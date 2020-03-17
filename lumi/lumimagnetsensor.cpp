@@ -19,10 +19,16 @@ void LumiMagnetSensor::identify()
     m_endpoint->identify(2);
 }
 
+void LumiMagnetSensor::removeFromNetwork()
+{
+    m_node->leaveNetworkRequest();
+}
+
 void LumiMagnetSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         device()->setStateValue(lumiMagnetSensorConnectedStateTypeId, true);
+        device()->setStateValue(lumiMagnetSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         device()->setStateValue(lumiMagnetSensorConnectedStateTypeId, false);
     }

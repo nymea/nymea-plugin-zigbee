@@ -32,6 +32,7 @@
 #include "ikea/tradfricolorlight.h"
 #include "ikea/tradfripowersocket.h"
 #include "ikea/tradfricolortemperaturelight.h"
+#include "ikea/tradfrirangeextender.h"
 
 #include "feibit/feibitonofflight.h"
 
