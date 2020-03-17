@@ -33,6 +33,8 @@
 #include "tradfricolorlight.h"
 #include "extern-plugininfo.h"
 
+#include <QDataStream>
+
 TradfriColorLight::TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
