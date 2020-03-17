@@ -7,15 +7,31 @@ PKGCONFIG += nymea-zigbee
 
 SOURCES += \
     devicepluginzigbee.cpp \
-    xiaomi/xiaomibuttonsensor.cpp \
-    xiaomi/xiaomimagnetsensor.cpp \
-    xiaomi/xiaomimotionsensor.cpp \
-    xiaomi/xiaomitemperaturesensor.cpp
+    feibit/feibitonofflight.cpp \
+    ikea/tradfricolorlight.cpp \
+    ikea/tradfricolortemperaturelight.cpp \
+    ikea/tradfrionoffswitch.cpp \
+    ikea/tradfripowersocket.cpp \
+    ikea/tradfrirangeextender.cpp \
+    ikea/tradfriremote.cpp \
+    lumi/lumibuttonsensor.cpp \
+    lumi/lumimagnetsensor.cpp \
+    lumi/lumimotionsensor.cpp \
+    lumi/lumitemperaturesensor.cpp \
+    zigbeedevice.cpp
 
 HEADERS += \
     devicepluginzigbee.h \
-    xiaomi/xiaomibuttonsensor.h \
-    xiaomi/xiaomimagnetsensor.h \
-    xiaomi/xiaomimotionsensor.h \
-    xiaomi/xiaomitemperaturesensor.h
+    feibit/feibitonofflight.h \
+    ikea/tradfricolorlight.h \
+    ikea/tradfricolortemperaturelight.h \
+    ikea/tradfrionoffswitch.h \
+    ikea/tradfripowersocket.h \
+    ikea/tradfrirangeextender.h \
+    ikea/tradfriremote.h \
+    lumi/lumibuttonsensor.h \
+    lumi/lumimagnetsensor.h \
+    lumi/lumimotionsensor.h \
+    lumi/lumitemperaturesensor.h \
+    zigbeedevice.h
 

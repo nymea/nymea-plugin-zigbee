@@ -41,7 +41,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "eaa16ea3-73aa-45f3-ad64-be894b9167d8",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
@@ -98,6 +98,21 @@
                             "id": "73ceb869-17e4-486e-971e-33979d613a49",
                             "name": "factoryReset",
                             "displayName": "Factory reset network"
+                        },
+                        {
+                            "id": "d6153a98-f1a8-4bc4-a1d7-6f986886bf46",
+                            "name": "reset",
+                            "displayName": "Reset controller"
+                        },
+                        {
+                            "id": "a5662c3e-fda0-4243-a013-732c46404b71",
+                            "name": "test1",
+                            "displayName": "Test 1"
+                        },
+                        {
+                            "id": "eda54af3-faae-48cf-9a06-1cd641b38a6b",
+                            "name": "test2",
+                            "displayName": "Test 2"
                         }
                     ],
                     "eventTypes": [
@@ -149,6 +164,11 @@
                             "id": "c4cee083-8cff-4424-8bd3-402308e402ea",
                             "name": "lqiRequest",
                             "displayName": "LQI request"
+                        },
+                        {
+                            "id": "eafdfdbf-bd55-45d5-a5b8-b3baf4b23363",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
                         }
                     ],
                     "eventTypes": [
@@ -158,12 +178,12 @@
             ]
         },
         {
-            "name": "xiaomi",
-            "displayName": "Xiaomi ",
+            "name": "lumi",
+            "displayName": "Lumi",
             "id": "f58dac98-0ba1-408f-946a-25d452080baa",
             "deviceClasses": [
                 {
-                    "name": "xiaomiTemperatureHumidity",
+                    "name": "lumiTemperatureHumidity",
                     "displayName": "Temperature humidity sensor",
                     "id": "dfabab0e-d483-43f8-82c6-720899e70c86",
                     "setupMethod": "JustAdd",
@@ -180,13 +200,22 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "eb09e3f4-44ea-4ca9-9eac-9a693595fe37",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "968ff8bb-b852-48d8-bde2-28cfa810b20e",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
                         },
                         {
                             "id": "152b475e-6bd8-4e6f-8765-0636c0bc8e9d",
@@ -214,6 +243,11 @@
                             "id": "8061b868-ea52-4a61-8f34-f8e5d02ecf1d",
                             "name": "identify",
                             "displayName": "Identify"
+                        },
+                        {
+                            "id": "ce853c00-d175-45bc-a3d9-3c8c93d88099",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
                         }
                     ],
                     "eventTypes": [
@@ -221,7 +255,7 @@
                     ]
                 },
                 {
-                    "name": "xiaomiMagnetSensor",
+                    "name": "lumiMagnetSensor",
                     "displayName": "Magnet sensor",
                     "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",
                     "setupMethod": "JustAdd",
@@ -247,6 +281,15 @@
                             "defaultValue": false
                         },
                         {
+                            "id": "11d03ab4-7450-4caf-81ec-0b2b73e56b08",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
                             "id": "6fad76ec-9d36-408d-bbf1-00e5d18bf6b0",
                             "name": "closed",
                             "displayName": "Closed",
@@ -256,14 +299,18 @@
                         }
                     ],
                     "actionTypes": [
-
+                        {
+                            "id": "2bae0e2d-0c20-475d-a6cd-2e685e6b0626",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
                     ],
                     "eventTypes": [
 
                     ]
                 },
                 {
-                    "name": "xiaomiButtonSensor",
+                    "name": "lumiButtonSensor",
                     "displayName": "Button sensor",
                     "id": "42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e",
                     "setupMethod": "JustAdd",
@@ -287,10 +334,23 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "11d03ab4-7450-4caf-81ec-0b2b73e56b08",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
                         }
                     ],
                     "actionTypes": [
-
+                        {
+                            "id": "65b43aad-1784-4e85-ad5a-ce01cc5757bd",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
                     ],
                     "eventTypes": [
                         {
@@ -306,12 +366,12 @@
                     ]
                 },
                 {
-                    "name": "xiaomiMotionSensor",
+                    "name": "lumiMotionSensor",
                     "displayName": "Motion sensor",
                     "id": "b5530192-0891-4934-88a2-7338b069be24",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable", "presencesensor" ],
+                    "interfaces": [ "presencesensor", "lightsensor", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "3a44ed47-5a70-4052-9a14-78f9033eab85",
@@ -319,6 +379,17 @@
                             "displayName": "IEEE adress",
                             "type": "QString",
                             "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "settingsTypes": [
+                        {
+                            "id": "4aeb84fa-e3ef-495e-8754-a5f6c3aa934a",
+                            "name": "timeout",
+                            "displayName": "Time period",
+                            "type": "uint",
+                            "unit": "Seconds",
+                            "defaultValue": 10,
+                            "minValue": 10
                         }
                     ],
                     "stateTypes": [
@@ -330,6 +401,15 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "d1337b3b-0dfb-4505-90f1-e5b2b45be9bd",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
                         },
                         {
                             "id": "fed7582b-c057-42ab-b7c0-d562a2e7917c",
@@ -347,10 +427,511 @@
                             "type": "int",
                             "unit": "UnixTime",
                             "defaultValue": 0
+                        },
+                        {
+                            "id": "eb3fb43e-a9bb-4498-880b-464cbb752ff6",
+                            "name": "lightIntensity",
+                            "displayName": "Light intensity",
+                            "displayNameEvent": "Light intensity changed",
+                            "type": "double",
+                            "unit": "Lux",
+                            "defaultValue": 0
                         }
                     ],
                     "actionTypes": [
+                        {
+                            "id": "2797c499-ca7f-4cf6-a732-c8e3cd580e56",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
 
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ikea",
+            "displayName": "Ikea",
+            "id": "ddf2394c-b213-4991-abe7-7f4b2c43a358",
+            "deviceClasses": [
+                {
+                    "name": "tradfriRemote",
+                    "displayName": "TRÅDFRI Remote",
+                    "id": "f16386d8-afe5-4d7d-b5dc-a2613d2cefc4",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "6846c872-f6e6-426f-bcc5-fcd755cc8c0c",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "e36fd7d4-9c54-46ff-ad7e-aa68700d92b9",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "b6fc2d47-a5d6-4043-bace-eea14d35feb3",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "22b5c1fc-4115-4a1d-9b53-801661dc1392",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "65b9ee9c-4b1d-4431-b4d4-0cf22d339e7e",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "tradfriOnOffSwitch",
+                    "displayName": "TRÅDFRI On/Off Switch",
+                    "id": "cec4b104-6076-4a6d-9ee2-595be25a2dcc",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "7ec1beb6-c21b-4cc6-9e2a-fcb2182c8046",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "90792f5b-9621-4c8c-be2c-7868efb2e4dd",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "6239117f-dd75-4d2f-9673-7ddc48971141",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "8e38c74e-26a3-419c-af8f-6eb9a86cd29b",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "285be42a-16fb-48bb-aa85-6c3ad7c6adfb",
+                            "name": "factoryReset",
+                            "displayName": "Factory reset node"
+                        },
+                        {
+                            "id": "24b8984f-6acc-4c57-9fe4-a54508097143",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "tradfriRangeExtender",
+                    "displayName": "TRÅDFRI Signal Repeater",
+                    "id": "b217337e-3c98-47fa-b8ea-cf240e54f203",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "gateway", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "e453d393-6a60-4bf7-add2-ccecfdb74370",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "fabd0b94-a466-4cab-8ab5-6039c753ae69",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "753f483b-4386-45e8-90cc-b9b189b5ced2",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "05d88536-72a7-42c0-afe9-37e8365395e8",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "5e08b296-8020-4506-aa56-277057b1b13a",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "tradfriColorLight",
+                    "displayName": "TRÅDFRI Color Light",
+                    "id": "1cf18470-5193-4800-8f45-1f11b2dff204",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "colorlight", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "9a70dbb2-fa0a-4ba9-8e46-2581cdf4f21c",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "ceafdb5a-3df9-4044-aa74-0ac62cf80ede",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "bd2c35b1-60c4-4981-81dd-547d9928f485",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "2d7855f2-c379-4ca4-9ce1-fb8b5618599f",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "f895eb6f-a170-4268-ae6f-ebd5c781f9c4",
+                            "name": "brightness",
+                            "displayName": "Brightness",
+                            "displayNameEvent": "Brightness changed",
+                            "displayNameAction": "Set brightness",
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "int",
+                            "defaultValue": 100,
+                            "writable": true
+                        },
+                        {
+                            "id": "bb2700fb-7f6f-4261-9ddf-d2d615d8376a",
+                            "name": "colorTemperature",
+                            "displayName": "Color temperature",
+                            "displayNameEvent": "Color temperature changed",
+                            "displayNameAction": "Set color temperature",
+                            "unit": "Mired",
+                            "defaultValue": 300,
+                            "minValue": 250,
+                            "maxValue": 454,
+                            "type": "int",
+                            "writable": true
+                        },
+                        {
+                            "id": "dfd21b01-7b4f-4981-a466-c1083c623320",
+                            "name": "color",
+                            "displayName": "color",
+                            "displayNameEvent": "color changed",
+                            "displayNameAction": "Set color",
+                            "type": "QColor",
+                            "defaultValue": "#000000",
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "5c5bc2e7-df75-4a15-89aa-ac0d77d11fea",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "4ce06b12-fbc5-41de-8ce7-fd0913f98737",
+                            "name": "factoryReset",
+                            "displayName": "Factory reset node"
+                        },
+                        {
+                            "id": "bc57b137-9d7b-48d7-b887-f7f2c868b15f",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "tradfriColorTemperatureLight",
+                    "displayName": "TRÅDFRI Color Temperature Light",
+                    "id": "92ff113a-9205-451b-a172-361e20ebb873",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "colortemperaturelight", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "ed777cf9-a533-4350-aec0-7d2fd8adbd09",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "124df54b-b76d-437a-a90b-98df8ee13425",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "bc885e96-bf57-4ed2-88a5-3b885fa67913",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "08b984d6-3eec-4acc-a29c-d881eb3d9280",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "8c49df0e-4bcc-47c0-8daf-502a5d9a51a3",
+                            "name": "brightness",
+                            "displayName": "Brightness",
+                            "displayNameEvent": "Brightness changed",
+                            "displayNameAction": "Set brightness",
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "int",
+                            "defaultValue": 100,
+                            "writable": true
+                        },
+                        {
+                            "id": "9a1a2247-bb8c-404b-9827-d6457f280165",
+                            "name": "colorTemperature",
+                            "displayName": "Color temperature",
+                            "displayNameEvent": "Color temperature changed",
+                            "displayNameAction": "Set color temperature",
+                            "unit": "Mired",
+                            "defaultValue": 170,
+                            "minValue": 250,
+                            "maxValue": 454,
+                            "type": "int",
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "7cba7c88-e949-4cb4-91c7-170677da2a3a",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "05a5419c-b00a-4950-80f0-6bd20b0425de",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "tradfriPowerSocket",
+                    "displayName": "TRÅDFRI Power Socket",
+                    "id": "56181685-6703-4640-a14f-6a7ced10d6ed",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "powersocket", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "145ff3d6-02d7-4533-9878-027da89de723",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "f9a27525-aef3-48a2-aa55-6aedd3d52133",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "ae715551-a642-4018-b501-16ff405e27d6",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "fde59e2e-49cb-4247-bf4e-a06bbb86108c",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "42c8c602-9f25-4c93-a73f-14ea370b7ced",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "dd275156-ab95-4d84-8a14-6f8671f21570",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "feibit",
+            "displayName": "FeiBit",
+            "id": "a7aebdfc-303f-4e19-a347-f155eb8bf63c",
+            "deviceClasses": [
+                {
+                    "name": "feibitOnOffLight",
+                    "displayName": "FeiBit on/off light",
+                    "id": "97e5e1b3-542c-449d-a865-5a60961d8556",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "light", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "99556fe2-4352-423b-acd2-95327845f8b8",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "0a59c3d9-e669-477a-b8d4-3b9698efa927",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "5da27578-45d5-48e8-ad08-6e6924b7f362",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "ffb606f4-ddff-41db-8b43-35ed82cde697",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "bcf15723-541f-40bd-8792-2d000228ee0e",
+                            "name": "identify",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "3177161b-ffde-4106-b8bd-77be1bebda4b",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
                     ],
                     "eventTypes": [
 

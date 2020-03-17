@@ -27,10 +27,20 @@
 #include "devices/deviceplugin.h"
 #include "nymea-zigbee/zigbeenetworkmanager.h"
 
-#include "xiaomi/xiaomibuttonsensor.h"
-#include "xiaomi/xiaomimotionsensor.h"
-#include "xiaomi/xiaomimagnetsensor.h"
-#include "xiaomi/xiaomitemperaturesensor.h"
+#include "ikea/tradfriremote.h"
+#include "ikea/tradfrionoffswitch.h"
+#include "ikea/tradfricolorlight.h"
+#include "ikea/tradfripowersocket.h"
+#include "ikea/tradfricolortemperaturelight.h"
+#include "ikea/tradfrirangeextender.h"
+
+#include "feibit/feibitonofflight.h"
+
+#include "lumi/lumimagnetsensor.h"
+#include "lumi/lumibuttonsensor.h"
+#include "lumi/lumimotionsensor.h"
+#include "lumi/lumitemperaturesensor.h"
+
 
 class DevicePluginZigbee: public DevicePlugin
 {
@@ -52,47 +62,19 @@ public:
     void executeAction(DeviceActionInfo *info) override;
 
 private:
-    QHash<Device *, ZigbeeNetworkManager *> m_zigbeeControllers;
-    QHash<Device *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
-    QHash<Device *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
-    QHash<Device *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
-    QHash<Device *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
+    QHash<Device *, ZigbeeNetwork *> m_zigbeeNetworks;
+    QHash<Device *, ZigbeeDevice *> m_zigbeeDevices;
 
-    ZigbeeNetworkManager *findParentController(Device *device) const;
-    ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
-
-    Device *findNodeDevice(ZigbeeNode *node);
-
-    void createDeviceForNode(Device *parentDevice, ZigbeeNode *node);
-    void createGenericNodeDeviceForNode(Device *parentDevice, ZigbeeNode *node);
+    ZigbeeNetwork *findParentNetwork(Device *device) const;
+    ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
 
 private slots:
-    void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
-    void onZigbeeControllerChannelChanged(uint channel);
-    void onZigbeeControllerPanIdChanged(quint64 extendedPanId);
-    void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
-    void onZigbeeControllerNodeAdded(ZigbeeNode *node);
-    void onZigbeeControllerNodeRemoved(ZigbeeNode *node);
-
-    // Xiaomi temperature humidity sensor
-    void onXiaomiTemperatureSensorConnectedChanged(bool connected);
-    void onXiaomiTemperatureSensorTemperatureChanged(double temperature);
-    void onXiaomiTemperatureSensorHumidityChanged(double humidity);
-
-    // Xiaomi magnet sensor
-    void onXiaomiMagnetSensorConnectedChanged(bool connected);
-    void onXiaomiMagnetSensorClosedChanged(bool closed);
-
-    // Xiaomi button sensor
-    void onXiaomiButtonSensorConnectedChanged(bool connected);
-    void onXiaomiButtonSensorPressedChanged(bool pressed);
-    void onXiaomiButtonSensorPressed();
-    void onXiaomiButtonSensorLongPressed();
-
-    // Xiaomi motion sensor
-    void onXiaomiMotionSensorConnectedChanged(bool connected);
-    void onXiaomiMotionSensorPresentChanged(bool present);
-    void onXiaomiMotionSensorMotionDetected();
+    void onZigbeeNetworkStateChanged(ZigbeeNetwork::State state);
+    void onZigbeeNetworkChannelChanged(uint channel);
+    void onZigbeeNetworkPanIdChanged(quint64 extendedPanId);
+    void onZigbeeNetworkPermitJoiningChanged(bool permitJoining);
+    void onZigbeeNetworkNodeAdded(ZigbeeNode *node);
+    void onZigbeeNetworkNodeRemoved(ZigbeeNode *node);
 };
 
 #endif // DEVICEPLUGINZIGBEE_H
