@@ -9,7 +9,7 @@ class TradfriOnOffSwitch : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
     void factoryResetNode();

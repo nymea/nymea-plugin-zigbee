@@ -10,7 +10,7 @@ class TradfriColorLight : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
     void removeFromNetwork() override;

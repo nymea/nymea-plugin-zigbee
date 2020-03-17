@@ -1,8 +1,8 @@
 #include "tradfrionoffswitch.h"
 #include "extern-plugininfo.h"
 
-TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
@@ -16,7 +16,7 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_device << m_endpoint;
+    qCDebug(dcZigbee()) << m_thing << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         qCDebug(dcZigbee()) << " -" << cluster;
@@ -71,10 +71,10 @@ void TradfriOnOffSwitch::removeFromNetwork()
 void TradfriOnOffSwitch::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, true);
-        device()->setStateValue(tradfriOnOffSwitchVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, true);
+        thing()->setStateValue(tradfriOnOffSwitchVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, false);
+        thing()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, false);
     }
 }
 

@@ -10,7 +10,7 @@ class LumiMotionSensor : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
     void removeFromNetwork() override;

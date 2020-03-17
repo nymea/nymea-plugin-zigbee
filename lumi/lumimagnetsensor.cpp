@@ -1,8 +1,8 @@
 #include "lumimagnetsensor.h"
 #include "extern-plugininfo.h"
 
-LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
@@ -27,10 +27,10 @@ void LumiMagnetSensor::removeFromNetwork()
 void LumiMagnetSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(lumiMagnetSensorConnectedStateTypeId, true);
-        device()->setStateValue(lumiMagnetSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(lumiMagnetSensorConnectedStateTypeId, true);
+        thing()->setStateValue(lumiMagnetSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(lumiMagnetSensorConnectedStateTypeId, false);
+        thing()->setStateValue(lumiMagnetSensorConnectedStateTypeId, false);
     }
 }
 
@@ -47,6 +47,6 @@ void LumiMagnetSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster,
         QDataStream stream(&data, QIODevice::ReadOnly);
         quint8 closedRaw = 0;
         stream >> closedRaw;
-        device()->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
+        thing()->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
     }
 }

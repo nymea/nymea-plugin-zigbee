@@ -10,7 +10,7 @@ class FeiBitOnOffLight : public ZigbeeDevice
     Q_OBJECT
 
 public:
-    FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void checkOnlineStatus() override;
     void removeFromNetwork() override;

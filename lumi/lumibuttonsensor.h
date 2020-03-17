@@ -10,7 +10,7 @@ class LumiButtonSensor : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
 

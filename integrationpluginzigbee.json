@@ -7,7 +7,7 @@
             "name": "zigbee",
             "displayName": "Zigbee",
             "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "zigbeeController",
                     "displayName": "Zigbee controller",
@@ -181,7 +181,7 @@
             "name": "lumi",
             "displayName": "Lumi",
             "id": "f58dac98-0ba1-408f-946a-25d452080baa",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "lumiTemperatureHumidity",
                     "displayName": "Temperature humidity sensor",
@@ -455,7 +455,7 @@
             "name": "ikea",
             "displayName": "Ikea",
             "id": "ddf2394c-b213-4991-abe7-7f4b2c43a358",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "tradfriRemote",
                     "displayName": "TRÅDFRI Remote",
@@ -874,7 +874,7 @@
             "name": "feibit",
             "displayName": "FeiBit",
             "id": "a7aebdfc-303f-4e19-a347-f155eb8bf63c",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "feibitOnOffLight",
                     "displayName": "FeiBit on/off light",

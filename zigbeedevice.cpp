@@ -1,11 +1,11 @@
 #include "zigbeedevice.h"
 #include "extern-plugininfo.h"
 
-ZigbeeDevice::ZigbeeDevice(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
+ZigbeeDevice::ZigbeeDevice(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     QObject(parent),
     m_network(network),
     m_ieeeAddress(ieeeAddress),
-    m_device(device)
+    m_thing(thing)
 {
     m_node = m_network->getZigbeeNode(m_ieeeAddress);
 }
@@ -20,7 +20,7 @@ ZigbeeAddress ZigbeeDevice::ieeeAddress() const
     return m_ieeeAddress;
 }
 
-Device *ZigbeeDevice::device() const
+Thing *ZigbeeDevice::thing() const
 {
-    return m_device;
+    return m_thing;
 }

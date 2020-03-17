@@ -9,7 +9,7 @@ class LumiTemperatureSensor : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
     void removeFromNetwork() override;

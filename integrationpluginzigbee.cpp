@@ -22,58 +22,58 @@
 
 #include "plugininfo.h"
 #include "nymeasettings.h"
-#include "devicepluginzigbee.h"
+#include "integrationpluginzigbee.h"
 
-#include "nymea-zigbee/zigbeeutils.h"
-#include "nymea-zigbee/zigbeenetworkkey.h"
+#include "zigbeeutils.h"
+#include "zigbeenetworkkey.h"
 
 #include <QDateTime>
 #include <QSerialPortInfo>
 
-DevicePluginZigbee::DevicePluginZigbee()
+IntegrationPluginZigbee::IntegrationPluginZigbee()
 {
 
 }
 
-void DevicePluginZigbee::init()
+void IntegrationPluginZigbee::init()
 {       
 
 }
 
-void DevicePluginZigbee::startMonitoringAutoDevices()
+void IntegrationPluginZigbee::startMonitoringAutoThings()
 {
     // Start seaching for devices which can be discovered and added automatically
 }
 
-void DevicePluginZigbee::postSetupDevice(Device *device)
+void IntegrationPluginZigbee::postSetupThing(Thing *thing)
 {
-    qCDebug(dcZigbee()) << "Post setup device" << device->name() << device->params();
+    qCDebug(dcZigbee()) << "Post setup device" << thing->name() << thing->params();
 
-    if (m_zigbeeDevices.contains(device)) {
-        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(device);
+    if (m_zigbeeDevices.contains(thing)) {
+        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(thing);
         zigbeeDevice->checkOnlineStatus();
     }
 }
 
-void DevicePluginZigbee::deviceRemoved(Device *device)
+void IntegrationPluginZigbee::thingRemoved(Thing *thing)
 {
-    qCDebug(dcZigbee()) << "Remove device" << device->name() << device->params();
+    qCDebug(dcZigbee()) << "Remove device" << thing->name() << thing->params();
 
-    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-        ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.take(device);
+    if (thing->thingClassId() == zigbeeControllerThingClassId) {
+        ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.take(thing);
         if (zigbeeNetwork) {
             zigbeeNetwork->deleteLater();
         }
     } else {
-        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.take(device);
+        ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.take(thing);
         if (zigbeeDevice)
             delete zigbeeDevice;
     }
 }
 
-void DevicePluginZigbee::discoverDevices(DeviceDiscoveryInfo *info)
+void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
 {
-    if (info->deviceClassId() == zigbeeControllerDeviceClassId) {
+    if (info->thingClassId() == zigbeeControllerThingClassId) {
         // Scan serial ports
         foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts()) {
             qCDebug(dcZigbee()) << "Found serial port" << serialPortInfo.portName();
@@ -90,160 +90,160 @@ void DevicePluginZigbee::discoverDevices(DeviceDiscoveryInfo *info)
 
             uint baudrate = 115200;
             ParamList params;
-            params.append(Param(zigbeeControllerDeviceSerialPortParamTypeId, serialPortInfo.systemLocation()));
-            params.append(Param(zigbeeControllerDeviceBaudrateParamTypeId, baudrate));
+            params.append(Param(zigbeeControllerThingSerialPortParamTypeId, serialPortInfo.systemLocation()));
+            params.append(Param(zigbeeControllerThingBaudrateParamTypeId, baudrate));
 
-            qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerDeviceBaudrateParamTypeId);
+            qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerThingBaudrateParamTypeId);
 
-            DeviceDescriptor descriptor(zigbeeControllerDeviceClassId);
+            ThingDescriptor descriptor(zigbeeControllerThingClassId);
             descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
             descriptor.setDescription(serialPortInfo.systemLocation());
             descriptor.setParams(params);
-            info->addDeviceDescriptor(descriptor);
+            info->addThingDescriptor(descriptor);
         }
     }
 
-    info->finish(Device::DeviceErrorNoError);
+    info->finish(Thing::ThingErrorNoError);
 }
 
-void DevicePluginZigbee::setupDevice(DeviceSetupInfo *info)
+void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
 {
-    Device *device = info->device();
-    qCDebug(dcZigbee()) << "Setup device" << device->name() << device->params();
+    Thing *thing = info->thing();
+    qCDebug(dcZigbee()) << "Setup device" << thing->name() << thing->params();
 
-    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-        qCDebug(dcZigbee()) << "Create zigbee network manager for controller" << device;
+    if (thing->thingClassId() == zigbeeControllerThingClassId) {
+        qCDebug(dcZigbee()) << "Create zigbee network manager for controller" << thing;
 
-        QString serialPortName = device->paramValue(zigbeeControllerDeviceSerialPortParamTypeId).toString();
-        qint32 baudrate = static_cast<qint32>(device->paramValue(zigbeeControllerDeviceBaudrateParamTypeId).toUInt());
+        QString serialPortName = thing->paramValue(zigbeeControllerThingSerialPortParamTypeId).toString();
+        qint32 baudrate = static_cast<qint32>(thing->paramValue(zigbeeControllerThingBaudrateParamTypeId).toUInt());
 
         ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(ZigbeeNetworkManager::BackendTypeNxp, this);
         zigbeeNetwork->setSettingsFileName(NymeaSettings::settingsPath() + "/nymea-zigbee.conf");
         zigbeeNetwork->setSerialPortName(serialPortName);
         zigbeeNetwork->setSerialBaudrate(baudrate);
 
-        connect(zigbeeNetwork->bridgeController(), &ZigbeeBridgeController::firmwareVersionChanged, this, [device](const QString &firmwareVersion){
-            device->setStateValue(zigbeeControllerVersionStateTypeId, firmwareVersion);
+        connect(zigbeeNetwork->bridgeController(), &ZigbeeBridgeController::firmwareVersionChanged, this, [thing](const QString &firmwareVersion){
+            thing->setStateValue(zigbeeControllerVersionStateTypeId, firmwareVersion);
         });
 
-        connect(zigbeeNetwork, &ZigbeeNetwork::stateChanged, this, &DevicePluginZigbee::onZigbeeNetworkStateChanged);
-        connect(zigbeeNetwork, &ZigbeeNetwork::channelChanged, this, &DevicePluginZigbee::onZigbeeNetworkChannelChanged);
-        connect(zigbeeNetwork, &ZigbeeNetwork::extendedPanIdChanged, this, &DevicePluginZigbee::onZigbeeNetworkPanIdChanged);
-        connect(zigbeeNetwork, &ZigbeeNetwork::permitJoiningChanged, this, &DevicePluginZigbee::onZigbeeNetworkPermitJoiningChanged);
-        connect(zigbeeNetwork, &ZigbeeNetwork::nodeAdded, this, &DevicePluginZigbee::onZigbeeNetworkNodeAdded);
-        connect(zigbeeNetwork, &ZigbeeNetwork::nodeRemoved, this, &DevicePluginZigbee::onZigbeeNetworkNodeRemoved);
+        connect(zigbeeNetwork, &ZigbeeNetwork::stateChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkStateChanged);
+        connect(zigbeeNetwork, &ZigbeeNetwork::channelChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkChannelChanged);
+        connect(zigbeeNetwork, &ZigbeeNetwork::extendedPanIdChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged);
+        connect(zigbeeNetwork, &ZigbeeNetwork::permitJoiningChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkPermitJoiningChanged);
+        connect(zigbeeNetwork, &ZigbeeNetwork::nodeAdded, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeAdded);
+        connect(zigbeeNetwork, &ZigbeeNetwork::nodeRemoved, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved);
 
-        m_zigbeeNetworks.insert(device, zigbeeNetwork);
+        m_zigbeeNetworks.insert(thing, zigbeeNetwork);
         zigbeeNetwork->startNetwork();
     }
 
-    if (device->deviceClassId() == tradfriRemoteDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri remote" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriRemoteDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, remote);
+    if (thing->thingClassId() == tradfriRemoteThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri remote" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRemoteThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, remote);
     }
 
-    if (device->deviceClassId() == tradfriOnOffSwitchDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri on/off remote" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriOnOffSwitch *remote = new TradfriOnOffSwitch(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, remote);
+    if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri on/off remote" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriOnOffSwitchThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriOnOffSwitch *remote = new TradfriOnOffSwitch(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, remote);
     }
 
 
-    if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri colour light" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriColorLightDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, light);
+    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
     }
 
-    if (device->deviceClassId() == tradfriColorTemperatureLightDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri colour light" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, light);
+    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
     }
 
-    if (device->deviceClassId() == tradfriPowerSocketDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri power socket" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriPowerSocketDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, socket);
+    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri power socket" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriPowerSocketThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, socket);
     }
 
-    if (device->deviceClassId() == tradfriRangeExtenderDeviceClassId) {
-        qCDebug(dcZigbee()) << "Tradfri range extender" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(tradfriRangeExtenderDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, extender);
+    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRangeExtenderThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, extender);
     }
 
-    if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
-        qCDebug(dcZigbee()) << "FeiBit On/OFF light" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(feibitOnOffLightDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        FeiBitOnOffLight *light = new FeiBitOnOffLight(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, light);
+    if (thing->thingClassId() == feibitOnOffLightThingClassId) {
+        qCDebug(dcZigbee()) << "FeiBit On/OFF light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(feibitOnOffLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        FeiBitOnOffLight *light = new FeiBitOnOffLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
     }
 
-    if (device->deviceClassId() == lumiTemperatureHumidityDeviceClassId) {
-        qCDebug(dcZigbee()) << "Lumi temperature humidity" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, sensor);
+    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
     }
 
-    if (device->deviceClassId() == lumiMagnetSensorDeviceClassId) {
-        qCDebug(dcZigbee()) << "Lumi magnet sensor" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(lumiMagnetSensorDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, sensor);
+    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMagnetSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
     }
 
-    if (device->deviceClassId() == lumiButtonSensorDeviceClassId) {
-        qCDebug(dcZigbee()) << "Lumi button sensor" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(lumiButtonSensorDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, device, this);
-        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, device](){
-            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, device->id()));
+    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiButtonSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
+        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
+            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
         });
-        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, device](){
-            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, device->id()));
+        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
+            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
         });
 
-        m_zigbeeDevices.insert(device, sensor);
+        m_zigbeeDevices.insert(thing, sensor);
     }
 
-    if (device->deviceClassId() == lumiMotionSensorDeviceClassId) {
-        qCDebug(dcZigbee()) << "Lumi motion sensor" << device;
-        ZigbeeAddress ieeeAddress(device->paramValue(lumiMotionSensorDeviceIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(device);
-        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, device, this);
-        m_zigbeeDevices.insert(device, sensor);
+    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi motion sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMotionSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
     }
 
-    info->finish(Device::DeviceErrorNoError);
+    info->finish(Thing::ThingErrorNoError);
 }
 
-void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
+void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
 {
-    Device *device = info->device();
+    Thing *thing = info->thing();
     Action action = info->action();
 
-    qCDebug(dcZigbee()) << "Executing action for device" << device->name() << action.actionTypeId().toString() << action.params();
-    if (device->deviceClassId() == zigbeeControllerDeviceClassId) {
-        ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.value(device);
+    qCDebug(dcZigbee()) << "Executing action for device" << thing->name() << action.actionTypeId().toString() << action.params();
+    if (thing->thingClassId() == zigbeeControllerThingClassId) {
+        ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.value(thing);
 
         // Note: following actions do not require a running network
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
@@ -254,7 +254,7 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
 
         // Note: following actions require a running network
         if (zigbeeNetwork->state() != ZigbeeNetwork::StateRunning)
-            return info->finish(Device::DeviceErrorHardwareNotAvailable);
+            return info->finish(Thing::ThingErrorHardwareNotAvailable);
 
         if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
             zigbeeNetwork->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
@@ -275,8 +275,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Tradfri remote
-    if (device->deviceClassId() == tradfriRemoteDeviceClassId) {
-        TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriRemoteThingClassId) {
+        TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriRemoteIdentifyActionTypeId) {
             remote->identify();
         } else if (action.actionTypeId() == tradfriRemoteRemoveFromNetworkActionTypeId) {
@@ -286,8 +286,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
 
 
     // Tradfri range extender
-    if (device->deviceClassId() == tradfriRangeExtenderDeviceClassId) {
-        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
             extender->identify();
         } else if (action.actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
@@ -296,8 +296,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Tradfri on/off switch
-    if (device->deviceClassId() == tradfriOnOffSwitchDeviceClassId) {
-        TradfriOnOffSwitch *remote = qobject_cast<TradfriOnOffSwitch *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
+        TradfriOnOffSwitch *remote = qobject_cast<TradfriOnOffSwitch *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriOnOffSwitchIdentifyActionTypeId) {
             remote->identify();
         } else if (action.actionTypeId() == tradfriOnOffSwitchFactoryResetActionTypeId) {
@@ -308,8 +308,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Tradfri power socket
-    if (device->deviceClassId() == tradfriPowerSocketDeviceClassId) {
-        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
+        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriPowerSocketIdentifyActionTypeId) {
             socket->identify();
         } else if (action.actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
@@ -320,8 +320,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Tradfri color light
-    if (device->deviceClassId() == tradfriColorLightDeviceClassId) {
-        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriColorLightIdentifyActionTypeId) {
             light->identify();
         } else if (action.actionTypeId() == tradfriColorLightPowerActionTypeId) {
@@ -338,8 +338,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Tradfri color temperature light
-    if (device->deviceClassId() == tradfriColorTemperatureLightDeviceClassId) {
-        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == tradfriColorTemperatureLightIdentifyActionTypeId) {
             light->identify();
         } else if (action.actionTypeId() == tradfriColorTemperatureLightPowerActionTypeId) {
@@ -354,8 +354,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // FeiBit on/off light switch
-    if (device->deviceClassId() == feibitOnOffLightDeviceClassId) {
-        FeiBitOnOffLight *light = qobject_cast<FeiBitOnOffLight *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == feibitOnOffLightThingClassId) {
+        FeiBitOnOffLight *light = qobject_cast<FeiBitOnOffLight *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == feibitOnOffLightIdentifyActionTypeId) {
             light->identify();
         } else if (action.actionTypeId() == feibitOnOffLightPowerActionTypeId) {
@@ -366,8 +366,8 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Lumi temperature/humidity sensor
-    if (device->deviceClassId() == lumiTemperatureHumidityDeviceClassId) {
-        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == lumiTemperatureHumidityIdentifyActionTypeId) {
             sensor->identify();
         } else if (action.actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
@@ -376,36 +376,36 @@ void DevicePluginZigbee::executeAction(DeviceActionInfo *info)
     }
 
     // Lumi magnet sensor
-    if (device->deviceClassId() == lumiMagnetSensorDeviceClassId) {
-        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == lumiMagnetSensorRemoveFromNetworkActionTypeId) {
             sensor->removeFromNetwork();
         }
     }
 
     // Lumi motion sensor
-    if (device->deviceClassId() == lumiMotionSensorDeviceClassId) {
-        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(device));
+    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
         if (action.actionTypeId() == lumiMotionSensorRemoveFromNetworkActionTypeId) {
             sensor->removeFromNetwork();
         }
     }
 
-    info->finish(Device::DeviceErrorNoError);
+    info->finish(Thing::ThingErrorNoError);
 }
 
-ZigbeeNetwork *DevicePluginZigbee::findParentNetwork(Device *device) const
+ZigbeeNetwork *IntegrationPluginZigbee::findParentNetwork(Thing *thing) const
 {
-    foreach (Device *d, myDevices()) {
-        if (d->deviceClassId() == zigbeeControllerDeviceClassId && d->id() == device->parentId()) {
-            return m_zigbeeNetworks.value(d);
+    foreach (Thing *t, myThings()) {
+        if (t->thingClassId() == zigbeeControllerThingClassId && t->id() == thing->parentId()) {
+            return m_zigbeeNetworks.value(t);
         }
     }
 
     return nullptr;
 }
 
-ZigbeeDevice *DevicePluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
+ZigbeeDevice *IntegrationPluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
 {
     foreach (ZigbeeDevice *zigbeeDevice, m_zigbeeDevices.values()) {
         if (zigbeeDevice->ieeeAddress() == node->extendedAddress()) {
@@ -416,27 +416,27 @@ ZigbeeDevice *DevicePluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
     return nullptr;
 }
 
-void DevicePluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
+void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *device = m_zigbeeNetworks.key(zigbeeNetwork);
-    if (!device) return;
+    Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
+    if (!thing) return;
 
-    qCDebug(dcZigbee()) << "Controller state changed" << state << device;
+    qCDebug(dcZigbee()) << "Controller state changed" << state << thing;
 
     switch (state) {
     case ZigbeeNetwork::StateUninitialized:
         break;
     case ZigbeeNetwork::StateOffline:
-        device->setStateValue(zigbeeControllerConnectedStateTypeId, false);
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
         break;
     case ZigbeeNetwork::StateRunning:
-        device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
-        device->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetwork->bridgeController()->firmwareVersion());
-        device->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetwork->extendedPanId());
-        device->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetwork->channel());
-        device->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
-        device->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, true);
+        thing->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetwork->bridgeController()->firmwareVersion());
+        thing->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetwork->extendedPanId());
+        thing->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetwork->channel());
+        thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
+        thing->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
         break;
     case ZigbeeNetwork::StateStarting:
         //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
@@ -447,34 +447,34 @@ void DevicePluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
     }
 }
 
-void DevicePluginZigbee::onZigbeeNetworkChannelChanged(uint channel)
+void IntegrationPluginZigbee::onZigbeeNetworkChannelChanged(uint channel)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *device = m_zigbeeNetworks.key(zigbeeNetwork);
-    qCDebug(dcZigbee()) << "Zigbee network channel changed" << channel << device;
-    device->setStateValue(zigbeeControllerChannelStateTypeId, channel);
+    Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
+    qCDebug(dcZigbee()) << "Zigbee network channel changed" << channel << thing;
+    thing->setStateValue(zigbeeControllerChannelStateTypeId, channel);
 }
 
-void DevicePluginZigbee::onZigbeeNetworkPanIdChanged(quint64 extendedPanId)
+void IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged(quint64 extendedPanId)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *device = m_zigbeeNetworks.key(zigbeeNetwork);
-    qCDebug(dcZigbee()) << "Zigbee network PAN id changed" << extendedPanId << device;
-    device->setStateValue(zigbeeControllerPanIdStateTypeId, extendedPanId);
+    Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
+    qCDebug(dcZigbee()) << "Zigbee network PAN id changed" << extendedPanId << thing;
+    thing->setStateValue(zigbeeControllerPanIdStateTypeId, extendedPanId);
 }
 
-void DevicePluginZigbee::onZigbeeNetworkPermitJoiningChanged(bool permitJoining)
+void IntegrationPluginZigbee::onZigbeeNetworkPermitJoiningChanged(bool permitJoining)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *device = m_zigbeeNetworks.key(zigbeeNetwork);
-    qCDebug(dcZigbee()) << device << "permit joining changed" << permitJoining;
-    device->setStateValue(zigbeeControllerPermitJoinStateTypeId, permitJoining);
+    Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
+    qCDebug(dcZigbee()) << thing << "permit joining changed" << permitJoining;
+    thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, permitJoining);
 }
 
-void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
+void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *networkManagerDevice = m_zigbeeNetworks.key(zigbeeNetwork);
+    Thing *networkManagerDevice = m_zigbeeNetworks.key(zigbeeNetwork);
     if (!networkManagerDevice) return;
 
     qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
@@ -509,17 +509,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea Tradfri Remote";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriRemoteDeviceClassId)
-                        .filterByParam(tradfriRemoteDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriRemoteThingClassId)
+                        .filterByParam(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri remote";
-                    DeviceDescriptor descriptor(tradfriRemoteDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriRemoteDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriRemoteThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriRemoteThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriRemoteDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -528,17 +528,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea Tradfri On/Off remote";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriOnOffSwitchDeviceClassId)
-                        .filterByParam(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriOnOffSwitchThingClassId)
+                        .filterByParam(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri on/off remote";
-                    DeviceDescriptor descriptor(tradfriOnOffSwitchDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriOnOffSwitchDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriOnOffSwitchThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriOnOffSwitchThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriOnOffSwitchDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -547,17 +547,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea Tradfri Colour Light";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriColorLightDeviceClassId)
-                        .filterByParam(tradfriColorLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriColorLightThingClassId)
+                        .filterByParam(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri colour light";
-                    DeviceDescriptor descriptor(tradfriColorLightDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriColorLightDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriColorLightThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriColorLightThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriColorLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -566,17 +566,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea tradfri power socket";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriPowerSocketDeviceClassId)
-                        .filterByParam(tradfriPowerSocketDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriPowerSocketThingClassId)
+                        .filterByParam(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri power socket";
-                    DeviceDescriptor descriptor(tradfriPowerSocketDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriPowerSocketDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriPowerSocketThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriPowerSocketThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriPowerSocketDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -585,17 +585,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea tradfri color temperature light";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriColorTemperatureLightDeviceClassId)
-                        .filterByParam(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriColorTemperatureLightThingClassId)
+                        .filterByParam(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri color temperature light";
-                    DeviceDescriptor descriptor(tradfriColorTemperatureLightDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriColorTemperatureLightDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriColorTemperatureLightThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriColorTemperatureLightThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriColorTemperatureLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -604,17 +604,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
 
                 qCDebug(dcZigbee()) << "Found Ikea tradfri range extender";
                 // Check if node already added
-                if (myDevices().filterByDeviceClassId(tradfriRangeExtenderDeviceClassId)
-                        .filterByParam(tradfriRangeExtenderDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(tradfriRangeExtenderThingClassId)
+                        .filterByParam(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new tradfri range extender";
-                    DeviceDescriptor descriptor(tradfriRangeExtenderDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(tradfriRangeExtenderDeviceClassId).displayName());
+                    ThingDescriptor descriptor(tradfriRangeExtenderThingClassId);
+                    descriptor.setTitle(supportedThings().findById(tradfriRangeExtenderThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(tradfriRangeExtenderDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -627,17 +627,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffLight) {
 
                 qCDebug(dcZigbee()) << "This device is a FeiBit on/off light";
-                if (myDevices().filterByDeviceClassId(feibitOnOffLightDeviceClassId)
-                        .filterByParam(feibitOnOffLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(feibitOnOffLightThingClassId)
+                        .filterByParam(feibitOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new feibit on/off light";
-                    DeviceDescriptor descriptor(feibitOnOffLightDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(feibitOnOffLightDeviceClassId).displayName());
+                    ThingDescriptor descriptor(feibitOnOffLightThingClassId);
+                    descriptor.setTitle(supportedThings().findById(feibitOnOffLightThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(feibitOnOffLightDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(feibitOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -670,17 +670,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     endpoint->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
 
                 qCDebug(dcZigbee()) << "This device is a lumi temperature humidity sensor";
-                if (myDevices().filterByDeviceClassId(lumiTemperatureHumidityDeviceClassId)
-                        .filterByParam(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(lumiTemperatureHumidityThingClassId)
+                        .filterByParam(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new lumi temperature humidity sensor";
-                    DeviceDescriptor descriptor(lumiTemperatureHumidityDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(lumiTemperatureHumidityDeviceClassId).displayName());
+                    ThingDescriptor descriptor(lumiTemperatureHumidityThingClassId);
+                    descriptor.setTitle(supportedThings().findById(lumiTemperatureHumidityThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(lumiTemperatureHumidityDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -691,17 +691,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     modelIdentifier.startsWith("lumi.sensor_magnet")) {
 
                 qCDebug(dcZigbee()) << "This device is a lumi magnet sensor";
-                if (myDevices().filterByDeviceClassId(lumiMagnetSensorDeviceClassId)
-                        .filterByParam(lumiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(lumiMagnetSensorThingClassId)
+                        .filterByParam(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new lumi magnet sensor";
-                    DeviceDescriptor descriptor(lumiMagnetSensorDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(lumiMagnetSensorDeviceClassId).displayName());
+                    ThingDescriptor descriptor(lumiMagnetSensorThingClassId);
+                    descriptor.setTitle(supportedThings().findById(lumiMagnetSensorThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(lumiMagnetSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -712,17 +712,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     modelIdentifier.startsWith("lumi.sensor_switch")) {
 
                 qCDebug(dcZigbee()) << "This device is a lumi button sensor";
-                if (myDevices().filterByDeviceClassId(lumiButtonSensorDeviceClassId)
-                        .filterByParam(lumiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(lumiButtonSensorThingClassId)
+                        .filterByParam(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new lumi button sensor";
-                    DeviceDescriptor descriptor(lumiButtonSensorDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(lumiButtonSensorDeviceClassId).displayName());
+                    ThingDescriptor descriptor(lumiButtonSensorThingClassId);
+                    descriptor.setTitle(supportedThings().findById(lumiButtonSensorThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(lumiButtonSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -733,17 +733,17 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
                     modelIdentifier.startsWith("lumi.sensor_motion")) {
 
                 qCDebug(dcZigbee()) << "This device is a lumi motion sensor";
-                if (myDevices().filterByDeviceClassId(lumiMotionSensorDeviceClassId)
-                        .filterByParam(lumiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString())
+                if (myThings().filterByThingClassId(lumiMotionSensorThingClassId)
+                        .filterByParam(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                         .isEmpty()) {
                     qCDebug(dcZigbee()) << "Adding new lumi motion sensor";
-                    DeviceDescriptor descriptor(lumiMotionSensorDeviceClassId);
-                    descriptor.setTitle(supportedDevices().findById(lumiMotionSensorDeviceClassId).displayName());
+                    ThingDescriptor descriptor(lumiMotionSensorThingClassId);
+                    descriptor.setTitle(supportedThings().findById(lumiMotionSensorThingClassId).displayName());
                     ParamList params;
-                    params.append(Param(lumiMotionSensorDeviceIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    params.append(Param(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                     descriptor.setParams(params);
-                    descriptor.setParentDeviceId(networkManagerDevice->id());
-                    emit autoDevicesAppeared({descriptor});
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
                 } else {
                     qCDebug(dcZigbee()) << "The device for this node has already been created.";
                 }
@@ -752,10 +752,10 @@ void DevicePluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     }
 }
 
-void DevicePluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
+void IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
-    Device *networkDevice = m_zigbeeNetworks.key(zigbeeNetwork);
+    Thing *networkDevice = m_zigbeeNetworks.key(zigbeeNetwork);
 
     qCDebug(dcZigbee()) << networkDevice << "removed" << node;
 
@@ -766,9 +766,9 @@ void DevicePluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
     }
 
     // Clean up
-    Device *device = m_zigbeeDevices.key(zigbeeDevice);
-    m_zigbeeDevices.remove(device);
+    Thing *thing = m_zigbeeDevices.key(zigbeeDevice);
+    m_zigbeeDevices.remove(thing);
     delete zigbeeDevice;
 
-    emit autoDeviceDisappeared(device->id());
+    emit autoThingDisappeared(thing->id());
 }

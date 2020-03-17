@@ -3,21 +3,21 @@
 
 #include <QObject>
 
-#include "devices/device.h"
-#include "nymea-zigbee/zigbeenetwork.h"
-#include "nymea-zigbee/zigbeeaddress.h"
-#include "nymea-zigbee/zigbeenodeendpoint.h"
+#include <integrations/thing.h>
+#include <zigbeenetwork.h>
+#include <zigbeeaddress.h>
+#include <zigbeenodeendpoint.h>
 
 class ZigbeeDevice : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ZigbeeDevice(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit ZigbeeDevice(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     ZigbeeNetwork *network() const;
     ZigbeeAddress ieeeAddress() const;
-    Device *device() const;
+    Thing *thing() const;
 
     virtual void checkOnlineStatus() = 0;
     virtual void removeFromNetwork() = 0;
@@ -25,7 +25,7 @@ public:
 protected:
     ZigbeeNetwork *m_network = nullptr;
     ZigbeeAddress m_ieeeAddress;
-    Device *m_device = nullptr;
+    Thing *m_thing = nullptr;
     ZigbeeNode *m_node = nullptr;
 };
 

@@ -1,8 +1,8 @@
 #include "lumitemperaturesensor.h"
 #include "extern-plugininfo.h"
 
-LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
@@ -27,10 +27,10 @@ void LumiTemperatureSensor::removeFromNetwork()
 void LumiTemperatureSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
-        device()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
+        thing()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
+        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
     }
 }
 
@@ -50,8 +50,8 @@ void LumiTemperatureSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *clu
             qint16 temperatureRaw = 0;
             stream >> temperatureRaw;
             double temperature = temperatureRaw / 100.0;
-            qCDebug(dcZigbee()) << device() << "temperature changed" << temperature << "°C";
-            device()->setStateValue(lumiTemperatureHumidityTemperatureStateTypeId, temperature);
+            qCDebug(dcZigbee()) << thing() << "temperature changed" << temperature << "°C";
+            thing()->setStateValue(lumiTemperatureHumidityTemperatureStateTypeId, temperature);
         }
         break;
     case Zigbee::ClusterIdRelativeHumidityMeasurement:
@@ -61,8 +61,8 @@ void LumiTemperatureSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *clu
             quint16 humidityRaw = 0;
             stream >> humidityRaw;
             double humidity = humidityRaw / 100.0;
-            qCDebug(dcZigbee()) << device() << "humidity changed" << humidity << "%";
-            device()->setStateValue(lumiTemperatureHumidityHumidityStateTypeId, humidity);
+            qCDebug(dcZigbee()) << thing() << "humidity changed" << humidity << "%";
+            thing()->setStateValue(lumiTemperatureHumidityHumidityStateTypeId, humidity);
         }
         break;
     default:

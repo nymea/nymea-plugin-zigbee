@@ -1,8 +1,8 @@
 #include "lumibuttonsensor.h"
 #include "extern-plugininfo.h"
 
-LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     m_longPressedTimer = new QTimer(this);
     m_longPressedTimer->setInterval(300);
@@ -32,10 +32,10 @@ void LumiButtonSensor::removeFromNetwork()
 void LumiButtonSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(lumiButtonSensorConnectedStateTypeId, true);
-        device()->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(lumiButtonSensorConnectedStateTypeId, true);
+        thing()->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
+        thing()->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
     }
 }
 

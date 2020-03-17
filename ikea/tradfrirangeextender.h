@@ -9,7 +9,7 @@ class TradfriRangeExtender : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent = nullptr);
+    explicit TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
     void removeFromNetwork() override;

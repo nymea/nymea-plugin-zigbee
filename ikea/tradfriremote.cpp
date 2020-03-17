@@ -1,8 +1,8 @@
 #include "tradfriremote.h"
 #include "extern-plugininfo.h"
 
-TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
@@ -16,7 +16,7 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_device << m_endpoint;
+    qCDebug(dcZigbee()) << m_thing << m_endpoint;
     qCDebug(dcZigbee()) << "Input clusters";
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         qCDebug(dcZigbee()) << " -" << cluster;
@@ -41,10 +41,10 @@ void TradfriRemote::removeFromNetwork()
 void TradfriRemote::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
-        device()->setStateValue(tradfriRemoteVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(tradfriRemoteConnectedStateTypeId, true);
+        thing()->setStateValue(tradfriRemoteVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
+        thing()->setStateValue(tradfriRemoteConnectedStateTypeId, false);
     }
 }
 

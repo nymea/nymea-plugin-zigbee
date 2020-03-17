@@ -5,8 +5,8 @@
 
 #include <math.h>
 
-LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Device *device, QObject *parent) :
-    ZigbeeDevice(network, ieeeAddress, device, parent)
+LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+    ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     m_delayTimer = new QTimer(this);
     m_delayTimer->setSingleShot(true);
@@ -35,19 +35,19 @@ void LumiMotionSensor::removeFromNetwork()
 void LumiMotionSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        device()->setStateValue(lumiMotionSensorConnectedStateTypeId, true);
-        device()->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(lumiMotionSensorConnectedStateTypeId, true);
+        thing()->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
-        device()->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
+        thing()->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
     }
 }
 
 void LumiMotionSensor::setPresent(bool present)
 {
     m_present = present;
-    device()->setStateValue(lumiMotionSensorIsPresentStateTypeId, m_present);
+    thing()->setStateValue(lumiMotionSensorIsPresentStateTypeId, m_present);
     if (m_present) {
-        m_delayTimer->setInterval(device()->settings().paramValue(lumiMotionSensorSettingsTimeoutParamTypeId).toInt() * 1000);
+        m_delayTimer->setInterval(thing()->settings().paramValue(lumiMotionSensorSettingsTimeoutParamTypeId).toInt() * 1000);
         m_delayTimer->start();
     } else {
         m_delayTimer->stop();
@@ -70,12 +70,12 @@ void LumiMotionSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster,
         stream >> illuminanceRaw;
         // Note: this is again out of spec. The actual lux would be according to spec pow(10, (illuminanceRaw / 10000)) -1
         qCDebug(dcZigbee()) << "Illuminance value" << illuminanceRaw << "lux";
-        device()->setStateValue(lumiMotionSensorLightIntensityStateTypeId, illuminanceRaw);
+        thing()->setStateValue(lumiMotionSensorLightIntensityStateTypeId, illuminanceRaw);
     }
 
     if (cluster->clusterId() == Zigbee::ClusterIdOccapancySensing && attribute.id() == 0x0000) {
         qCDebug(dcZigbee()) << "Motion detected" << static_cast<bool>(attribute.data().at(0));
-        device()->setStateValue(lumiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
+        thing()->setStateValue(lumiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
         emit motionDetected();
         setPresent(true);
     }

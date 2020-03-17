@@ -20,12 +20,11 @@
  *                                                                         *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef DEVICEPLUGINZIGBEE_H
-#define DEVICEPLUGINZIGBEE_H
+#ifndef INTEGRATIONPLUGINZIGBEE_H
+#define INTEGRATIONPLUGINZIGBEE_H
 
-#include "devices/devicemanager.h"
-#include "devices/deviceplugin.h"
-#include "nymea-zigbee/zigbeenetworkmanager.h"
+#include <integrations/integrationplugin.h>
+#include <zigbeenetworkmanager.h>
 
 #include "ikea/tradfriremote.h"
 #include "ikea/tradfrionoffswitch.h"
@@ -42,30 +41,30 @@
 #include "lumi/lumitemperaturesensor.h"
 
 
-class DevicePluginZigbee: public DevicePlugin
+class IntegrationPluginZigbee: public IntegrationPlugin
 {
     Q_OBJECT
 
-    Q_PLUGIN_METADATA(IID "io.nymea.DevicePlugin" FILE "devicepluginzigbee.json")
-    Q_INTERFACES(DevicePlugin)
+    Q_PLUGIN_METADATA(IID "io.nymea.IntegrationPlugin" FILE "integrationpluginzigbee.json")
+    Q_INTERFACES(IntegrationPlugin)
 
 public:
-    explicit DevicePluginZigbee();
+    explicit IntegrationPluginZigbee();
 
     void init() override;
-    void startMonitoringAutoDevices() override;
-    void postSetupDevice(Device *device) override;
-    void deviceRemoved(Device *device) override;
+    void startMonitoringAutoThings() override;
+    void postSetupThing(Thing *thing) override;
+    void thingRemoved(Thing *thing) override;
 
-    void discoverDevices(DeviceDiscoveryInfo *info) override;
-    void setupDevice(DeviceSetupInfo *info) override;
-    void executeAction(DeviceActionInfo *info) override;
+    void discoverThings(ThingDiscoveryInfo *info) override;
+    void setupThing(ThingSetupInfo *info) override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    QHash<Device *, ZigbeeNetwork *> m_zigbeeNetworks;
-    QHash<Device *, ZigbeeDevice *> m_zigbeeDevices;
+    QHash<Thing *, ZigbeeNetwork *> m_zigbeeNetworks;
+    QHash<Thing *, ZigbeeDevice *> m_zigbeeDevices;
 
-    ZigbeeNetwork *findParentNetwork(Device *device) const;
+    ZigbeeNetwork *findParentNetwork(Thing *thing) const;
     ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
 
 private slots:
@@ -77,4 +76,4 @@ private slots:
     void onZigbeeNetworkNodeRemoved(ZigbeeNode *node);
 };
 
-#endif // DEVICEPLUGINZIGBEE_H
+#endif // INTEGRATIONPLUGINZIGBEE_H
