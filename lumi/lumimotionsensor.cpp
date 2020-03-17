@@ -32,6 +32,7 @@
 #include "extern-plugininfo.h"
 
 #include <QDateTime>
+#include <QDataStream>
 
 #include <math.h>
 

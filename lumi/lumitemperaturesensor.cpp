@@ -31,6 +31,8 @@
 #include "lumitemperaturesensor.h"
 #include "extern-plugininfo.h"
 
+#include <QDataStream>
+
 LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {

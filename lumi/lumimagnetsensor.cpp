@@ -31,6 +31,8 @@
 #include "lumimagnetsensor.h"
 #include "extern-plugininfo.h"
 
+#include <QDataStream>
+
 LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {

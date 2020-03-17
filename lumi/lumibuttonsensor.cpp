@@ -31,6 +31,8 @@
 #include "lumibuttonsensor.h"
 #include "extern-plugininfo.h"
 
+#include <QDataStream>
+
 LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
