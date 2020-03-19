@@ -37,9 +37,9 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
     // Initialize the endpoint
-    foreach (ZigbeeNodeEndpoint *endpoit, m_node->endpoints()) {
-        if (endpoit->deviceId() == Zigbee::LightLinkDeviceNonColourSceneController) {
-            m_endpoint = endpoit;
+    foreach (ZigbeeNodeEndpoint *endpoint, m_node->endpoints()) {
+        if (endpoint->deviceId() == Zigbee::LightLinkDeviceNonColourSceneController) {
+            m_endpoint = endpoint;
             break;
         }
     }

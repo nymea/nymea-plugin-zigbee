@@ -28,17 +28,20 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "tradfripowersocket.h"
+#include "genericonofflight.h"
 #include "extern-plugininfo.h"
 
-TradfriPowerSocket::TradfriPowerSocket(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
-    Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
-
     // Initialize the endpoint
     foreach (ZigbeeNodeEndpoint *endpoint, m_node->endpoints()) {
-        if (endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
+        if (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceOnOffLight) {
+            m_endpoint = endpoint;
+            break;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffLight) {
             m_endpoint = endpoint;
             break;
         }
@@ -57,39 +60,39 @@ TradfriPowerSocket::TradfriPowerSocket(ZigbeeNetwork *network, ZigbeeAddress iee
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
-    connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriPowerSocket::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriPowerSocket::onEndpointClusterAttributeChanged);
+    connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericOnOffLight::onNetworkStateChanged);
+    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericOnOffLight::onEndpointClusterAttributeChanged);
 }
 
-void TradfriPowerSocket::identify()
+void GenericOnOffLight::checkOnlineStatus()
 {
-    m_endpoint->identify(2);
+    if (m_network->state() == ZigbeeNetwork::StateRunning) {
+        thing()->setStateValue(genericOnOffLightConnectedStateTypeId, true);
+        thing()->setStateValue(genericOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        readAttribute();
+    } else {
+        thing()->setStateValue(genericOnOffLightConnectedStateTypeId, false);
+    }
 }
 
-void TradfriPowerSocket::removeFromNetwork()
+void GenericOnOffLight::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
 }
 
-void TradfriPowerSocket::checkOnlineStatus()
+void GenericOnOffLight::identify()
 {
-    if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(tradfriPowerSocketConnectedStateTypeId, true);
-        thing()->setStateValue(tradfriPowerSocketVersionStateTypeId, m_endpoint->softwareBuildId());
-        readAttribute();
-    } else {
-        thing()->setStateValue(tradfriPowerSocketConnectedStateTypeId, false);
-    }
+    m_endpoint->identify(2);
 }
 
-void TradfriPowerSocket::setPower(bool power)
+void GenericOnOffLight::setPower(bool power)
 {
     qCDebug(dcZigbee()) << m_thing << "set power" << power;
     m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
     readAttribute();
 }
 
-void TradfriPowerSocket::readAttribute()
+void GenericOnOffLight::readAttribute()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
@@ -98,18 +101,13 @@ void TradfriPowerSocket::readAttribute()
     }
 }
 
-void TradfriPowerSocket::configureReporting()
-{
-
-}
-
-void TradfriPowerSocket::onNetworkStateChanged(ZigbeeNetwork::State state)
+void GenericOnOffLight::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
 }
 
-void TradfriPowerSocket::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
+void GenericOnOffLight::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
 {
     qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 
@@ -120,6 +118,6 @@ void TradfriPowerSocket::onEndpointClusterAttributeChanged(ZigbeeCluster *cluste
         }
 
         bool power = static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(tradfriPowerSocketPowerStateTypeId, power);
+        thing()->setStateValue(genericOnOffLightPowerStateTypeId, power);
     }
 }

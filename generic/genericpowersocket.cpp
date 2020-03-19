@@ -28,18 +28,21 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "feibitonofflight.h"
+#include "genericpowersocket.h"
 #include "extern-plugininfo.h"
 
-FeiBitOnOffLight::FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+GenericPowerSocket::GenericPowerSocket(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
-    Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
-
     // Initialize the endpoint
-    foreach (ZigbeeNodeEndpoint *endpoit, m_node->endpoints()) {
-        if (endpoit->deviceId() == Zigbee::LightLinkDeviceOnOffLight) {
-            m_endpoint = endpoit;
+    foreach (ZigbeeNodeEndpoint *endpoint, m_node->endpoints()) {
+        if (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceOnOffPlugin) {
+            m_endpoint = endpoint;
+            break;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
+            m_endpoint = endpoint;
             break;
         }
     }
@@ -57,42 +60,39 @@ FeiBitOnOffLight::FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
-    connect(m_network, &ZigbeeNetwork::stateChanged, this, &FeiBitOnOffLight::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &FeiBitOnOffLight::onEndpointClusterAttributeChanged);
-
-    configureReporting();
-    readAttribute();
+    connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericPowerSocket::onNetworkStateChanged);
+    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericPowerSocket::onEndpointClusterAttributeChanged);
 }
 
-void FeiBitOnOffLight::identify()
-{
-    m_endpoint->identify(2);
-}
-
-void FeiBitOnOffLight::checkOnlineStatus()
+void GenericPowerSocket::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(feibitOnOffLightConnectedStateTypeId, true);
-        thing()->setStateValue(feibitOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(genericPowerSocketConnectedStateTypeId, true);
+        thing()->setStateValue(genericPowerSocketVersionStateTypeId, m_endpoint->softwareBuildId());
         readAttribute();
     } else {
-        thing()->setStateValue(feibitOnOffLightConnectedStateTypeId, false);
+        thing()->setStateValue(genericPowerSocketConnectedStateTypeId, false);
     }
 }
 
-void FeiBitOnOffLight::removeFromNetwork()
+void GenericPowerSocket::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
 }
 
-void FeiBitOnOffLight::setPower(bool power)
+void GenericPowerSocket::identify()
+{
+    m_endpoint->identify(2);
+}
+
+void GenericPowerSocket::setPower(bool power)
 {
     qCDebug(dcZigbee()) << m_thing << "set power" << power;
     m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
     readAttribute();
 }
 
-void FeiBitOnOffLight::readAttribute()
+void GenericPowerSocket::readAttribute()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
@@ -101,19 +101,13 @@ void FeiBitOnOffLight::readAttribute()
     }
 }
 
-void FeiBitOnOffLight::configureReporting()
-{
-
-}
-
-
-void FeiBitOnOffLight::onNetworkStateChanged(ZigbeeNetwork::State state)
+void GenericPowerSocket::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
 }
 
-void FeiBitOnOffLight::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
+void GenericPowerSocket::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
 {
     qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 
@@ -124,6 +118,6 @@ void FeiBitOnOffLight::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster,
         }
 
         bool power = static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(feibitOnOffLightPowerStateTypeId, power);
+        thing()->setStateValue(genericPowerSocketPowerStateTypeId, power);
     }
 }

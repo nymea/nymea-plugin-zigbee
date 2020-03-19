@@ -28,39 +28,45 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef FEIBITONOFFLIGHT_H
-#define FEIBITONOFFLIGHT_H
+#ifndef GENERICCOLORLIGHT_H
+#define GENERICCOLORLIGHT_H
 
 #include <QObject>
 
 #include "zigbeedevice.h"
 
-class FeiBitOnOffLight : public ZigbeeDevice
+class GenericColorLight : public ZigbeeDevice
 {
     Q_OBJECT
-
 public:
-    FeiBitOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
-
-    void checkOnlineStatus() override;
-    void removeFromNetwork() override;
+    explicit GenericColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void identify();
+    void removeFromNetwork() override;
+    void checkOnlineStatus() override;
+
     void setPower(bool power);
+    void setBrightness(int brightness);
+    void setColorTemperature(int colorTemperature);
+    void setColor(const QColor &color);
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    quint16 m_currentX = 0;
+    quint16 m_currentY = 0;
 
-    void readAttribute();
+    int m_colorAttributesArrived = 0;
+
+    void readColorCapabilities();
+    void readOnOffState();
+    void readLevelValue();
+    void readColorXy();
+
     void configureReporting();
-
-signals:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
-
-
+    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 };
 
-#endif // FEIBITONOFFLIGHT_H
+#endif // GENERICCOLORLIGHT_H

@@ -22,8 +22,11 @@ CONFIG += link_pkgconfig
 PKGCONFIG += nymea-zigbee
 
 SOURCES += \
+    generic/genericcolorlight.cpp \
+    generic/genericcolortemperaturelight.cpp \
+    generic/genericonofflight.cpp \
+    generic/genericpowersocket.cpp \
     integrationpluginzigbee.cpp \
-    feibit/feibitonofflight.cpp \
     ikea/tradfricolorlight.cpp \
     ikea/tradfricolortemperaturelight.cpp \
     ikea/tradfrionoffswitch.cpp \
@@ -37,8 +40,11 @@ SOURCES += \
     zigbeedevice.cpp
 
 HEADERS += \
+    generic/genericcolorlight.h \
+    generic/genericcolortemperaturelight.h \
+    generic/genericonofflight.h \
+    generic/genericpowersocket.h \
     integrationpluginzigbee.h \
-    feibit/feibitonofflight.h \
     ikea/tradfricolorlight.h \
     ikea/tradfricolortemperaturelight.h \
     ikea/tradfrionoffswitch.h \

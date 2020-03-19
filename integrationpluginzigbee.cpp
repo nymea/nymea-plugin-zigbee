@@ -145,6 +145,7 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         zigbeeNetwork->startNetwork();
     }
 
+    // Ikea
     if (thing->thingClassId() == tradfriRemoteThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri remote" << thing;
         ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRemoteThingIeeeAddressParamTypeId).toString());
@@ -160,7 +161,6 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         TradfriOnOffSwitch *remote = new TradfriOnOffSwitch(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, remote);
     }
-
 
     if (thing->thingClassId() == tradfriColorLightThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
@@ -194,14 +194,7 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         m_zigbeeDevices.insert(thing, extender);
     }
 
-    if (thing->thingClassId() == feibitOnOffLightThingClassId) {
-        qCDebug(dcZigbee()) << "FeiBit On/OFF light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(feibitOnOffLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        FeiBitOnOffLight *light = new FeiBitOnOffLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, light);
-    }
-
+    // Lumi
     if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
         qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
         ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
@@ -239,6 +232,31 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, sensor);
+    }
+
+    // Generic
+    if (thing->thingClassId() == genericOnOffLightThingClassId) {
+        qCDebug(dcZigbee()) << "On/OFF light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericOnOffLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericOnOffLight *light = new GenericOnOffLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+    }
+
+    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+        qCDebug(dcZigbee()) << "Power socket" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericPowerSocketThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, socket);
+    }
+
+    if (thing->thingClassId() == genericColorLightThingClassId) {
+        qCDebug(dcZigbee()) << "Color light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericColorLight *socket = new GenericColorLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, socket);
     }
 
     info->finish(Thing::ThingErrorNoError);
@@ -361,18 +379,6 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         }
     }
 
-    // FeiBit on/off light switch
-    if (thing->thingClassId() == feibitOnOffLightThingClassId) {
-        FeiBitOnOffLight *light = qobject_cast<FeiBitOnOffLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == feibitOnOffLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == feibitOnOffLightPowerActionTypeId) {
-            light->setPower(action.param(feibitOnOffLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == feibitOnOffLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
-    }
-
     // Lumi temperature/humidity sensor
     if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
         LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
@@ -399,6 +405,65 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         }
     }
 
+    // Generic on/off light
+    if (thing->thingClassId() == genericOnOffLightThingClassId) {
+        GenericOnOffLight *light = qobject_cast<GenericOnOffLight *>(m_zigbeeDevices.value(thing));
+        if (action.actionTypeId() == genericOnOffLightIdentifyActionTypeId) {
+            light->identify();
+        } else if (action.actionTypeId() == genericOnOffLightPowerActionTypeId) {
+            light->setPower(action.param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
+        }
+    }
+
+    // Generic color temperature light
+    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+        GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
+        if (action.actionTypeId() == genericColorTemperatureLightIdentifyActionTypeId) {
+            light->identify();
+        } else if (action.actionTypeId() == genericColorTemperatureLightPowerActionTypeId) {
+            light->setPower(action.param(genericColorTemperatureLightPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == genericColorTemperatureLightBrightnessActionTypeId) {
+            light->setBrightness(action.param(genericColorTemperatureLightBrightnessActionBrightnessParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == genericColorTemperatureLightColorTemperatureActionTypeId) {
+            light->setColorTemperature(action.param(genericColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == genericColorTemperatureLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
+        }
+    }
+
+
+    // Generic color light
+    if (thing->thingClassId() == genericColorLightThingClassId) {
+        GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
+        if (action.actionTypeId() == genericColorLightIdentifyActionTypeId) {
+            light->identify();
+        } else if (action.actionTypeId() == genericColorLightPowerActionTypeId) {
+            light->setPower(action.param(genericColorLightPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == genericColorLightBrightnessActionTypeId) {
+            light->setBrightness(action.param(genericColorLightBrightnessActionBrightnessParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == genericColorLightColorTemperatureActionTypeId) {
+            light->setColorTemperature(action.param(genericColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
+        } else if (action.actionTypeId() == genericColorLightColorActionTypeId) {
+            light->setColor(action.param(genericColorLightColorActionColorParamTypeId).value().value<QColor>());
+        } else if (action.actionTypeId() == genericColorLightRemoveFromNetworkActionTypeId) {
+            light->removeFromNetwork();
+        }
+    }
+
+    // Generic power socket
+    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+        GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
+        if (action.actionTypeId() == genericPowerSocketIdentifyActionTypeId) {
+            socket->identify();
+        } else if (action.actionTypeId() == genericPowerSocketPowerActionTypeId) {
+            socket->setPower(action.param(genericPowerSocketPowerActionPowerParamTypeId).value().toBool());
+        } else if (action.actionTypeId() == genericPowerSocketRemoveFromNetworkActionTypeId) {
+            socket->removeFromNetwork();
+        }
+    }
+
     info->finish(Thing::ThingErrorNoError);
 }
 
@@ -422,6 +487,365 @@ ZigbeeDevice *IntegrationPluginZigbee::findNodeZigbeeDevice(ZigbeeNode *node)
     }
 
     return nullptr;
+}
+
+bool IntegrationPluginZigbee::createIkeaDevice(Thing *networkManagerDevice, ZigbeeNode *node)
+{
+    foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
+                endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceNonColourSceneController) {
+
+            qCDebug(dcZigbee()) << "Found Ikea Tradfri Remote";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriRemoteThingClassId)
+                    .filterByParam(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri remote";
+                ThingDescriptor descriptor(tradfriRemoteThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriRemoteThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                endpoint->deviceId() == Zigbee::HomeAutomationDevice::HomeAutomationDeviceNonColourController) {
+
+            qCDebug(dcZigbee()) << "Found Ikea Tradfri On/Off remote";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriOnOffSwitchThingClassId)
+                    .filterByParam(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri on/off remote";
+                ThingDescriptor descriptor(tradfriOnOffSwitchThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriOnOffSwitchThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if ( (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceExtendedColourLight) ||
+             (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourLight)) {
+
+            qCDebug(dcZigbee()) << "Found Ikea Tradfri Colour Light";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriColorLightThingClassId)
+                    .filterByParam(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri colour light";
+                ThingDescriptor descriptor(tradfriColorLightThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriColorLightThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
+            qCDebug(dcZigbee()) << "Found Ikea tradfri power socket";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriPowerSocketThingClassId)
+                    .filterByParam(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri power socket";
+                ThingDescriptor descriptor(tradfriPowerSocketThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriPowerSocketThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if ( (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceColourTemperatureLight) ||
+             (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourTemperatureLight)) {
+
+            qCDebug(dcZigbee()) << "Found Ikea tradfri color temperature light";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriColorTemperatureLightThingClassId)
+                    .filterByParam(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri color temperature light";
+                ThingDescriptor descriptor(tradfriColorTemperatureLightThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriColorTemperatureLightThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
+                endpoint->deviceId() == Zigbee::HomeAutomationDeviceRangeExtender) {
+
+            qCDebug(dcZigbee()) << "Found Ikea tradfri range extender";
+            // Check if node already added
+            if (myThings().filterByThingClassId(tradfriRangeExtenderThingClassId)
+                    .filterByParam(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new tradfri range extender";
+                ThingDescriptor descriptor(tradfriRangeExtenderThingClassId);
+                descriptor.setTitle(supportedThings().findById(tradfriRangeExtenderThingClassId).displayName());
+                ParamList params;
+                params.append(Param(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, ZigbeeNode *node)
+{
+    foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
+
+        // Get the model identifier if present from the first endpoint. Also this is out of spec
+        if (!endpoint->hasInputCluster(Zigbee::ClusterIdBasic)) {
+            qCWarning(dcZigbee()) << "This lumi device does not have the basic input cluster yet.";
+            continue;
+        }
+
+        ZigbeeCluster *basicCluster = endpoint->getInputCluster(Zigbee::ClusterIdBasic);
+        if (!basicCluster->hasAttribute(ZigbeeCluster::BasicAttributeModelIdentifier)) {
+            qCWarning(dcZigbee()) << "This lumi device does not have the model identifier yet.";
+            continue;
+        }
+
+        QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(ZigbeeCluster::BasicAttributeModelIdentifier).data());
+        qCDebug(dcZigbee()) << "Model identifier" << modelIdentifier;
+
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                modelIdentifier.startsWith("lumi.sensor_ht") &&
+                endpoint->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement) &&
+                endpoint->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi temperature humidity sensor";
+            if (myThings().filterByThingClassId(lumiTemperatureHumidityThingClassId)
+                    .filterByParam(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi temperature humidity sensor";
+                ThingDescriptor descriptor(lumiTemperatureHumidityThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiTemperatureHumidityThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                modelIdentifier.startsWith("lumi.sensor_magnet")) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi magnet sensor";
+            if (myThings().filterByThingClassId(lumiMagnetSensorThingClassId)
+                    .filterByParam(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi magnet sensor";
+                ThingDescriptor descriptor(lumiMagnetSensorThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiMagnetSensorThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+
+            return true;
+        }
+
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                modelIdentifier.startsWith("lumi.sensor_switch")) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi button sensor";
+            if (myThings().filterByThingClassId(lumiButtonSensorThingClassId)
+                    .filterByParam(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi button sensor";
+                ThingDescriptor descriptor(lumiButtonSensorThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiButtonSensorThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                modelIdentifier.startsWith("lumi.sensor_motion")) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi motion sensor";
+            if (myThings().filterByThingClassId(lumiMotionSensorThingClassId)
+                    .filterByParam(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi motion sensor";
+                ThingDescriptor descriptor(lumiMotionSensorThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiMotionSensorThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool IntegrationPluginZigbee::createGenericDevice(Thing *networkManagerDevice, ZigbeeNode *node)
+{
+    foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
+        if ((endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffPlugin) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin)) {
+
+            // Create generic power socket
+            qCDebug(dcZigbee()) << "This device is an power socket";
+            if (myThings().filterByThingClassId(genericPowerSocketThingClassId)
+                    .filterByParam(genericPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new generic power socket";
+                ThingDescriptor descriptor(genericPowerSocketThingClassId);
+                QString deviceClassName = supportedThings().findById(genericPowerSocketThingClassId).displayName();
+                descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
+                ParamList params;
+                params.append(Param(genericPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                params.append(Param(genericPowerSocketThingManufacturerParamTypeId, endpoint->manufacturerName()));
+                params.append(Param(genericPowerSocketThingModelParamTypeId, endpoint->modelIdentifier()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
+                endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffLight) {
+
+            // Create generic on/off light
+            qCDebug(dcZigbee()) << "This device is an on/off light";
+            if (myThings().filterByThingClassId(genericOnOffLightThingClassId)
+                    .filterByParam(genericOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new generic on/off light";
+                ThingDescriptor descriptor(genericOnOffLightThingClassId);
+                QString deviceClassName = supportedThings().findById(genericOnOffLightThingClassId).displayName();
+                descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
+                ParamList params;
+                params.append(Param(genericOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                params.append(Param(genericOnOffLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
+                params.append(Param(genericOnOffLightThingModelParamTypeId, endpoint->modelIdentifier()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if ((endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourTemperatureLight) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceColourTemperatureLight)) {
+
+            // Create generic power socket
+            qCDebug(dcZigbee()) << "This device is an color temperature light";
+            if (myThings().filterByThingClassId(genericColorTemperatureLightThingClassId)
+                    .filterByParam(genericPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new generic generic color temperature light";
+                ThingDescriptor descriptor(genericColorTemperatureLightThingClassId);
+                QString deviceClassName = supportedThings().findById(genericColorTemperatureLightThingClassId).displayName();
+                descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
+                ParamList params;
+                params.append(Param(genericColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                params.append(Param(genericColorTemperatureLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
+                params.append(Param(genericColorTemperatureLightThingModelParamTypeId, endpoint->modelIdentifier()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if ((endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourLight) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceExtendedColourLight) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceExtendedColourLight)) {
+
+            // Create generic color light
+            qCDebug(dcZigbee()) << "This device is an color light";
+            if (myThings().filterByThingClassId(genericColorLightThingClassId)
+                    .filterByParam(genericColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new generic color light";
+                ThingDescriptor descriptor(genericColorLightThingClassId);
+                QString deviceClassName = supportedThings().findById(genericColorLightThingClassId).displayName();
+                descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
+                ParamList params;
+                params.append(Param(genericColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                params.append(Param(genericColorLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
+                params.append(Param(genericColorLightThingModelParamTypeId, endpoint->modelIdentifier()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State state)
@@ -488,9 +912,11 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
     foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
         qCDebug(dcZigbee()) << endpoint;
-        qCDebug(dcZigbee()) << "  Manufacturer" << endpoint->manufacturerName();
-        qCDebug(dcZigbee()) << "  Model" << endpoint->modelIdentifier();
-        qCDebug(dcZigbee()) << "  Version" << endpoint->softwareBuildId();
+        if (!endpoint->manufacturerName().isEmpty()) {
+            qCDebug(dcZigbee()) << "  Manufacturer" << endpoint->manufacturerName();
+            qCDebug(dcZigbee()) << "  Model" << endpoint->modelIdentifier();
+            qCDebug(dcZigbee()) << "  Version" << endpoint->softwareBuildId();
+        }
         qCDebug(dcZigbee()) << "  Input clusters (" << endpoint->inputClusters().count() << ")";
         foreach (ZigbeeCluster *cluster, endpoint->inputClusters()) {
             qCDebug(dcZigbee()) << "   -" << cluster;
@@ -508,256 +934,33 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
         }
     }
 
+    // Lets see who recognizes this device, if we have no matching device class for this, create a generic node with some information
+
     // Check ikea devices
     if (node->manufacturerCode() == Zigbee::Manufacturer::Ikea) {
         qCDebug(dcZigbee()) << "This device is from Ikea";
-        foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
-                    endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceNonColourSceneController) {
-
-                qCDebug(dcZigbee()) << "Found Ikea Tradfri Remote";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriRemoteThingClassId)
-                        .filterByParam(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri remote";
-                    ThingDescriptor descriptor(tradfriRemoteThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriRemoteThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriRemoteThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            } else if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                       endpoint->deviceId() == Zigbee::HomeAutomationDevice::HomeAutomationDeviceNonColourController) {
-
-                qCDebug(dcZigbee()) << "Found Ikea Tradfri On/Off remote";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriOnOffSwitchThingClassId)
-                        .filterByParam(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri on/off remote";
-                    ThingDescriptor descriptor(tradfriOnOffSwitchThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriOnOffSwitchThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriOnOffSwitchThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            } else if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
-                       endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceColourLight) {
-
-                qCDebug(dcZigbee()) << "Found Ikea Tradfri Colour Light";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriColorLightThingClassId)
-                        .filterByParam(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri colour light";
-                    ThingDescriptor descriptor(tradfriColorLightThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriColorLightThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
-                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
-
-                qCDebug(dcZigbee()) << "Found Ikea tradfri power socket";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriPowerSocketThingClassId)
-                        .filterByParam(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri power socket";
-                    ThingDescriptor descriptor(tradfriPowerSocketThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriPowerSocketThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
-                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceColourTemperatureLight) {
-
-                qCDebug(dcZigbee()) << "Found Ikea tradfri color temperature light";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriColorTemperatureLightThingClassId)
-                        .filterByParam(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri color temperature light";
-                    ThingDescriptor descriptor(tradfriColorTemperatureLightThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriColorTemperatureLightThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            } else if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
-                       endpoint->deviceId() == Zigbee::HomeAutomationDeviceRangeExtender) {
-
-                qCDebug(dcZigbee()) << "Found Ikea tradfri range extender";
-                // Check if node already added
-                if (myThings().filterByThingClassId(tradfriRangeExtenderThingClassId)
-                        .filterByParam(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new tradfri range extender";
-                    ThingDescriptor descriptor(tradfriRangeExtenderThingClassId);
-                    descriptor.setTitle(supportedThings().findById(tradfriRangeExtenderThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
-        }
-    } else if (node->manufacturerCode() == Zigbee::Manufacturer::FeiBit) {
-        qCDebug(dcZigbee()) << "This device is from FeiBit";
-        foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
-                    endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffLight) {
-
-                qCDebug(dcZigbee()) << "This device is a FeiBit on/off light";
-                if (myThings().filterByThingClassId(feibitOnOffLightThingClassId)
-                        .filterByParam(feibitOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new feibit on/off light";
-                    ThingDescriptor descriptor(feibitOnOffLightThingClassId);
-                    descriptor.setTitle(supportedThings().findById(feibitOnOffLightThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(feibitOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
-        }
-    } else if (node->manufacturerCode() == 0x1037) {
-        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
-        qCDebug(dcZigbee()) << "This device is from Lumi";
-        foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
-
-            // Get the model identifier if present from the first endpoint. Also this is out of spec
-            if (!endpoint->hasInputCluster(Zigbee::ClusterIdBasic)) {
-                qCWarning(dcZigbee()) << "This lumi device does not have the basic input cluster yet.";
-                continue;
-            }
-
-            ZigbeeCluster *basicCluster = endpoint->getInputCluster(Zigbee::ClusterIdBasic);
-            if (!basicCluster->hasAttribute(ZigbeeCluster::BasicAttributeModelIdentifier)) {
-                qCWarning(dcZigbee()) << "This lumi device does not have the model identifier yet.";
-                continue;
-            }
-
-            QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(ZigbeeCluster::BasicAttributeModelIdentifier).data());
-            qCDebug(dcZigbee()) << "Model identifier" << modelIdentifier;
-
-            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                    modelIdentifier.startsWith("lumi.sensor_ht") &&
-                    endpoint->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement) &&
-                    endpoint->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
-
-                qCDebug(dcZigbee()) << "This device is a lumi temperature humidity sensor";
-                if (myThings().filterByThingClassId(lumiTemperatureHumidityThingClassId)
-                        .filterByParam(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new lumi temperature humidity sensor";
-                    ThingDescriptor descriptor(lumiTemperatureHumidityThingClassId);
-                    descriptor.setTitle(supportedThings().findById(lumiTemperatureHumidityThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
-
-            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                    modelIdentifier.startsWith("lumi.sensor_magnet")) {
-
-                qCDebug(dcZigbee()) << "This device is a lumi magnet sensor";
-                if (myThings().filterByThingClassId(lumiMagnetSensorThingClassId)
-                        .filterByParam(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new lumi magnet sensor";
-                    ThingDescriptor descriptor(lumiMagnetSensorThingClassId);
-                    descriptor.setTitle(supportedThings().findById(lumiMagnetSensorThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(lumiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
-
-            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                    modelIdentifier.startsWith("lumi.sensor_switch")) {
-
-                qCDebug(dcZigbee()) << "This device is a lumi button sensor";
-                if (myThings().filterByThingClassId(lumiButtonSensorThingClassId)
-                        .filterByParam(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new lumi button sensor";
-                    ThingDescriptor descriptor(lumiButtonSensorThingClassId);
-                    descriptor.setTitle(supportedThings().findById(lumiButtonSensorThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(lumiButtonSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
-
-            // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
-            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                    modelIdentifier.startsWith("lumi.sensor_motion")) {
-
-                qCDebug(dcZigbee()) << "This device is a lumi motion sensor";
-                if (myThings().filterByThingClassId(lumiMotionSensorThingClassId)
-                        .filterByParam(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                        .isEmpty()) {
-                    qCDebug(dcZigbee()) << "Adding new lumi motion sensor";
-                    ThingDescriptor descriptor(lumiMotionSensorThingClassId);
-                    descriptor.setTitle(supportedThings().findById(lumiMotionSensorThingClassId).displayName());
-                    ParamList params;
-                    params.append(Param(lumiMotionSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                    descriptor.setParams(params);
-                    descriptor.setParentId(networkManagerDevice->id());
-                    emit autoThingsAppeared({descriptor});
-                } else {
-                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
-                }
-            }
+        if (createIkeaDevice(networkManagerDevice, node)) {
+            // Recognized and created or already created
+            return;
         }
     }
+
+    // Check if this is Lumi
+    if (node->manufacturerCode() == 0x1037) {
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        qCDebug(dcZigbee()) << "This device is from Lumi";
+        if (createLumiDevice(networkManagerDevice, node)) {
+            return;
+        }
+    }
+
+    // Check if we can create a generic device from it
+    qCDebug(dcZigbee()) << "Try to create a generic device for this node";
+    if (createGenericDevice(networkManagerDevice, node)) {
+        return;
+    }
+
+    qCWarning(dcZigbee()) << "Could not create a device for this node. Please send the cluster node information to nymea, maybe we can change this :)";
 }
 
 void IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)

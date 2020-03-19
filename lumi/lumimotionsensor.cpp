@@ -103,7 +103,7 @@ void LumiMotionSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster,
         thing()->setStateValue(lumiMotionSensorLightIntensityStateTypeId, illuminanceRaw);
     }
 
-    if (cluster->clusterId() == Zigbee::ClusterIdOccapancySensing && attribute.id() == 0x0000) {
+    if (cluster->clusterId() == Zigbee::ClusterIdOccupancySensing && attribute.id() == 0x0000) {
         qCDebug(dcZigbee()) << "Motion detected" << static_cast<bool>(attribute.data().at(0));
         thing()->setStateValue(lumiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
         emit motionDetected();

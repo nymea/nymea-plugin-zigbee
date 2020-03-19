@@ -41,13 +41,15 @@
 #include "ikea/tradfricolortemperaturelight.h"
 #include "ikea/tradfrirangeextender.h"
 
-#include "feibit/feibitonofflight.h"
-
 #include "lumi/lumimagnetsensor.h"
 #include "lumi/lumibuttonsensor.h"
 #include "lumi/lumimotionsensor.h"
 #include "lumi/lumitemperaturesensor.h"
 
+#include "generic/genericonofflight.h"
+#include "generic/genericpowersocket.h"
+#include "generic/genericcolorlight.h"
+#include "generic/genericcolortemperaturelight.h"
 
 class IntegrationPluginZigbee: public IntegrationPlugin
 {
@@ -75,11 +77,16 @@ private:
     ZigbeeNetwork *findParentNetwork(Thing *thing) const;
     ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
 
+    bool createIkeaDevice(Thing *networkManagerDevice, ZigbeeNode *node);
+    bool createLumiDevice(Thing *networkManagerDevice, ZigbeeNode *node);
+    bool createGenericDevice(Thing *networkManagerDevice, ZigbeeNode *node);
+
 private slots:
     void onZigbeeNetworkStateChanged(ZigbeeNetwork::State state);
     void onZigbeeNetworkChannelChanged(uint channel);
     void onZigbeeNetworkPanIdChanged(quint64 extendedPanId);
     void onZigbeeNetworkPermitJoiningChanged(bool permitJoining);
+
     void onZigbeeNetworkNodeAdded(ZigbeeNode *node);
     void onZigbeeNetworkNodeRemoved(ZigbeeNode *node);
 };

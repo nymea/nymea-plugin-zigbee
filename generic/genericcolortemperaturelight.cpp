@@ -28,12 +28,10 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "tradfricolortemperaturelight.h"
+#include "genericcolortemperaturelight.h"
 #include "extern-plugininfo.h"
 
-#include <zigbeeutils.h>
-
-TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+GenericColorTemperatureLight::GenericColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
@@ -66,42 +64,43 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
         }
     }
 
-    connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriColorTemperatureLight::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriColorTemperatureLight::onClusterAttributeChanged);
+    connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericColorTemperatureLight::onNetworkStateChanged);
+    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericColorTemperatureLight::onClusterAttributeChanged);
+
 }
 
-void TradfriColorTemperatureLight::identify()
+void GenericColorTemperatureLight::identify()
 {
     m_endpoint->identify(1);
 }
 
-void TradfriColorTemperatureLight::removeFromNetwork()
+void GenericColorTemperatureLight::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+
 }
 
-void TradfriColorTemperatureLight::checkOnlineStatus()
+void GenericColorTemperatureLight::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(tradfriColorTemperatureLightConnectedStateTypeId, true);
-        thing()->setStateValue(tradfriColorTemperatureLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        thing()->setStateValue(genericColorTemperatureLightConnectedStateTypeId, true);
+        thing()->setStateValue(genericColorTemperatureLightVersionStateTypeId, m_endpoint->softwareBuildId());
         readOnOffState();
         readLevelValue();
         readColorTemperature();
     } else {
-        thing()->setStateValue(tradfriColorTemperatureLightConnectedStateTypeId, false);
+        thing()->setStateValue(genericColorTemperatureLightConnectedStateTypeId, false);
     }
 }
 
-void TradfriColorTemperatureLight::setPower(bool power)
+void GenericColorTemperatureLight::setPower(bool power)
 {
     qCDebug(dcZigbee()) << m_thing << "set power" << power;
     m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    thing()->setStateValue(tradfriColorTemperatureLightPowerStateTypeId, power);
+    thing()->setStateValue(genericColorTemperatureLightPowerStateTypeId, power);
     readOnOffState();
 }
 
-void TradfriColorTemperatureLight::setBrightness(int brightness)
+void GenericColorTemperatureLight::setBrightness(int brightness)
 {
     if (brightness > 100)
         brightness = 100;
@@ -112,19 +111,20 @@ void TradfriColorTemperatureLight::setBrightness(int brightness)
     quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
     // Note: time unit is 1/10 s
     m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
-    thing()->setStateValue(tradfriColorTemperatureLightBrightnessStateTypeId, brightness);
+    thing()->setStateValue(genericColorTemperatureLightBrightnessStateTypeId, brightness);
     // Note: due to triggersOnOff is true
-    thing()->setStateValue(tradfriColorTemperatureLightPowerStateTypeId, (level > 0));
+    thing()->setStateValue(genericColorTemperatureLightPowerStateTypeId, (level > 0));
+
 }
 
-void TradfriColorTemperatureLight::setColorTemperature(int colorTemperature)
+void GenericColorTemperatureLight::setColorTemperature(int colorTemperature)
 {
     // Note: time unit is 1/10 s
     m_endpoint->sendMoveToColorTemperature(static_cast<quint16>(colorTemperature), 5);
-    thing()->setStateValue(tradfriColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
+    thing()->setStateValue(genericColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
 }
 
-void TradfriColorTemperatureLight::readOnOffState()
+void GenericColorTemperatureLight::readOnOffState()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
@@ -133,7 +133,7 @@ void TradfriColorTemperatureLight::readOnOffState()
     }
 }
 
-void TradfriColorTemperatureLight::readLevelValue()
+void GenericColorTemperatureLight::readLevelValue()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdLevelControl) {
@@ -142,7 +142,7 @@ void TradfriColorTemperatureLight::readLevelValue()
     }
 }
 
-void TradfriColorTemperatureLight::readColorTemperature()
+void GenericColorTemperatureLight::readColorTemperature()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdColorControl) {
@@ -151,7 +151,7 @@ void TradfriColorTemperatureLight::readColorTemperature()
     }
 }
 
-void TradfriColorTemperatureLight::onNetworkStateChanged(ZigbeeNetwork::State state)
+void GenericColorTemperatureLight::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     checkOnlineStatus();
     if (state == ZigbeeNetwork::StateRunning) {
@@ -160,22 +160,22 @@ void TradfriColorTemperatureLight::onNetworkStateChanged(ZigbeeNetwork::State st
     }
 }
 
-void TradfriColorTemperatureLight::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
+void GenericColorTemperatureLight::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
 {
     qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 
     if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
         bool power = static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(tradfriColorTemperatureLightPowerStateTypeId, power);
+        thing()->setStateValue(genericColorTemperatureLightPowerStateTypeId, power);
     } else if (cluster->clusterId() == Zigbee::ClusterIdLevelControl && attribute.id() == ZigbeeCluster::LevelClusterAttributeCurrentLevel) {
         quint8 currentLevel = static_cast<quint8>(attribute.data().at(0));
-        thing()->setStateValue(tradfriColorTemperatureLightBrightnessStateTypeId, qRound(currentLevel * 100.0 / 255.0));
+        thing()->setStateValue(genericColorTemperatureLightBrightnessStateTypeId, qRound(currentLevel * 100.0 / 255.0));
     } else if (cluster->clusterId() == Zigbee::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeColorTemperatureMireds) {
         quint16 colorTemperature = 0;
         QByteArray data = attribute.data();
         QDataStream stream(&data, QIODevice::ReadOnly);
         stream >> colorTemperature;
         qCDebug(dcZigbee()) << thing() << "current color temperature mired" << colorTemperature;
-        thing()->setStateValue(tradfriColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
+        thing()->setStateValue(genericColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
     }
 }
