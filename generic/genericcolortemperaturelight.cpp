@@ -31,6 +31,8 @@
 #include "genericcolortemperaturelight.h"
 #include "extern-plugininfo.h"
 
+#include <QDataStream>
+
 GenericColorTemperatureLight::GenericColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {

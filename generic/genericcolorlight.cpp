@@ -33,6 +33,8 @@
 
 #include <zigbeeutils.h>
 
+#include <QDataStream>
+
 GenericColorLight::GenericColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
