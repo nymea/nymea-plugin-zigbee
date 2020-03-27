@@ -74,11 +74,6 @@ TradfriColorLight::TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
     //configureReporting();
 }
 
-void TradfriColorLight::identify()
-{
-    m_endpoint->identify(1);
-}
-
 void TradfriColorLight::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -89,54 +84,89 @@ void TradfriColorLight::checkOnlineStatus()
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         thing()->setStateValue(tradfriColorLightConnectedStateTypeId, true);
         thing()->setStateValue(tradfriColorLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        readOnOffState();
+        readLevelValue();
+        readColorXy();
     } else {
         thing()->setStateValue(tradfriColorLightConnectedStateTypeId, false);
     }
 }
 
-void TradfriColorLight::setPower(bool power)
+void TradfriColorLight::executeAction(ThingActionInfo *info)
 {
-    qCDebug(dcZigbee()) << m_thing << "set power" << power;
-    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    thing()->setStateValue(tradfriColorLightPowerStateTypeId, power);
-    readOnOffState();
-}
-
-void TradfriColorLight::setBrightness(int brightness)
-{
-    if (brightness > 100)
-        brightness = 100;
-
-    if (brightness < 0)
-        brightness = 0;
-
-    quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
-    // Note: time unit is 1/10 s
-    m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
-    thing()->setStateValue(tradfriColorLightBrightnessStateTypeId, brightness);
-    // Note: due to triggersOnOff is true
-    thing()->setStateValue(tradfriColorLightPowerStateTypeId, (level > 0));
-}
-
-void TradfriColorLight::setColorTemperature(int colorTemperature)
-{
-    // Note: the color temperature command/attribute is not supported. It does support only xy, so we have to interpolate the colors
-
-    int minValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).minValue().toInt();
-    int maxValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).maxValue().toInt();
-    QColor temperatureColor = ZigbeeUtils::interpolateColorFromColorTemperature(colorTemperature, minValue, maxValue);
-    QPointF temperatureColorXy = ZigbeeUtils::convertColorToXY(temperatureColor);
-    m_endpoint->sendMoveToColor(temperatureColorXy.x(), temperatureColorXy.y(), 5);
-    thing()->setStateValue(tradfriColorLightColorTemperatureStateTypeId, colorTemperature);
-    readColorXy();
-}
-
-void TradfriColorLight::setColor(const QColor &color)
-{
-    QPointF xyColor = ZigbeeUtils::convertColorToXY(color);
-    // Note: time unit is 1/10 s
-    m_endpoint->sendMoveToColor(xyColor.x(), xyColor.y(), 5);
-    readColorXy();
+    if (info->action().actionTypeId() == tradfriColorLightIdentifyActionTypeId) {
+        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriColorLightPowerActionTypeId) {
+        bool power = info->action().param(tradfriColorLightPowerActionPowerParamTypeId).value().toBool();
+        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                readOnOffState();
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriColorLightBrightnessActionTypeId) {
+        int brightness = info->action().param(tradfriColorLightBrightnessActionBrightnessParamTypeId).value().toInt();
+        quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
+        // Note: time unit is 1/10 s
+        ZigbeeNetworkReply *reply = m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, level, brightness](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                // Note: due to triggersOnOff is true
+                thing()->setStateValue(tradfriColorLightBrightnessStateTypeId, brightness);
+                thing()->setStateValue(tradfriColorLightPowerStateTypeId, (level > 0));
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriColorLightColorTemperatureActionTypeId) {
+        int colorTemperature = info->action().param(tradfriColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
+        // Note: the color temperature command/attribute is not supported. It does support only xy, so we have to interpolate the colors
+        int minValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).minValue().toInt();
+        int maxValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).maxValue().toInt();
+        QColor temperatureColor = ZigbeeUtils::interpolateColorFromColorTemperature(colorTemperature, minValue, maxValue);
+        QPointF temperatureColorXy = ZigbeeUtils::convertColorToXY(temperatureColor);
+        ZigbeeNetworkReply *reply = m_endpoint->sendMoveToColor(temperatureColorXy.x(), temperatureColorXy.y(), 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, colorTemperature](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                thing()->setStateValue(tradfriColorLightColorTemperatureStateTypeId, colorTemperature);
+                info->finish(Thing::ThingErrorNoError);
+                readColorXy();
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriColorLightColorActionTypeId) {
+        QPointF xyColor = ZigbeeUtils::convertColorToXY(info->action().param(tradfriColorLightColorActionColorParamTypeId).value().value<QColor>());
+        // Note: time unit is 1/10 s
+        ZigbeeNetworkReply *reply = m_endpoint->sendMoveToColor(xyColor.x(), xyColor.y(), 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                readColorXy();
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriColorLightRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
 }
 
 void TradfriColorLight::readColorCapabilities()
@@ -201,12 +231,8 @@ void TradfriColorLight::configureReporting()
 
 void TradfriColorLight::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
+    Q_UNUSED(state)
     checkOnlineStatus();
-    if (state == ZigbeeNetwork::StateRunning) {
-        readOnOffState();
-        readLevelValue();
-        readColorXy();
-    }
 }
 
 void TradfriColorLight::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)

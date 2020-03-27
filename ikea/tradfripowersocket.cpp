@@ -61,11 +61,6 @@ TradfriPowerSocket::TradfriPowerSocket(ZigbeeNetwork *network, ZigbeeAddress iee
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriPowerSocket::onEndpointClusterAttributeChanged);
 }
 
-void TradfriPowerSocket::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void TradfriPowerSocket::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -82,12 +77,37 @@ void TradfriPowerSocket::checkOnlineStatus()
     }
 }
 
-void TradfriPowerSocket::setPower(bool power)
+void TradfriPowerSocket::executeAction(ThingActionInfo *info)
 {
-    qCDebug(dcZigbee()) << m_thing << "set power" << power;
-    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    readAttribute();
+    if (info->action().actionTypeId() == tradfriPowerSocketIdentifyActionTypeId) {
+        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
+        bool power = info->action().param(tradfriPowerSocketPowerActionPowerParamTypeId).value().toBool();
+        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
+        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+            readAttribute();
+        });
+    } else if (info->action().actionTypeId() == tradfriPowerSocketRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
 }
+
 
 void TradfriPowerSocket::readAttribute()
 {

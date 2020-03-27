@@ -66,6 +66,14 @@ void LumiMagnetSensor::checkOnlineStatus()
     }
 }
 
+void LumiMagnetSensor::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == lumiMagnetSensorRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
+}
+
 void LumiMagnetSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)

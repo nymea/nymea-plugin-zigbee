@@ -53,11 +53,6 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiMotionSensor::onEndpointClusterAttributeChanged);
 }
 
-void LumiMotionSensor::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void LumiMotionSensor::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -70,6 +65,14 @@ void LumiMotionSensor::checkOnlineStatus()
         thing()->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         thing()->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
+    }
+}
+
+void LumiMotionSensor::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == lumiMotionSensorRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
     }
 }
 

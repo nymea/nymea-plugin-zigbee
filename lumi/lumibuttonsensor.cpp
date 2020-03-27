@@ -51,11 +51,6 @@ LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiButtonSensor::onEndpointClusterAttributeChanged);
 }
 
-void LumiButtonSensor::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void LumiButtonSensor::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -68,6 +63,14 @@ void LumiButtonSensor::checkOnlineStatus()
         thing()->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         thing()->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
+    }
+}
+
+void LumiButtonSensor::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == lumiButtonSensorRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
     }
 }
 

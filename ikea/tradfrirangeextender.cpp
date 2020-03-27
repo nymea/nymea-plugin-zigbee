@@ -61,11 +61,6 @@ TradfriRangeExtender::TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriRangeExtender::onEndpointClusterAttributeChanged);
 }
 
-void TradfriRangeExtender::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void TradfriRangeExtender::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -78,6 +73,24 @@ void TradfriRangeExtender::checkOnlineStatus()
         thing()->setStateValue(tradfriRangeExtenderVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         thing()->setStateValue(tradfriRangeExtenderConnectedStateTypeId, false);
+    }
+}
+
+void TradfriRangeExtender::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
+        ZigbeeNetworkReply *reply = m_endpoint->identify(5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
     }
 }
 

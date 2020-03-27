@@ -487,57 +487,6 @@
                     "eventTypes": [
 
                     ]
-                },
-                {
-                    "name": "zigbeeNode",
-                    "displayName": "Unimplemented zigbee node",
-                    "id": "ce2083e1-148d-4285-8bd4-19349bb6fdba",
-                    "setupMethod": "JustAdd",
-                    "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable" ],
-                    "paramTypes": [
-                        {
-                            "id": "77d28bb0-9e0b-49ba-bee9-0dedcc62811b",
-                            "name": "ieeeAddress",
-                            "displayName": "IEEE adress",
-                            "type": "QString",
-                            "defaultValue": "00:00:00:00:00:00:00:00"
-                        },
-                        {
-                            "id": "467191ae-4a9b-406a-9237-2a2ee98c7889",
-                            "name": "nwkAddress",
-                            "displayName": "Network adress",
-                            "type": "uint",
-                            "defaultValue": 0
-                        }
-
-                    ],
-                    "stateTypes": [
-                        {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
-                            "name": "connected",
-                            "displayName": "Available",
-                            "displayNameEvent": "Available changed",
-                            "type": "bool",
-                            "cached": false,
-                            "defaultValue": false
-                        }
-                    ],
-                    "actionTypes": [
-                        {
-                            "id": "7851b92e-6571-4630-9979-e76c5d93c724",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
-                        {
-                            "id": "eafdfdbf-bd55-45d5-a5b8-b3baf4b23363",
-                            "name": "removeFromNetwork",
-                            "displayName": "Remove from network"
-                        }
-                    ],
-                    "eventTypes": [
-
-                    ]
                 }
             ]
         },
@@ -603,11 +552,6 @@
                         }
                     ],
                     "actionTypes": [
-                        {
-                            "id": "8061b868-ea52-4a61-8f34-f8e5d02ecf1d",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
                         {
                             "id": "ce853c00-d175-45bc-a3d9-3c8c93d88099",
                             "name": "removeFromNetwork",
@@ -858,11 +802,6 @@
                     ],
                     "actionTypes": [
                         {
-                            "id": "22b5c1fc-4115-4a1d-9b53-801661dc1392",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
-                        {
                             "id": "65b9ee9c-4b1d-4431-b4d4-0cf22d339e7e",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
@@ -909,16 +848,6 @@
                         }
                     ],
                     "actionTypes": [
-                        {
-                            "id": "8e38c74e-26a3-419c-af8f-6eb9a86cd29b",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
-                        {
-                            "id": "285be42a-16fb-48bb-aa85-6c3ad7c6adfb",
-                            "name": "factoryReset",
-                            "displayName": "Factory reset node"
-                        },
                         {
                             "id": "24b8984f-6acc-4c57-9fe4-a54508097143",
                             "name": "removeFromNetwork",

@@ -42,10 +42,9 @@ class LumiButtonSensor : public ZigbeeDevice
 public:
     explicit LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
-
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;

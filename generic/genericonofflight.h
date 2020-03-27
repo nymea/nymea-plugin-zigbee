@@ -43,14 +43,12 @@ public:
 
     void checkOnlineStatus() override;
     void removeFromNetwork() override;
-
-    void identify();
-    void setPower(bool power);
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
 
-    void readAttribute();
+    void readOnOffState();
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);

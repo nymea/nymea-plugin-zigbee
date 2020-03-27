@@ -108,6 +108,14 @@ void TradfriOnOffSwitch::checkOnlineStatus()
     }
 }
 
+void TradfriOnOffSwitch::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == tradfriOnOffSwitchRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
+}
+
 void TradfriOnOffSwitch::readAttribute()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {

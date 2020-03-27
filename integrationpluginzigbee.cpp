@@ -303,168 +303,100 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     // Tradfri remote
     if (thing->thingClassId() == tradfriRemoteThingClassId) {
         TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriRemoteIdentifyActionTypeId) {
-            remote->identify();
-        } else if (action.actionTypeId() == tradfriRemoteRemoveFromNetworkActionTypeId) {
-            remote->removeFromNetwork();
-        }
+        remote->executeAction(info);
+        return;
     }
-
 
     // Tradfri range extender
     if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
         TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
-            extender->identify();
-        } else if (action.actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
-            extender->removeFromNetwork();
-        }
+        extender->executeAction(info);
+        return;
     }
 
     // Tradfri on/off switch
     if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
         TradfriOnOffSwitch *remote = qobject_cast<TradfriOnOffSwitch *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriOnOffSwitchIdentifyActionTypeId) {
-            remote->identify();
-        } else if (action.actionTypeId() == tradfriOnOffSwitchFactoryResetActionTypeId) {
-            remote->factoryResetNode();
-        } else if (action.actionTypeId() == tradfriOnOffSwitchRemoveFromNetworkActionTypeId) {
-            remote->removeFromNetwork();
-        }
+        remote->executeAction(info);
+        return;
     }
 
     // Tradfri power socket
     if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
         TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriPowerSocketIdentifyActionTypeId) {
-            socket->identify();
-        } else if (action.actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
-            socket->setPower(action.param(tradfriPowerSocketPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == tradfriPowerSocketRemoveFromNetworkActionTypeId) {
-            socket->removeFromNetwork();
-        }
-    }
-
-    // Tradfri color light
-    if (thing->thingClassId() == tradfriColorLightThingClassId) {
-        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriColorLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == tradfriColorLightPowerActionTypeId) {
-            light->setPower(action.param(tradfriColorLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == tradfriColorLightBrightnessActionTypeId) {
-            light->setBrightness(action.param(tradfriColorLightBrightnessActionBrightnessParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == tradfriColorLightColorTemperatureActionTypeId) {
-            light->setColorTemperature(action.param(tradfriColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == tradfriColorLightColorActionTypeId) {
-            light->setColor(action.param(tradfriColorLightColorActionColorParamTypeId).value().value<QColor>());
-        } else if (action.actionTypeId() == tradfriColorLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
+        socket->executeAction(info);
+        return;
     }
 
     // Tradfri color temperature light
     if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
         TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == tradfriColorTemperatureLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == tradfriColorTemperatureLightPowerActionTypeId) {
-            light->setPower(action.param(tradfriColorTemperatureLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == tradfriColorTemperatureLightBrightnessActionTypeId) {
-            light->setBrightness(action.param(tradfriColorTemperatureLightBrightnessActionBrightnessParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == tradfriColorTemperatureLightColorTemperatureActionTypeId) {
-            light->setColorTemperature(action.param(tradfriColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == tradfriColorTemperatureLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
+        light->executeAction(info);
+        return;
+    }
+
+    // Tradfri color light
+    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
     }
 
     // Lumi temperature/humidity sensor
     if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
         LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == lumiTemperatureHumidityIdentifyActionTypeId) {
-            sensor->identify();
-        } else if (action.actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
-            sensor->removeFromNetwork();
-        }
+        sensor->executeAction(info);
+        return;
     }
 
     // Lumi magnet sensor
     if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
         LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == lumiMagnetSensorRemoveFromNetworkActionTypeId) {
-            sensor->removeFromNetwork();
-        }
+        sensor->executeAction(info);
+        return;
+    }
+
+    // Lumi button sensor
+    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+        LumiButtonSensor *sensor = qobject_cast<LumiButtonSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
     }
 
     // Lumi motion sensor
     if (thing->thingClassId() == lumiMotionSensorThingClassId) {
         LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == lumiMotionSensorRemoveFromNetworkActionTypeId) {
-            sensor->removeFromNetwork();
-        }
+        sensor->executeAction(info);
+        return;
     }
 
     // Generic on/off light
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
         GenericOnOffLight *light = qobject_cast<GenericOnOffLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == genericOnOffLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == genericOnOffLightPowerActionTypeId) {
-            light->setPower(action.param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
+        light->executeAction(info);
+        return;
     }
 
     // Generic color temperature light
     if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
         GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == genericColorTemperatureLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == genericColorTemperatureLightPowerActionTypeId) {
-            light->setPower(action.param(genericColorTemperatureLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == genericColorTemperatureLightBrightnessActionTypeId) {
-            light->setBrightness(action.param(genericColorTemperatureLightBrightnessActionBrightnessParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == genericColorTemperatureLightColorTemperatureActionTypeId) {
-            light->setColorTemperature(action.param(genericColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == genericColorTemperatureLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
+        light->executeAction(info);
+        return;
     }
-
 
     // Generic color light
     if (thing->thingClassId() == genericColorLightThingClassId) {
         GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == genericColorLightIdentifyActionTypeId) {
-            light->identify();
-        } else if (action.actionTypeId() == genericColorLightPowerActionTypeId) {
-            light->setPower(action.param(genericColorLightPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == genericColorLightBrightnessActionTypeId) {
-            light->setBrightness(action.param(genericColorLightBrightnessActionBrightnessParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == genericColorLightColorTemperatureActionTypeId) {
-            light->setColorTemperature(action.param(genericColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt());
-        } else if (action.actionTypeId() == genericColorLightColorActionTypeId) {
-            light->setColor(action.param(genericColorLightColorActionColorParamTypeId).value().value<QColor>());
-        } else if (action.actionTypeId() == genericColorLightRemoveFromNetworkActionTypeId) {
-            light->removeFromNetwork();
-        }
+        light->executeAction(info);
+        return;
     }
 
     // Generic power socket
     if (thing->thingClassId() == genericPowerSocketThingClassId) {
         GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
-        if (action.actionTypeId() == genericPowerSocketIdentifyActionTypeId) {
-            socket->identify();
-        } else if (action.actionTypeId() == genericPowerSocketPowerActionTypeId) {
-            socket->setPower(action.param(genericPowerSocketPowerActionPowerParamTypeId).value().toBool());
-        } else if (action.actionTypeId() == genericPowerSocketRemoveFromNetworkActionTypeId) {
-            socket->removeFromNetwork();
-        }
+        socket->executeAction(info);
+        return;
     }
-
-    info->finish(Thing::ThingErrorNoError);
 }
 
 ZigbeeNetwork *IntegrationPluginZigbee::findParentNetwork(Thing *thing) const
@@ -957,6 +889,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     // Check if we can create a generic device from it
     qCDebug(dcZigbee()) << "Try to create a generic device for this node";
     if (createGenericDevice(networkManagerDevice, node)) {
+        // Recognized and created or already created
         return;
     }
 

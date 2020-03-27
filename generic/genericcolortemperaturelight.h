@@ -44,10 +44,7 @@ public:
     void identify();
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
-
-    void setPower(bool power);
-    void setBrightness(int brightness);
-    void setColorTemperature(int colorTemperature);
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;

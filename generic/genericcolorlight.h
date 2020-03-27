@@ -41,14 +41,9 @@ class GenericColorLight : public ZigbeeDevice
 public:
     explicit GenericColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
-
-    void setPower(bool power);
-    void setBrightness(int brightness);
-    void setColorTemperature(int colorTemperature);
-    void setColor(const QColor &color);
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;

@@ -71,11 +71,6 @@ GenericColorLight::GenericColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericColorLight::onClusterAttributeChanged);
 }
 
-void GenericColorLight::identify()
-{
-    m_endpoint->identify(1);
-}
-
 void GenericColorLight::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -91,48 +86,82 @@ void GenericColorLight::checkOnlineStatus()
     }
 }
 
-void GenericColorLight::setPower(bool power)
+void GenericColorLight::executeAction(ThingActionInfo *info)
 {
-    qCDebug(dcZigbee()) << m_thing << "set power" << power;
-    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    thing()->setStateValue(genericColorLightPowerStateTypeId, power);
-    readOnOffState();
-}
-
-void GenericColorLight::setBrightness(int brightness)
-{
-    if (brightness > 100)
-        brightness = 100;
-
-    if (brightness < 0)
-        brightness = 0;
-
-    quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
-    // Note: time unit is 1/10 s
-    m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
-    thing()->setStateValue(genericColorLightBrightnessStateTypeId, brightness);
-    // Note: due to triggersOnOff is true
-    thing()->setStateValue(genericColorLightPowerStateTypeId, (level > 0));
-}
-
-void GenericColorLight::setColorTemperature(int colorTemperature)
-{
-    // FIXME: check capabilities
-    int minValue = thing()->thingClass().getStateType(genericColorLightColorTemperatureStateTypeId).minValue().toInt();
-    int maxValue = thing()->thingClass().getStateType(genericColorLightColorTemperatureStateTypeId).maxValue().toInt();
-    QColor temperatureColor = ZigbeeUtils::interpolateColorFromColorTemperature(colorTemperature, minValue, maxValue);
-    QPointF temperatureColorXy = ZigbeeUtils::convertColorToXY(temperatureColor);
-    m_endpoint->sendMoveToColor(temperatureColorXy.x(), temperatureColorXy.y(), 5);
-    thing()->setStateValue(genericColorLightColorTemperatureStateTypeId, colorTemperature);
-    readColorXy();
-}
-
-void GenericColorLight::setColor(const QColor &color)
-{
-    QPointF xyColor = ZigbeeUtils::convertColorToXY(color);
-    // Note: time unit is 1/10 s
-    m_endpoint->sendMoveToColor(xyColor.x(), xyColor.y(), 5);
-    readColorXy();
+    if (info->action().actionTypeId() == genericColorLightIdentifyActionTypeId) {
+        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == genericColorLightPowerActionTypeId) {
+        bool power = info->action().param(genericColorLightPowerActionPowerParamTypeId).value().toBool();
+        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
+        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+            readOnOffState();
+        });
+    } else if (info->action().actionTypeId() == genericColorLightBrightnessActionTypeId) {
+        int brightness = info->action().param(genericColorLightBrightnessActionBrightnessParamTypeId).value().toInt();
+        quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
+        // Note: time unit is 1/10 s
+        ZigbeeNetworkReply *reply = m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, level](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                // Note: due to triggersOnOff is true
+                thing()->setStateValue(genericColorLightPowerStateTypeId, (level > 0));
+                info->finish(Thing::ThingErrorNoError);
+            }
+            readLevelValue();
+        });
+    } else if (info->action().actionTypeId() == genericColorLightColorTemperatureActionTypeId) {
+        int colorTemperature = info->action().param(genericColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
+        // Note: the color temperature command/attribute is not supported. It does support only xy, so we have to interpolate the colors
+        int minValue = thing()->thingClass().getStateType(genericColorLightColorTemperatureStateTypeId).minValue().toInt();
+        int maxValue = thing()->thingClass().getStateType(genericColorLightColorTemperatureStateTypeId).maxValue().toInt();
+        QColor temperatureColor = ZigbeeUtils::interpolateColorFromColorTemperature(colorTemperature, minValue, maxValue);
+        QPointF temperatureColorXy = ZigbeeUtils::convertColorToXY(temperatureColor);
+        ZigbeeNetworkReply *reply = m_endpoint->sendMoveToColor(temperatureColorXy.x(), temperatureColorXy.y(), 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, colorTemperature](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                thing()->setStateValue(genericColorLightColorTemperatureStateTypeId, colorTemperature);
+                readColorXy();
+            }
+        });
+    } else if (info->action().actionTypeId() == genericColorLightColorActionTypeId) {
+        QPointF xyColor = ZigbeeUtils::convertColorToXY(info->action().param(genericColorLightColorActionColorParamTypeId).value().value<QColor>());
+        // Note: time unit is 1/10 s
+        ZigbeeNetworkReply *reply = m_endpoint->sendMoveToColor(xyColor.x(), xyColor.y(), 5);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                readColorXy();
+            }
+        });
+    } else if (info->action().actionTypeId() == genericColorLightRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
 }
 
 void GenericColorLight::readColorCapabilities()

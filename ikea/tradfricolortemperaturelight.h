@@ -42,13 +42,9 @@ class TradfriColorTemperatureLight : public ZigbeeDevice
 public:
     explicit TradfriColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
-
-    void setPower(bool power);
-    void setBrightness(int brightness);
-    void setColorTemperature(int colorTemperature);
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;

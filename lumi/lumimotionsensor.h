@@ -42,9 +42,9 @@ class LumiMotionSensor : public ZigbeeDevice
 public:
     explicit LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;

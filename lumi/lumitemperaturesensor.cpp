@@ -46,11 +46,6 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiTemperatureSensor::onEndpointClusterAttributeChanged);
 }
 
-void LumiTemperatureSensor::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void LumiTemperatureSensor::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();
@@ -63,6 +58,14 @@ void LumiTemperatureSensor::checkOnlineStatus()
         thing()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
     } else {
         thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
+    }
+}
+
+void LumiTemperatureSensor::executeAction(ThingActionInfo *info)
+{
+    if (info->action().actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
     }
 }
 

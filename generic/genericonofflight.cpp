@@ -69,7 +69,7 @@ void GenericOnOffLight::checkOnlineStatus()
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         thing()->setStateValue(genericOnOffLightConnectedStateTypeId, true);
         thing()->setStateValue(genericOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
-        readAttribute();
+        readOnOffState();
     } else {
         thing()->setStateValue(genericOnOffLightConnectedStateTypeId, false);
     }
@@ -80,19 +80,38 @@ void GenericOnOffLight::removeFromNetwork()
     m_node->leaveNetworkRequest();
 }
 
-void GenericOnOffLight::identify()
+void GenericOnOffLight::executeAction(ThingActionInfo *info)
 {
-    m_endpoint->identify(2);
+    if (info->action().actionTypeId() == genericOnOffLightIdentifyActionTypeId) {
+        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
+        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
+    } else if (info->action().actionTypeId() == genericOnOffLightPowerActionTypeId) {
+        bool power = info->action().param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool();
+        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
+        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                readOnOffState();
+            }
+        });
+    } else if (info->action().actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
 }
 
-void GenericOnOffLight::setPower(bool power)
-{
-    qCDebug(dcZigbee()) << m_thing << "set power" << power;
-    m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-    readAttribute();
-}
-
-void GenericOnOffLight::readAttribute()
+void GenericOnOffLight::readOnOffState()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {

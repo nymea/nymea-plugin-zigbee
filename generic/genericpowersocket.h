@@ -43,6 +43,7 @@ public:
 
     void checkOnlineStatus() override;
     void removeFromNetwork() override;
+    void executeAction(ThingActionInfo *info) override;
 
     void identify();
     void setPower(bool power);

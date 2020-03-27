@@ -34,6 +34,8 @@
 #include <QObject>
 
 #include <integrations/thing.h>
+#include <integrations/thingactioninfo.h>
+
 #include <zigbeenetwork.h>
 #include <zigbeeaddress.h>
 #include <zigbeenodeendpoint.h>
@@ -51,6 +53,7 @@ public:
 
     virtual void checkOnlineStatus() = 0;
     virtual void removeFromNetwork() = 0;
+    virtual void executeAction(ThingActionInfo *info) = 0;
 
 protected:
     ZigbeeNetwork *m_network = nullptr;

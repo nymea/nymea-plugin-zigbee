@@ -78,11 +78,13 @@ void TradfriRemote::checkOnlineStatus()
     }
 }
 
-void TradfriRemote::identify()
+void TradfriRemote::executeAction(ThingActionInfo *info)
 {
-    m_endpoint->identify(5);
+    if (info->action().actionTypeId() == tradfriRemoteRemoveFromNetworkActionTypeId) {
+        removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    }
 }
-
 
 void TradfriRemote::readAttribute()
 {
