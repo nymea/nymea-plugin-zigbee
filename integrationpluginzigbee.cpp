@@ -143,6 +143,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
 
         m_zigbeeNetworks.insert(thing, zigbeeNetwork);
         zigbeeNetwork->startNetwork();
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     // Ikea
@@ -152,7 +154,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, remote);
-    }
+        info->finish(Thing::ThingErrorNoError);
+        return;}
 
     if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri on/off remote" << thing;
@@ -160,6 +163,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriOnOffSwitch *remote = new TradfriOnOffSwitch(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, remote);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == tradfriColorLightThingClassId) {
@@ -168,6 +173,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
@@ -176,6 +183,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
@@ -184,6 +193,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, socket);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
@@ -192,6 +203,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, extender);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     // Lumi
@@ -201,6 +214,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
@@ -209,6 +224,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == lumiButtonSensorThingClassId) {
@@ -224,6 +241,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         });
 
         m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == lumiMotionSensorThingClassId) {
@@ -232,6 +251,8 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     // Generic
@@ -241,6 +262,28 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         GenericOnOffLight *light = new GenericOnOffLight(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
+
+    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+        qCDebug(dcZigbee()) << "Color temperature light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericColorTemperatureLight *light = new GenericColorTemperatureLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
+
+    if (thing->thingClassId() == genericColorLightThingClassId) {
+        qCDebug(dcZigbee()) << "Color light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericColorLight *light = new GenericColorLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == genericPowerSocketThingClassId) {
@@ -249,17 +292,11 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
         m_zigbeeDevices.insert(thing, socket);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
-    if (thing->thingClassId() == genericColorLightThingClassId) {
-        qCDebug(dcZigbee()) << "Color light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        GenericColorLight *socket = new GenericColorLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, socket);
-    }
-
-    info->finish(Thing::ThingErrorNoError);
+    info->finish(Thing::ThingErrorThingClassNotFound);
 }
 
 void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
@@ -272,18 +309,29 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.value(thing);
 
         // Note: following actions do not require a running network
-        if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
+        if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId) {
             zigbeeNetwork->factoryResetNetwork();
+            info->finish(Thing::ThingErrorNoError);
+            return;
+        }
 
-        if (action.actionTypeId() == zigbeeControllerResetActionTypeId)
+        if (action.actionTypeId() == zigbeeControllerResetActionTypeId) {
             zigbeeNetwork->reset();
+            info->finish(Thing::ThingErrorNoError);
+            return;
+        }
 
         // Note: following actions require a running network
-        if (zigbeeNetwork->state() != ZigbeeNetwork::StateRunning)
-            return info->finish(Thing::ThingErrorHardwareNotAvailable);
+        if (zigbeeNetwork->state() != ZigbeeNetwork::StateRunning) {
+            info->finish(Thing::ThingErrorHardwareNotAvailable);
+            return;
+        }
 
-        if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
+        if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId) {
             zigbeeNetwork->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
+            info->finish(Thing::ThingErrorNoError);
+            return;
+        }
 
         if (action.actionTypeId() == zigbeeControllerTest1ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 1";
@@ -293,11 +341,19 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
             } else {
                 endpoint->addGroup(01, 0x0000);
             }
+
+            info->finish(Thing::ThingErrorNoError);
+            return;
         }
 
         if (action.actionTypeId() == zigbeeControllerTest2ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 2";
+            info->finish(Thing::ThingErrorNoError);
+            return;
         }
+
+        info->finish(Thing::ThingErrorActionTypeNotFound);
+        return;
     }
 
     // Tradfri remote
@@ -731,7 +787,7 @@ bool IntegrationPluginZigbee::createGenericDevice(Thing *networkManagerDevice, Z
             // Create generic power socket
             qCDebug(dcZigbee()) << "This device is an color temperature light";
             if (myThings().filterByThingClassId(genericColorTemperatureLightThingClassId)
-                    .filterByParam(genericPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .filterByParam(genericColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
                     .isEmpty()) {
                 qCDebug(dcZigbee()) << "Adding new generic generic color temperature light";
                 ThingDescriptor descriptor(genericColorTemperatureLightThingClassId);

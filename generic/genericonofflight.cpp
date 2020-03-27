@@ -94,8 +94,7 @@ void GenericOnOffLight::executeAction(ThingActionInfo *info)
         });
     } else if (info->action().actionTypeId() == genericOnOffLightPowerActionTypeId) {
         bool power = info->action().param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool();
-        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
         connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {

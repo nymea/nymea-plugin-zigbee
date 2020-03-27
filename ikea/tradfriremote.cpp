@@ -58,8 +58,6 @@ TradfriRemote::TradfriRemote(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, 
     }
 
     configureReporting();
-
-
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriRemote::onNetworkStateChanged);
 }
 
@@ -116,8 +114,8 @@ void TradfriRemote::configureReporting()
 
 void TradfriRemote::addGroup()
 {
-}
 
+}
 
 void TradfriRemote::onNetworkStateChanged(ZigbeeNetwork::State state)
 {

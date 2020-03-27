@@ -41,7 +41,6 @@ class GenericColorTemperatureLight : public ZigbeeDevice
 public:
     explicit GenericColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
     void executeAction(ThingActionInfo *info) override;

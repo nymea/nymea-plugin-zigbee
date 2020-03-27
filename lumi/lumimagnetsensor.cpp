@@ -46,11 +46,6 @@ LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiMagnetSensor::onEndpointClusterAttributeChanged);
 }
 
-void LumiMagnetSensor::identify()
-{
-    m_endpoint->identify(2);
-}
-
 void LumiMagnetSensor::removeFromNetwork()
 {
     m_node->leaveNetworkRequest();

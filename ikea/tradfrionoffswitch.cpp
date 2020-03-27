@@ -60,37 +60,7 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
     // Enable reporting
     configureReporting();
 
-    // Read stuff
-
-
-
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriOnOffSwitch::onNetworkStateChanged);
-}
-
-void TradfriOnOffSwitch::identify()
-{
-    //m_endpoint->addGroup(0x01, 0x0001);
-    m_endpoint->bindUnicast(Zigbee::ClusterIdOnOff, m_network->coordinatorNode()->extendedAddress(), 0x01);
-    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-            qCWarning(dcZigbee()) << "===============";
-            ZigbeeClusterReportConfigurationRecord reportConfiguration;
-            reportConfiguration.direction = 0x00;
-            reportConfiguration.dataType = Zigbee::Bool;
-            reportConfiguration.attributeId = 0x0000; // OnOff
-            reportConfiguration.minInterval = 0x0001;
-            reportConfiguration.maxInterval = 0x0001;
-            reportConfiguration.timeout = 0x0001;
-            reportConfiguration.change = 0x01;
-
-            m_endpoint->configureReporting(cluster, { reportConfiguration });
-        }
-    }
-}
-
-void TradfriOnOffSwitch::factoryResetNode()
-{
-    m_endpoint->factoryReset();
 }
 
 void TradfriOnOffSwitch::removeFromNetwork()

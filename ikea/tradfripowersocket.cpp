@@ -91,16 +91,15 @@ void TradfriPowerSocket::executeAction(ThingActionInfo *info)
         });
     } else if (info->action().actionTypeId() == tradfriPowerSocketPowerActionTypeId) {
         bool power = info->action().param(tradfriPowerSocketPowerActionPowerParamTypeId).value().toBool();
-        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
         connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
+                readAttribute();
             }
-            readAttribute();
         });
     } else if (info->action().actionTypeId() == tradfriPowerSocketRemoveFromNetworkActionTypeId) {
         removeFromNetwork();

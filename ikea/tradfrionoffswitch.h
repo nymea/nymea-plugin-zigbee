@@ -41,9 +41,6 @@ class TradfriOnOffSwitch : public ZigbeeDevice
 public:
     explicit TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void identify();
-    void factoryResetNode();
-
     void removeFromNetwork() override;
     void checkOnlineStatus() override;
     void executeAction(ThingActionInfo *info) override;

@@ -79,7 +79,7 @@ void TradfriRangeExtender::checkOnlineStatus()
 void TradfriRangeExtender::executeAction(ThingActionInfo *info)
 {
     if (info->action().actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
-        ZigbeeNetworkReply *reply = m_endpoint->identify(5);
+        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
         connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {

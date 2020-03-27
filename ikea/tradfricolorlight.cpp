@@ -70,8 +70,6 @@ TradfriColorLight::TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriColorLight::onNetworkStateChanged);
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriColorLight::onClusterAttributeChanged);
-
-    //configureReporting();
 }
 
 void TradfriColorLight::removeFromNetwork()

@@ -83,6 +83,9 @@ void GenericColorLight::checkOnlineStatus()
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         thing()->setStateValue(genericColorLightConnectedStateTypeId, true);
         thing()->setStateValue(genericColorLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        readOnOffState();
+        readLevelValue();
+        readColorXy();
     } else {
         thing()->setStateValue(genericColorLightConnectedStateTypeId, false);
     }
@@ -102,32 +105,31 @@ void GenericColorLight::executeAction(ThingActionInfo *info)
         });
     } else if (info->action().actionTypeId() == genericColorLightPowerActionTypeId) {
         bool power = info->action().param(genericColorLightPowerActionPowerParamTypeId).value().toBool();
-        m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-        ZigbeeNetworkReply *reply = m_endpoint->factoryReset();
+        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
         connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
+                readOnOffState();
             }
-            readOnOffState();
         });
     } else if (info->action().actionTypeId() == genericColorLightBrightnessActionTypeId) {
         int brightness = info->action().param(genericColorLightBrightnessActionBrightnessParamTypeId).value().toInt();
         quint8 level = static_cast<quint8>(qRound(255.0 * brightness / 100.0));
         // Note: time unit is 1/10 s
         ZigbeeNetworkReply *reply = m_endpoint->sendLevelCommand(ZigbeeCluster::LevelClusterCommandMoveToLevel, level, true, 5);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, level](){
+        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info, level, brightness](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 // Note: due to triggersOnOff is true
+                thing()->setStateValue(genericColorLightBrightnessStateTypeId, brightness);
                 thing()->setStateValue(genericColorLightPowerStateTypeId, (level > 0));
                 info->finish(Thing::ThingErrorNoError);
             }
-            readLevelValue();
         });
     } else if (info->action().actionTypeId() == genericColorLightColorTemperatureActionTypeId) {
         int colorTemperature = info->action().param(genericColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
