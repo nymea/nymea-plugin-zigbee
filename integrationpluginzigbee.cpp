@@ -57,6 +57,10 @@ void IntegrationPluginZigbee::postSetupThing(Thing *thing)
 {
     qCDebug(dcZigbee()) << "Post setup device" << thing->name() << thing->params();
 
+    if (thing->thingClassId() == zigbeeControllerThingClassId) {
+        m_zigbeeNetworks.value(thing)->startNetwork();
+    }
+
     if (m_zigbeeDevices.contains(thing)) {
         ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(thing);
         zigbeeDevice->checkOnlineStatus();
@@ -89,6 +93,7 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
             qCDebug(dcZigbee()) << "   System location:" << serialPortInfo.systemLocation();
             qCDebug(dcZigbee()) << "   Manufacturer:" << serialPortInfo.manufacturer();
             qCDebug(dcZigbee()) << "   Serialnumber:" << serialPortInfo.serialNumber();
+
             if (serialPortInfo.hasProductIdentifier()) {
                 qCDebug(dcZigbee()) << "   Product identifier:" << serialPortInfo.productIdentifier();
             }
@@ -96,18 +101,32 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
                 qCDebug(dcZigbee()) << "   Vendor identifier:" << serialPortInfo.vendorIdentifier();
             }
 
-            uint baudrate = 115200;
             ParamList params;
             params.append(Param(zigbeeControllerThingSerialPortParamTypeId, serialPortInfo.systemLocation()));
-            params.append(Param(zigbeeControllerThingBaudrateParamTypeId, baudrate));
+
+            // Set the backend if we recognize this serial port
+            if (serialPortInfo.manufacturer().toLower().contains("dresden elektronik")) {
+                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 38400));
+                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "deCONZ"));
+                ThingDescriptor descriptor(zigbeeControllerThingClassId);
+                descriptor.setTitle(serialPortInfo.description());
+                descriptor.setDescription(serialPortInfo.systemLocation());
+                descriptor.setParams(params);
+                info->addThingDescriptor(descriptor);
+            } else {
+                // Assume this is an NXP, can be changed in in the add command if not readable
+                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "NXP"));
+                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 115200));
+                ThingDescriptor descriptor(zigbeeControllerThingClassId);
+                descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
+                descriptor.setDescription(serialPortInfo.systemLocation());
+                descriptor.setParams(params);
+                info->addThingDescriptor(descriptor);
+            }
 
             qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerThingBaudrateParamTypeId);
 
-            ThingDescriptor descriptor(zigbeeControllerThingClassId);
-            descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
-            descriptor.setDescription(serialPortInfo.systemLocation());
-            descriptor.setParams(params);
-            info->addThingDescriptor(descriptor);
+
         }
     }
 
@@ -124,8 +143,14 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
 
         QString serialPortName = thing->paramValue(zigbeeControllerThingSerialPortParamTypeId).toString();
         qint32 baudrate = static_cast<qint32>(thing->paramValue(zigbeeControllerThingBaudrateParamTypeId).toUInt());
+        QString backendTypeName = thing->paramValue(zigbeeControllerThingHardwareParamTypeId).toString();
 
-        ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(ZigbeeNetworkManager::BackendTypeNxp, this);
+        ZigbeeNetworkManager::BackendType backendType = ZigbeeNetworkManager::BackendTypeNxp;
+        if (backendTypeName.toLower() == "deconz") {
+            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
+        }
+
+        ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(backendType, this);
         zigbeeNetwork->setSettingsFileName(NymeaSettings::settingsPath() + "/nymea-zigbee.conf");
         zigbeeNetwork->setSerialPortName(serialPortName);
         zigbeeNetwork->setSerialBaudrate(baudrate);
@@ -142,7 +167,6 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         connect(zigbeeNetwork, &ZigbeeNetwork::nodeRemoved, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved);
 
         m_zigbeeNetworks.insert(thing, zigbeeNetwork);
-        zigbeeNetwork->startNetwork();
         info->finish(Thing::ThingErrorNoError);
         return;
     }
@@ -887,8 +911,10 @@ void IntegrationPluginZigbee::onZigbeeNetworkPermitJoiningChanged(bool permitJoi
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
     Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
-    qCDebug(dcZigbee()) << thing << "permit joining changed" << permitJoining;
-    thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, permitJoining);
+    if (thing->stateValue(zigbeeControllerPermitJoinStateTypeId).toBool() != permitJoining) {
+        qCDebug(dcZigbee()) << thing << "permit joining changed" << permitJoining;
+        thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, permitJoining);
+    }
 }
 
 void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
@@ -958,7 +984,6 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
     Thing *networkDevice = m_zigbeeNetworks.key(zigbeeNetwork);
 
     qCDebug(dcZigbee()) << networkDevice << "removed" << node;
-
     ZigbeeDevice * zigbeeDevice = findNodeZigbeeDevice(node);
     if (!zigbeeDevice) {
         qCWarning(dcZigbee()) << "There is no nymea device for this node" << node;
