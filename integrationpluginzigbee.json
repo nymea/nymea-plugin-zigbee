@@ -221,6 +221,73 @@
                     ]
                 },
                 {
+                    "name": "xiaomiTemperatureHumidityPressure",
+                    "displayName": "Temperature humidity and pressure sensor",
+                    "id": "66598ced-0366-45bb-b2ac-b366398ec3ae",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "connectable", "temperaturesensor", "humiditysensor", "pressuresensor" ],
+                    "paramTypes": [
+                        {
+                        "id": "c5c8ff33-5ef5-4106-a74f-ce6c6cd61495",
+                        "name": "ieeeAddress",
+                        "displayName": "IEEE adress",
+                        "type": "QString",
+                        "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "324bf18f-a116-4766-86b2-a30e4beeff6f",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "28793c76-042e-498c-9067-993c1fa3872c",
+                            "name": "temperature",
+                            "displayName": "Temperature",
+                            "displayNameEvent": "Temperature changed",
+                            "type": "double",
+                            "unit": "DegreeCelsius",
+                            "defaultValue": 0.0
+                        },
+                        {
+                            "id": "d8112a8b-1e40-43b1-aa08-a91bd90e6ed8",
+                            "name": "humidity",
+                            "displayName": "Humidity",
+                            "displayNameEvent": "Humidity changed",
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "unit": "Percentage",
+                            "type": "double",
+                            "defaultValue": 0.0
+                        },
+                        {
+                            "id": "fdf5a42d-8dba-4f4a-a23e-475982b9c4d7",
+                            "name": "pressure",
+                            "displayName": "Pressure",
+                            "displayNameEvent": "Pressure changed",
+                            "unit": "MilliBar",
+                            "type": "double",
+                            "defaultValue": 1000.00
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "0fc5c4eb-fcb8-499c-8981-4990d78eb370",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
                     "name": "xiaomiMagnetSensor",
                     "displayName": "Magnet sensor",
                     "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",

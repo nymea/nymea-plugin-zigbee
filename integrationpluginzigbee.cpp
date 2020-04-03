@@ -191,7 +191,6 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         m_xiaomiTemperatureSensors.insert(thing, sensor);
     }
 
-
     if (thing->thingClassId() == xiaomiMagnetSensorThingClassId) {
         qCDebug(dcZigbee()) << "Xiaomi magnet sensor" << thing;
         ZigbeeAddress ieeeAddress(thing->paramValue(xiaomiMagnetSensorThingIeeeAddressParamTypeId).toString());
@@ -208,6 +207,16 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         connect(sensor, &XiaomiMagnetSensor::closedChanged, this, &IntegrationPluginZigbee::onXiaomiMagnetSensorClosedChanged);
 
         m_xiaomiMagnetSensors.insert(thing, sensor);
+    }
+
+    if (thing->thingClassId() == xiaomiTemperatureHumidityPressureThingClassId) {
+        qCDebug(dcZigbee()) << "Xiaomi temperature humidity pressure" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(xiaomiTemperatureHumidityPressureThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        XiaomiTemperaturePressureSensor *sensor = new XiaomiTemperaturePressureSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
     }
 
     if (thing->thingClassId() == xiaomiButtonSensorThingClassId) {
@@ -266,11 +275,11 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         if (action.actionTypeId() == zigbeeControllerFactoryResetActionTypeId)
             networkManager->factoryResetNetwork();
 
-//        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
-//            networkManager->controller()->commandInitiateTouchLink();
+        //        if (action.actionTypeId() == zigbeeControllerTouchlinkActionTypeId)
+        //            networkManager->controller()->commandInitiateTouchLink();
 
-//        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
-//            networkManager->controller()->commandTouchLinkFactoryReset();
+        //        if (action.actionTypeId() == zigbeeControllerTouchlinkResetActionTypeId)
+        //            networkManager->controller()->commandTouchLinkFactoryReset();
 
         if (action.actionTypeId() == zigbeeControllerPermitJoinActionTypeId)
             networkManager->setPermitJoining(action.params().paramValue(zigbeeControllerPermitJoinActionPermitJoinParamTypeId).toBool());
@@ -408,7 +417,6 @@ void IntegrationPluginZigbee::createThingForNode(Thing *parentThing, ZigbeeNode 
                 ThingDescriptor descriptor(xiaomiMagnetSensorThingClassId);
                 descriptor.setParentId(parentThing->id());
                 descriptor.setTitle(tr("Xiaomi magnet sensor"));
-
                 ParamList params;
                 params.append(Param(xiaomiMagnetSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 descriptor.setParams(params);
@@ -417,8 +425,32 @@ void IntegrationPluginZigbee::createThingForNode(Thing *parentThing, ZigbeeNode 
                 return;
             }
 
+            if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                    modelIdentifier.startsWith("lumi.weather") &&
+                    endpoint->hasOutputCluster(Zigbee::ClusterIdTemperatureMeasurement) &&
+                    endpoint->hasOutputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement) &&
+                    endpoint->hasOutputCluster(Zigbee::ClusterIdPressureMeasurement)) {
+
+                qCDebug(dcZigbee()) << "This device is a lumi temperature humidity pressure sensor";
+                if (myThings().filterByThingClassId(lumiTemperatureHumidityPressureThingClassId)
+                        .filterByParam(lumiTemperatureHumidityThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                        .isEmpty()) {
+                    qCDebug(dcZigbee()) << "Adding new lumi temperature humidity pressure sensor";
+                    ThingDescriptor descriptor(lumiTemperatureHumidityPressureThingClassId);
+                    descriptor.setTitle(supportedThings().findById(lumiTemperatureHumidityPressureThingClassId).displayName());
+                    ParamList params;
+                    params.append(Param(lumiTemperatureHumidityPressureThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                    descriptor.setParams(params);
+                    descriptor.setParentId(networkManagerDevice->id());
+                    emit autoThingsAppeared({descriptor});
+                } else {
+                    qCDebug(dcZigbee()) << "The device for this node has already been created.";
+                }
+                return true;
+            }
+
             // Xiaomi Button Sensor
-            if (modelIdentifier.contains("lumi.sensor_switch")) {
+            if (modelIdntifier.contains("lumi.sensor_switch")) {
                 qCDebug(dcZigbee()) << "Xiaomi button sensor added";
 
                 qCDebug(dcZigbee()) << "Output cluster:";

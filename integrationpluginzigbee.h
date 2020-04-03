@@ -34,11 +34,11 @@
 
 #include <integrations/integrationplugin.h>
 #include "zigbeenetworkmanager.h"
-
 #include "xiaomi/xiaomibuttonsensor.h"
 #include "xiaomi/xiaomimotionsensor.h"
 #include "xiaomi/xiaomimagnetsensor.h"
 #include "xiaomi/xiaomitemperaturesensor.h"
+#include "xiaomi/xiaomitemperaturepressuresensor.h"
 
 class IntegrationPluginZigbee: public IntegrationPlugin
 {
