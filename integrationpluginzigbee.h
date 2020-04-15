@@ -84,7 +84,7 @@ private:
 private slots:
     void onZigbeeNetworkStateChanged(ZigbeeNetwork::State state);
     void onZigbeeNetworkChannelChanged(uint channel);
-    void onZigbeeNetworkPanIdChanged(quint64 extendedPanId);
+    void onZigbeeNetworkPanIdChanged(quint16 panId);
     void onZigbeeNetworkPermitJoiningChanged(bool permitJoining);
 
     void onZigbeeNetworkNodeAdded(ZigbeeNode *node);

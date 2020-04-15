@@ -58,6 +58,7 @@ void IntegrationPluginZigbee::postSetupThing(Thing *thing)
     qCDebug(dcZigbee()) << "Post setup device" << thing->name() << thing->params();
 
     if (thing->thingClassId() == zigbeeControllerThingClassId) {
+        qCDebug(dcZigbee()) << "Start network";
         m_zigbeeNetworks.value(thing)->startNetwork();
     }
 
@@ -161,7 +162,7 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
 
         connect(zigbeeNetwork, &ZigbeeNetwork::stateChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkStateChanged);
         connect(zigbeeNetwork, &ZigbeeNetwork::channelChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkChannelChanged);
-        connect(zigbeeNetwork, &ZigbeeNetwork::extendedPanIdChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged);
+        connect(zigbeeNetwork, &ZigbeeNetwork::panIdChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged);
         connect(zigbeeNetwork, &ZigbeeNetwork::permitJoiningChanged, this, &IntegrationPluginZigbee::onZigbeeNetworkPermitJoiningChanged);
         connect(zigbeeNetwork, &ZigbeeNetwork::nodeAdded, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeAdded);
         connect(zigbeeNetwork, &ZigbeeNetwork::nodeRemoved, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved);
@@ -877,7 +878,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State s
     case ZigbeeNetwork::StateRunning:
         thing->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         thing->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetwork->bridgeController()->firmwareVersion());
-        thing->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetwork->extendedPanId());
+        thing->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetwork->panId());
         thing->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetwork->channel());
         thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
         thing->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
@@ -899,12 +900,12 @@ void IntegrationPluginZigbee::onZigbeeNetworkChannelChanged(uint channel)
     thing->setStateValue(zigbeeControllerChannelStateTypeId, channel);
 }
 
-void IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged(quint64 extendedPanId)
+void IntegrationPluginZigbee::onZigbeeNetworkPanIdChanged(quint16 panId)
 {
     ZigbeeNetwork *zigbeeNetwork = static_cast<ZigbeeNetwork *>(sender());
     Thing *thing = m_zigbeeNetworks.key(zigbeeNetwork);
-    qCDebug(dcZigbee()) << "Zigbee network PAN id changed" << extendedPanId << thing;
-    thing->setStateValue(zigbeeControllerPanIdStateTypeId, extendedPanId);
+    qCDebug(dcZigbee()) << "Zigbee network PAN id changed" << panId << thing;
+    thing->setStateValue(zigbeeControllerPanIdStateTypeId, panId);
 }
 
 void IntegrationPluginZigbee::onZigbeeNetworkPermitJoiningChanged(bool permitJoining)
