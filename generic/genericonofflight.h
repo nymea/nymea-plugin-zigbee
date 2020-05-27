@@ -47,6 +47,7 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_clusterOnOff = nullptr;
 
     void readOnOffState();
 

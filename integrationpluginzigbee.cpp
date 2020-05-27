@@ -45,6 +45,51 @@ IntegrationPluginZigbee::IntegrationPluginZigbee()
 
 void IntegrationPluginZigbee::init()
 {       
+    QByteArray dataLittleEndian = QByteArray::fromHex("40e201");
+    ZigbeeDataType type(Zigbee::Uint24, dataLittleEndian);
+    qCCritical(dcZigbee()) << "Data" << type.data() << ZigbeeUtils::convertByteArrayToHexString(type.data());
+    bool convertOk = false;
+    qCCritical(dcZigbee()) << "Value" << type.toUInt32(&convertOk) << convertOk;
+
+    quint8 uint8Value = 0xff;
+    ZigbeeDataType uint8Type(uint8Value);
+    qCCritical(dcZigbee()) << uint8Type << uint8Value << uint8Type.toUInt8(&convertOk) << convertOk;
+
+    quint16 uint16Value = 0xaabb;
+    ZigbeeDataType uint16Type(uint16Value);
+    qCCritical(dcZigbee()) << uint16Type << uint16Value << uint16Type.toUInt16(&convertOk) << convertOk;
+
+    quint32 uint24Value = 0xaabbcc;
+    ZigbeeDataType uint24Type(uint24Value, Zigbee::Uint24);
+    qCCritical(dcZigbee()) << uint24Type << uint24Value << uint24Type.toUInt32(&convertOk) << convertOk;
+
+    quint32 uint32Value = 0xaabbccdd;
+    ZigbeeDataType uint32Type(uint32Value);
+    qCCritical(dcZigbee()) << uint32Type << uint32Value << uint32Type.toUInt32(&convertOk) << convertOk;
+
+    quint64 uint40Value = 0xaabbccddee;
+    ZigbeeDataType uint40Type(uint40Value, Zigbee::Uint40);
+    qCCritical(dcZigbee()) << uint40Type << uint40Value << uint40Type.toUInt64(&convertOk) << convertOk;
+
+    quint64 uint48Value = 0xaabbccddeeff;
+    ZigbeeDataType uint48Type(uint48Value, Zigbee::Uint48);
+    qCCritical(dcZigbee()) << uint48Type << uint48Value << uint48Type.toUInt64(&convertOk) << convertOk;
+
+    quint64 uint56Value = 0xaabbccddeeff01;
+    ZigbeeDataType uint56Type(uint56Value, Zigbee::Uint56);
+    qCCritical(dcZigbee()) << uint56Type << uint56Value << uint56Type.toUInt64(&convertOk) << convertOk;
+
+    quint64 uint64Value = 0xaabbccddeeff0102;
+    ZigbeeDataType uint64Type(uint64Value);
+    qCCritical(dcZigbee()) << uint64Type << uint64Value << uint64Type.toUInt64(&convertOk) << convertOk;
+
+    ZigbeeDataType boolType(false);
+    qCCritical(dcZigbee()) << boolType << boolType.toBool(&convertOk) << convertOk;
+
+    QString string("ABC");
+    ZigbeeDataType stringType(string, Zigbee::CharString);
+    qCCritical(dcZigbee()) << stringType << string << stringType.toString(&convertOk) << convertOk;
+
 
 }
 
@@ -56,11 +101,6 @@ void IntegrationPluginZigbee::startMonitoringAutoThings()
 void IntegrationPluginZigbee::postSetupThing(Thing *thing)
 {
     qCDebug(dcZigbee()) << "Post setup device" << thing->name() << thing->params();
-
-    if (thing->thingClassId() == zigbeeControllerThingClassId) {
-        qCDebug(dcZigbee()) << "Start network";
-        m_zigbeeNetworks.value(thing)->startNetwork();
-    }
 
     if (m_zigbeeDevices.contains(thing)) {
         ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.value(thing);
@@ -146,10 +186,10 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         qint32 baudrate = static_cast<qint32>(thing->paramValue(zigbeeControllerThingBaudrateParamTypeId).toUInt());
         QString backendTypeName = thing->paramValue(zigbeeControllerThingHardwareParamTypeId).toString();
 
-        ZigbeeNetworkManager::BackendType backendType = ZigbeeNetworkManager::BackendTypeNxp;
-        if (backendTypeName.toLower() == "deconz") {
-            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
-        }
+        ZigbeeNetworkManager::BackendType backendType = ZigbeeNetworkManager::BackendTypeDeconz;
+//        if (backendTypeName.toLower() == "deconz") {
+//            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
+//        }
 
         ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(backendType, this);
         zigbeeNetwork->setSettingsFileName(NymeaSettings::settingsPath() + "/nymea-zigbee.conf");
@@ -168,19 +208,23 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         connect(zigbeeNetwork, &ZigbeeNetwork::nodeRemoved, this, &IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved);
 
         m_zigbeeNetworks.insert(thing, zigbeeNetwork);
+
+        m_zigbeeNetworks.value(thing)->startNetwork();
+
         info->finish(Thing::ThingErrorNoError);
         return;
     }
 
     // Ikea
-    if (thing->thingClassId() == tradfriRemoteThingClassId) {
-        qCDebug(dcZigbee()) << "Tradfri remote" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRemoteThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, remote);
-        info->finish(Thing::ThingErrorNoError);
-        return;}
+//    if (thing->thingClassId() == tradfriRemoteThingClassId) {
+//        qCDebug(dcZigbee()) << "Tradfri remote" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRemoteThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        TradfriRemote *remote = new TradfriRemote(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, remote);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
     if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri on/off remote" << thing;
@@ -192,93 +236,93 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    if (thing->thingClassId() == tradfriColorLightThingClassId) {
-        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, light);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+//        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorLightThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, light);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
-        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorTemperatureLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, light);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+//        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, light);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
-        qCDebug(dcZigbee()) << "Tradfri power socket" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriPowerSocketThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, socket);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
+//        qCDebug(dcZigbee()) << "Tradfri power socket" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriPowerSocketThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, socket);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
-        qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRangeExtenderThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, extender);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+//        qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRangeExtenderThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, extender);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    // Lumi
-    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
-        qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, sensor);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    // Lumi
+//    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+//        qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, sensor);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
-        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMagnetSensorThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, sensor);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+//        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMagnetSensorThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, sensor);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
-        qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(lumiButtonSensorThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
-        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
-            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
-        });
-        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
-            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
-        });
+//    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+//        qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(lumiButtonSensorThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
+//        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
+//            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
+//        });
+//        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
+//            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
+//        });
 
-        m_zigbeeDevices.insert(thing, sensor);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//        m_zigbeeDevices.insert(thing, sensor);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
-        qCDebug(dcZigbee()) << "Lumi motion sensor" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMotionSensorThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, sensor);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+//        qCDebug(dcZigbee()) << "Lumi motion sensor" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMotionSensorThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, sensor);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
     // Generic
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
@@ -291,35 +335,35 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
-        qCDebug(dcZigbee()) << "Color temperature light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        GenericColorTemperatureLight *light = new GenericColorTemperatureLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, light);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+//        qCDebug(dcZigbee()) << "Color temperature light" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        GenericColorTemperatureLight *light = new GenericColorTemperatureLight(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, light);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == genericColorLightThingClassId) {
-        qCDebug(dcZigbee()) << "Color light" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        GenericColorLight *light = new GenericColorLight(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, light);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == genericColorLightThingClassId) {
+//        qCDebug(dcZigbee()) << "Color light" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        GenericColorLight *light = new GenericColorLight(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, light);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
-    if (thing->thingClassId() == genericPowerSocketThingClassId) {
-        qCDebug(dcZigbee()) << "Power socket" << thing;
-        ZigbeeAddress ieeeAddress(thing->paramValue(genericPowerSocketThingIeeeAddressParamTypeId).toString());
-        ZigbeeNetwork *network = findParentNetwork(thing);
-        GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
-        m_zigbeeDevices.insert(thing, socket);
-        info->finish(Thing::ThingErrorNoError);
-        return;
-    }
+//    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+//        qCDebug(dcZigbee()) << "Power socket" << thing;
+//        ZigbeeAddress ieeeAddress(thing->paramValue(genericPowerSocketThingIeeeAddressParamTypeId).toString());
+//        ZigbeeNetwork *network = findParentNetwork(thing);
+//        GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
+//        m_zigbeeDevices.insert(thing, socket);
+//        info->finish(Thing::ThingErrorNoError);
+//        return;
+//    }
 
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
@@ -360,12 +404,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
 
         if (action.actionTypeId() == zigbeeControllerTest1ActionTypeId) {
             qCDebug(dcZigbee()) << "Test 1";
-            ZigbeeNodeEndpoint *endpoint = zigbeeNetwork->coordinatorNode()->getEndpoint(0x01);
-            if (!endpoint) {
-                qCWarning(dcZigbee()) << "Could not find node endpoint";
-            } else {
-                endpoint->addGroup(01, 0x0000);
-            }
+//            ZigbeeNodeEndpoint *endpoint = zigbeeNetwork->coordinatorNode()->getEndpoint(0x01);
+//            if (!endpoint) {
+//                qCWarning(dcZigbee()) << "Could not find node endpoint";
+//            } else {
+//                endpoint->addGroup(01, 0x0000);
+//            }
 
             info->finish(Thing::ThingErrorNoError);
             return;
@@ -381,19 +425,19 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    // Tradfri remote
-    if (thing->thingClassId() == tradfriRemoteThingClassId) {
-        TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(thing));
-        remote->executeAction(info);
-        return;
-    }
+//    // Tradfri remote
+//    if (thing->thingClassId() == tradfriRemoteThingClassId) {
+//        TradfriRemote *remote = qobject_cast<TradfriRemote *>(m_zigbeeDevices.value(thing));
+//        remote->executeAction(info);
+//        return;
+//    }
 
-    // Tradfri range extender
-    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
-        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
-        extender->executeAction(info);
-        return;
-    }
+//    // Tradfri range extender
+//    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+//        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
+//        extender->executeAction(info);
+//        return;
+//    }
 
     // Tradfri on/off switch
     if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
@@ -402,54 +446,54 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    // Tradfri power socket
-    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
-        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(thing));
-        socket->executeAction(info);
-        return;
-    }
+//    // Tradfri power socket
+//    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
+//        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(thing));
+//        socket->executeAction(info);
+//        return;
+//    }
 
-    // Tradfri color temperature light
-    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
-        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-        light->executeAction(info);
-        return;
-    }
+//    // Tradfri color temperature light
+//    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+//        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
+//        light->executeAction(info);
+//        return;
+//    }
 
-    // Tradfri color light
-    if (thing->thingClassId() == tradfriColorLightThingClassId) {
-        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
-        light->executeAction(info);
-        return;
-    }
+//    // Tradfri color light
+//    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+//        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
+//        light->executeAction(info);
+//        return;
+//    }
 
-    // Lumi temperature/humidity sensor
-    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
-        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
-        sensor->executeAction(info);
-        return;
-    }
+//    // Lumi temperature/humidity sensor
+//    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+//        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
+//        sensor->executeAction(info);
+//        return;
+//    }
 
-    // Lumi magnet sensor
-    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
-        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
-        sensor->executeAction(info);
-        return;
-    }
+//    // Lumi magnet sensor
+//    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+//        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
+//        sensor->executeAction(info);
+//        return;
+//    }
 
-    // Lumi button sensor
-    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
-        LumiButtonSensor *sensor = qobject_cast<LumiButtonSensor *>(m_zigbeeDevices.value(thing));
-        sensor->executeAction(info);
-        return;
-    }
+//    // Lumi button sensor
+//    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+//        LumiButtonSensor *sensor = qobject_cast<LumiButtonSensor *>(m_zigbeeDevices.value(thing));
+//        sensor->executeAction(info);
+//        return;
+//    }
 
-    // Lumi motion sensor
-    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
-        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
-        sensor->executeAction(info);
-        return;
-    }
+//    // Lumi motion sensor
+//    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+//        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
+//        sensor->executeAction(info);
+//        return;
+//    }
 
     // Generic on/off light
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
@@ -458,26 +502,26 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    // Generic color temperature light
-    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
-        GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-        light->executeAction(info);
-        return;
-    }
+//    // Generic color temperature light
+//    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+//        GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
+//        light->executeAction(info);
+//        return;
+//    }
 
-    // Generic color light
-    if (thing->thingClassId() == genericColorLightThingClassId) {
-        GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
-        light->executeAction(info);
-        return;
-    }
+//    // Generic color light
+//    if (thing->thingClassId() == genericColorLightThingClassId) {
+//        GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
+//        light->executeAction(info);
+//        return;
+//    }
 
-    // Generic power socket
-    if (thing->thingClassId() == genericPowerSocketThingClassId) {
-        GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
-        socket->executeAction(info);
-        return;
-    }
+//    // Generic power socket
+//    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+//        GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
+//        socket->executeAction(info);
+//        return;
+//    }
 }
 
 ZigbeeNetwork *IntegrationPluginZigbee::findParentNetwork(Thing *thing) const
@@ -650,12 +694,12 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
         }
 
         ZigbeeCluster *basicCluster = endpoint->getInputCluster(Zigbee::ClusterIdBasic);
-        if (!basicCluster->hasAttribute(ZigbeeCluster::BasicAttributeModelIdentifier)) {
+        if (!basicCluster->hasAttribute(ZigbeeClusterBasic::AttributeModelIdentifier)) {
             qCWarning(dcZigbee()) << "This lumi device does not have the model identifier yet.";
             continue;
         }
 
-        QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(ZigbeeCluster::BasicAttributeModelIdentifier).data());
+        QString modelIdentifier = QString::fromUtf8(basicCluster->attribute(ZigbeeClusterBasic::AttributeModelIdentifier).data());
         qCDebug(dcZigbee()) << "Model identifier" << modelIdentifier;
 
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
@@ -795,8 +839,8 @@ bool IntegrationPluginZigbee::createGenericDevice(Thing *networkManagerDevice, Z
                 descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
                 ParamList params;
                 params.append(Param(genericOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                params.append(Param(genericOnOffLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
                 params.append(Param(genericOnOffLightThingModelParamTypeId, endpoint->modelIdentifier()));
+                params.append(Param(genericOnOffLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
                 descriptor.setParams(params);
                 descriptor.setParentId(networkManagerDevice->id());
                 emit autoThingsAppeared({descriptor});
@@ -924,6 +968,12 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     Thing *networkManagerDevice = m_zigbeeNetworks.key(zigbeeNetwork);
     if (!networkManagerDevice) return;
 
+    // Ignore the coordinator node, this node gets handled by the network manager device
+    if (node->shortAddress() == 0x0000) {
+        return;
+    }
+
+
     qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
     foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
         qCDebug(dcZigbee()) << endpoint;
@@ -985,6 +1035,10 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeRemoved(ZigbeeNode *node)
     Thing *networkDevice = m_zigbeeNetworks.key(zigbeeNetwork);
 
     qCDebug(dcZigbee()) << networkDevice << "removed" << node;
+    // Ignore the coordinator node
+    if (node->shortAddress() == 0)
+        return;
+
     ZigbeeDevice * zigbeeDevice = findNodeZigbeeDevice(node);
     if (!zigbeeDevice) {
         qCWarning(dcZigbee()) << "There is no nymea device for this node" << node;

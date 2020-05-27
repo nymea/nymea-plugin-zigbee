@@ -65,7 +65,7 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
 
 void TradfriOnOffSwitch::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    m_node->deviceObject()->requestMgmtLeaveNetwork();
 }
 
 void TradfriOnOffSwitch::checkOnlineStatus()
@@ -83,14 +83,43 @@ void TradfriOnOffSwitch::executeAction(ThingActionInfo *info)
     if (info->action().actionTypeId() == tradfriOnOffSwitchRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
+    } else if (info->action().actionTypeId() == tradfriOnOffSwitchTestActionTypeId) {
+        testAction();
+        info->finish(Thing::ThingErrorNoError);
     }
+}
+
+void TradfriOnOffSwitch::testAction()
+{
+    qCDebug(dcZigbee()) << "Test action !!!!!!";
+
+    // Get basic cluster
+    ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(Zigbee::ClusterIdBasic);
+    if (!basicCluster) {
+        qCWarning(dcZigbee()) << "Could not get basic cluster";
+        return;
+    }
+
+    ZigbeeClusterReply *reply = basicCluster->readAttributes({ZigbeeClusterBasic::AttributeManufacturerName, ZigbeeClusterBasic::AttributeModelIdentifier, ZigbeeClusterBasic::AttributeSwBuildId});
+    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+        if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+            qCWarning(dcZigbee()) << "Failed to read basic cluster attributes" << reply->error();
+            return;
+        }
+
+        qCDebug(dcZigbee()) << "Reading basic cluster attributes finished successfully" << reply->responseFrame().header.command;
+        QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
+        foreach (const ZigbeeClusterLibrary::ReadAttributeStatusRecord &attributeStatusRecord, attributeStatusRecords) {
+            qCDebug(dcZigbee()) << "-->" << attributeStatusRecord;
+        }
+    });
 }
 
 void TradfriOnOffSwitch::readAttribute()
 {
     foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
         if (cluster->clusterId() == Zigbee::ClusterIdBasic) {
-            m_endpoint->readAttribute(cluster, {0x0004, 0x0005});
+            //m_endpoint->readAttribute(cluster, {0x0004, 0x0005});
         }
     }
 }

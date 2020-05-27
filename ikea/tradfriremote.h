@@ -52,7 +52,6 @@ private:
     void configureReporting();
 
     void addGroup();
-    void bindCluster();
 
 signals:
 

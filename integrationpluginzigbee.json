@@ -189,6 +189,11 @@
                             "id": "790cdb6d-d87f-4fc0-b870-34c3f40e07c1",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
+                        },
+                        {
+                            "id": "7037fae4-8d5b-45dd-b138-7a1c7eca1add",
+                            "name": "test",
+                            "displayName": "Test action"
                         }
                     ],
                     "eventTypes": [
@@ -589,7 +594,7 @@
                             "defaultValue": false
                         },
                         {
-                            "id": "11d03ab4-7450-4caf-81ec-0b2b73e56b08",
+                            "id": "ac0e4cd1-553b-4e43-b08a-6dd8d617e765",
                             "name": "version",
                             "displayName": "Version",
                             "displayNameEvent": "Version changed",
@@ -852,6 +857,11 @@
                             "id": "24b8984f-6acc-4c57-9fe4-a54508097143",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
+                        },
+                        {
+                            "id": "b4f72ad4-33ac-4195-bde3-eff86aef1ae5",
+                            "name": "test",
+                            "displayName": "Test action"
                         }
                     ],
                     "eventTypes": [

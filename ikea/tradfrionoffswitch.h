@@ -45,6 +45,8 @@ public:
     void checkOnlineStatus() override;
     void executeAction(ThingActionInfo *info) override;
 
+    void testAction();
+
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
 

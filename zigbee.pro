@@ -16,44 +16,44 @@ isEmpty(PLUGIN_PRI) {
   include($$PLUGIN_PRI)
 }
 
-QT += serialport
+QT += serialport sql
 
 CONFIG += link_pkgconfig
 PKGCONFIG += nymea-zigbee
 
 SOURCES += \
-    generic/genericcolorlight.cpp \
-    generic/genericcolortemperaturelight.cpp \
+    #generic/genericcolorlight.cpp \
+    #generic/genericcolortemperaturelight.cpp \
     generic/genericonofflight.cpp \
-    generic/genericpowersocket.cpp \
+    #generic/genericpowersocket.cpp \
     integrationpluginzigbee.cpp \
-    ikea/tradfricolorlight.cpp \
-    ikea/tradfricolortemperaturelight.cpp \
+    #ikea/tradfricolorlight.cpp \
+    #ikea/tradfricolortemperaturelight.cpp \
     ikea/tradfrionoffswitch.cpp \
-    ikea/tradfripowersocket.cpp \
-    ikea/tradfrirangeextender.cpp \
-    ikea/tradfriremote.cpp \
-    lumi/lumibuttonsensor.cpp \
-    lumi/lumimagnetsensor.cpp \
-    lumi/lumimotionsensor.cpp \
-    lumi/lumitemperaturesensor.cpp \
+    #ikea/tradfripowersocket.cpp \
+    #ikea/tradfrirangeextender.cpp \
+    #ikea/tradfriremote.cpp \
+    #lumi/lumibuttonsensor.cpp \
+    #lumi/lumimagnetsensor.cpp \
+    #lumi/lumimotionsensor.cpp \
+    #lumi/lumitemperaturesensor.cpp \
     zigbeedevice.cpp
 
 HEADERS += \
-    generic/genericcolorlight.h \
-    generic/genericcolortemperaturelight.h \
+    #generic/genericcolorlight.h \
+    #generic/genericcolortemperaturelight.h \
     generic/genericonofflight.h \
-    generic/genericpowersocket.h \
+    #generic/genericpowersocket.h \
     integrationpluginzigbee.h \
-    ikea/tradfricolorlight.h \
-    ikea/tradfricolortemperaturelight.h \
+    #ikea/tradfricolorlight.h \
+    #ikea/tradfricolortemperaturelight.h \
     ikea/tradfrionoffswitch.h \
-    ikea/tradfripowersocket.h \
-    ikea/tradfrirangeextender.h \
-    ikea/tradfriremote.h \
-    lumi/lumibuttonsensor.h \
-    lumi/lumimagnetsensor.h \
-    lumi/lumimotionsensor.h \
-    lumi/lumitemperaturesensor.h \
+    #ikea/tradfripowersocket.h \
+    #ikea/tradfrirangeextender.h \
+    #ikea/tradfriremote.h \
+    #lumi/lumibuttonsensor.h \
+    #lumi/lumimagnetsensor.h \
+    #lumi/lumimotionsensor.h \
+    #lumi/lumitemperaturesensor.h \
     zigbeedevice.h
 

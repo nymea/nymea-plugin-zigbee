@@ -60,6 +60,12 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
+    // Get the ZigbeeClusterOnOff
+    m_clusterOnOff = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    if (!m_clusterOnOff) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+    }
+
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericOnOffLight::onNetworkStateChanged);
     connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericOnOffLight::onEndpointClusterAttributeChanged);
 }
@@ -77,46 +83,102 @@ void GenericOnOffLight::checkOnlineStatus()
 
 void GenericOnOffLight::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    m_node->deviceObject()->requestMgmtLeaveNetwork();
 }
 
 void GenericOnOffLight::executeAction(ThingActionInfo *info)
 {
     if (info->action().actionTypeId() == genericOnOffLightIdentifyActionTypeId) {
-        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
-            // Note: reply will be deleted automatically
-            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
-                info->finish(Thing::ThingErrorHardwareFailure);
-            } else {
-                info->finish(Thing::ThingErrorNoError);
-            }
-        });
+//        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
+//        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+//            // Note: reply will be deleted automatically
+//            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+//                info->finish(Thing::ThingErrorHardwareFailure);
+//            } else {
+//                info->finish(Thing::ThingErrorNoError);
+//            }
+//        });
     } else if (info->action().actionTypeId() == genericOnOffLightPowerActionTypeId) {
+        if (!m_clusterOnOff) {
+            qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
         bool power = info->action().param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool();
-        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+        ZigbeeClusterReply *reply = (power ? m_clusterOnOff->commandOn() : m_clusterOnOff->commandOff());
+        connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, power](){
             // Note: reply will be deleted automatically
-            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                readOnOffState();
+                thing()->setStateValue(genericOnOffLightPowerStateTypeId, power);
             }
         });
     } else if (info->action().actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
+        info->finish(Thing::ThingErrorNoError);
+    } else if (info->action().actionTypeId() == genericOnOffLightTestActionTypeId) {
+        qCDebug(dcZigbee()) << "Test action !!!!!!";
+        // Get basic cluster
+        ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(Zigbee::ClusterIdBasic);
+        if (!basicCluster) {
+            qCWarning(dcZigbee()) << "Could not get basic cluster";
+            return;
+        }
+
+        ZigbeeClusterReply *reply = basicCluster->readAttributes({ZigbeeClusterBasic::AttributeZclVersion, ZigbeeClusterBasic::AttributeManufacturerName, ZigbeeClusterBasic::AttributeModelIdentifier, ZigbeeClusterBasic::AttributeSwBuildId});
+        connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                qCWarning(dcZigbee()) << "Failed to read basic cluster attributes" << reply->error();
+                return;
+            }
+
+            qCDebug(dcZigbee()) << "Reading basic cluster attributes finished successfully" << reply->responseFrame().header.command;
+            QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
+            foreach (const ZigbeeClusterLibrary::ReadAttributeStatusRecord &attributeStatusRecord, attributeStatusRecords) {
+                qCDebug(dcZigbee()) << "-->" << attributeStatusRecord;
+                if (attributeStatusRecord.dataType == Zigbee::CharString)
+                    qCDebug(dcZigbee()) << ZigbeeDataType(attributeStatusRecord.dataType, attributeStatusRecord.data).toString();
+            }
+        });
+
         info->finish(Thing::ThingErrorNoError);
     }
 }
 
 void GenericOnOffLight::readOnOffState()
 {
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-            m_endpoint->readAttribute(cluster, { ZigbeeCluster::OnOffClusterAttributeOnOff });
-        }
+    if (!m_clusterOnOff) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+        return;
     }
+
+    ZigbeeClusterReply *reply = m_clusterOnOff->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
+        if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+            qCWarning(dcZigbee()) << "Failed to read on/off cluster attribute" << reply->error();
+            return;
+        }
+
+        qCDebug(dcZigbee()) << "Reading on/off cluster attribute finished successfully";
+        QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
+        if (attributeStatusRecords.count() != 1) {
+            qCWarning(dcZigbee()) << "Could not read on/off attribute from cluster";
+            return;
+        }
+
+        ZigbeeDataType booType(attributeStatusRecords.first().dataType, attributeStatusRecords.first().data);
+        bool dataOk = false;
+        bool powerValue = booType.toBool(&dataOk);
+        if (!dataOk) {
+            qCWarning(dcZigbee()) << thing() << "Could not convert attribute data to bool" << booType;
+            return;
+        }
+        qCDebug(dcZigbee()) << thing() << "power state" << powerValue;
+        thing()->setStateValue(genericOnOffLightPowerStateTypeId, powerValue);
+    });
 }
 
 void GenericOnOffLight::onNetworkStateChanged(ZigbeeNetwork::State state)
@@ -129,13 +191,13 @@ void GenericOnOffLight::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster
 {
     qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 
-    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-        if (attribute.dataType() != Zigbee::DataType::Bool || attribute.data().count() == 0) {
-            qCWarning(dcZigbee()) << "Unexpected data type for attribute changed signal" << thing() << cluster << attribute;
-            return;
-        }
+//    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
+//        if (attribute.dataType() != Zigbee::DataType::Bool || attribute.data().count() == 0) {
+//            qCWarning(dcZigbee()) << "Unexpected data type for attribute changed signal" << thing() << cluster << attribute;
+//            return;
+//        }
 
-        bool power = static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(genericOnOffLightPowerStateTypeId, power);
-    }
+//        bool power = static_cast<bool>(attribute.data().at(0));
+//        thing()->setStateValue(genericOnOffLightPowerStateTypeId, power);
+//    }
 }
