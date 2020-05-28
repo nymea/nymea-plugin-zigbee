@@ -47,12 +47,11 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-
-signals:
+    ZigbeeClusterTemperatureMeasurement *m_temperatureCluster = nullptr;
+    ZigbeeClusterRelativeHumidityMeasurement *m_humidityCluster = nullptr;
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 
