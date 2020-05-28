@@ -822,7 +822,7 @@
                     "id": "cec4b104-6076-4a6d-9ee2-595be25a2dcc",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable" ],
+                    "interfaces": [ "longpressmultibutton", "batterylevel", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "7ec1beb6-c21b-4cc6-9e2a-fcb2182c8046",
@@ -850,6 +850,25 @@
                             "type": "QString",
                             "cached": true,
                             "defaultValue": ""
+                        },
+                        {
+                            "id": "06b6c163-742d-480d-862b-bd1328e74ee9",
+                            "name": "batteryLevel",
+                            "displayName": "Battery",
+                            "displayNameEvent": "Battery changed",
+                            "type": "int",
+                            "unit": "Percentage",
+                            "defaultValue": 0,
+                            "minValue": 0,
+                            "maxValue": 100
+                        },
+                        {
+                            "id": "4cdd86f3-c3b1-4ae6-8b20-cb54772fe33c",
+                            "name": "batteryCritical",
+                            "displayName": "Battery critical",
+                            "displayNameEvent": "Battery critical changed",
+                            "type": "bool",
+                            "defaultValue": false
                         }
                     ],
                     "actionTypes": [
@@ -865,7 +884,34 @@
                         }
                     ],
                     "eventTypes": [
-
+                        {
+                            "id": "26e577af-f151-43d8-b278-7ae2d5a6a62f",
+                            "name": "pressed",
+                            "displayName": "Button pressed",
+                            "paramTypes": [
+                                {
+                                    "id": "3b90c778-98ed-4a8f-b530-1e4ed0293486",
+                                    "name": "buttonName",
+                                    "displayName": "Button name",
+                                    "type": "QString",
+                                    "allowedValues": ["ON", "OFF"]
+                                }
+                            ]
+                        },
+                        {
+                            "id": "c7f2b6e5-0590-4c03-bcee-6bc268440593",
+                            "name": "longPressed",
+                            "displayName": "Button longpressed",
+                            "paramTypes": [
+                                {
+                                    "id": "231c1de6-9a33-4ff9-875b-462a6e7efa1e",
+                                    "name": "buttonName",
+                                    "displayName": "Button name",
+                                    "type": "QString",
+                                    "allowedValues": ["ON", "OFF"]
+                                }
+                            ]
+                        }
                     ]
                 },
                 {

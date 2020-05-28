@@ -57,8 +57,15 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
         qCDebug(dcZigbee()) << " -" << cluster;
     }
 
-    // Enable reporting
-    configureReporting();
+    // Get the onOff client cluster in order to receive signals if the cluster executed a command
+    m_onOffCluster = m_endpoint->outputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    if (!m_onOffCluster) {
+        qCWarning(dcZigbee()) << "Could not find on/off client cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::commandSent, this, &TradfriOnOffSwitch::onZigbeeOnOffClusterCommandSent);
+    }
+
+    // TODO: do the same with the level cluster since long pressed results into a level command
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriOnOffSwitch::onNetworkStateChanged);
 }
@@ -139,4 +146,16 @@ void TradfriOnOffSwitch::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
+}
+
+void TradfriOnOffSwitch::onZigbeeOnOffClusterCommandSent(ZigbeeClusterOnOff::Command command)
+{
+    qCDebug(dcZigbee()) << m_thing << "button pressed" << command;
+    if (command == ZigbeeClusterOnOff::CommandOn) {
+        emit onPressed();
+    } else if (command == ZigbeeClusterOnOff::CommandOff) {
+        emit offPressed();
+    } else {
+        // Ignore any other command executed by the on/off client cluster
+    }
 }

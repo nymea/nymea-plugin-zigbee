@@ -36,7 +36,7 @@ SOURCES += \
     #lumi/lumibuttonsensor.cpp \
     #lumi/lumimagnetsensor.cpp \
     #lumi/lumimotionsensor.cpp \
-    #lumi/lumitemperaturesensor.cpp \
+    lumi/lumitemperaturesensor.cpp \
     zigbeedevice.cpp
 
 HEADERS += \
@@ -54,6 +54,6 @@ HEADERS += \
     #lumi/lumibuttonsensor.h \
     #lumi/lumimagnetsensor.h \
     #lumi/lumimotionsensor.h \
-    #lumi/lumitemperaturesensor.h \
+    lumi/lumitemperaturesensor.h \
     zigbeedevice.h
 

@@ -49,6 +49,7 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
 
     void readAttribute();
     void configureReporting();
@@ -56,6 +57,13 @@ private:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
+    void onZigbeeOnOffClusterCommandSent(ZigbeeClusterOnOff::Command command);
+
+signals:
+    void onPressed();
+    void offPressed();
+    void onLongPressed();
+    void offLongPressed();
 
 };
 
