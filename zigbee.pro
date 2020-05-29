@@ -33,9 +33,9 @@ SOURCES += \
     #ikea/tradfripowersocket.cpp \
     #ikea/tradfrirangeextender.cpp \
     #ikea/tradfriremote.cpp \
-    #lumi/lumibuttonsensor.cpp \
+    lumi/lumibuttonsensor.cpp \
     #lumi/lumimagnetsensor.cpp \
-    #lumi/lumimotionsensor.cpp \
+    lumi/lumimotionsensor.cpp \
     lumi/lumitemperaturesensor.cpp \
     lumi/lumiwatersensor.cpp \
     zigbeedevice.cpp
@@ -52,9 +52,9 @@ HEADERS += \
     #ikea/tradfripowersocket.h \
     #ikea/tradfrirangeextender.h \
     #ikea/tradfriremote.h \
-    #lumi/lumibuttonsensor.h \
+    lumi/lumibuttonsensor.h \
     #lumi/lumimagnetsensor.h \
-    #lumi/lumimotionsensor.h \
+    lumi/lumimotionsensor.h \
     lumi/lumitemperaturesensor.h \
     lumi/lumiwatersensor.h \
     zigbeedevice.h

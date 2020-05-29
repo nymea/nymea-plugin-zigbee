@@ -48,6 +48,7 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
     QTimer *m_longPressedTimer = nullptr;
 
     bool m_pressed = false;
@@ -59,7 +60,6 @@ signals:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
     void onLongPressedTimeout();
 
 };

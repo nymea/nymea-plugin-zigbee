@@ -41,7 +41,9 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
 {
     m_delayTimer = new QTimer(this);
     m_delayTimer->setSingleShot(true);
-    connect(m_delayTimer, &QTimer::timeout, this, &LumiMotionSensor::onDelayTimerTimeout);
+    connect(m_delayTimer, &QTimer::timeout, this, [this](){
+        setPresent(false);
+    });
 
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
@@ -49,13 +51,34 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    m_occupancyCluster = m_endpoint->inputCluster<ZigbeeClusterOccupancySensing>(Zigbee::ClusterIdOccupancySensing);
+    if (!m_occupancyCluster) {
+        qCWarning(dcZigbee()) << "Could not find the occupancy sensing server cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_occupancyCluster, &ZigbeeClusterOccupancySensing::occupancyChanged, this, [this](bool occupied){
+            qCDebug(dcZigbee()) << m_thing << "occupied changed" << occupied;
+            emit motionDetected();
+            setPresent(true);
+        });
+    }
+
+    m_illuminanceCluster = m_endpoint->inputCluster<ZigbeeClusterIlluminanceMeasurment>(Zigbee::ClusterIdIlluminanceMeasurement);
+    if (!m_illuminanceCluster) {
+        qCWarning(dcZigbee()) << "Could not find the illuminance measurement server cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_illuminanceCluster, &ZigbeeClusterIlluminanceMeasurment::illuminanceChanged, this, [this](quint16 illuminance){
+            // Note: this is again out of spec. The actual lux would be according to spec pow(10, (illuminanceRaw / 10000)) -1
+            qCDebug(dcZigbee()) << m_thing << "illuminance changed" << illuminance << "lux";
+            m_thing->setStateValue(lumiMotionSensorLightIntensityStateTypeId, illuminance);
+        });
+    }
+
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiMotionSensor::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiMotionSensor::onEndpointClusterAttributeChanged);
 }
 
 void LumiMotionSensor::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    //m_node->leaveNetworkRequest();
 }
 
 void LumiMotionSensor::checkOnlineStatus()
@@ -92,30 +115,4 @@ void LumiMotionSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
-}
-
-void LumiMotionSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    qCDebug(dcZigbee()) << "Lumi motion sensor cluster attribute changed" << cluster << attribute;
-    if (cluster->clusterId() == Zigbee::ClusterIdMeasurementIlluminance && attribute.id() == 0x0000) {
-        QByteArray data = attribute.data();
-        QDataStream stream(&data, QIODevice::ReadOnly);
-        quint16 illuminanceRaw = 0;
-        stream >> illuminanceRaw;
-        // Note: this is again out of spec. The actual lux would be according to spec pow(10, (illuminanceRaw / 10000)) -1
-        qCDebug(dcZigbee()) << "Illuminance value" << illuminanceRaw << "lux";
-        thing()->setStateValue(lumiMotionSensorLightIntensityStateTypeId, illuminanceRaw);
-    }
-
-    if (cluster->clusterId() == Zigbee::ClusterIdOccupancySensing && attribute.id() == 0x0000) {
-        qCDebug(dcZigbee()) << "Motion detected" << static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(lumiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentDateTime().toTime_t());
-        emit motionDetected();
-        setPresent(true);
-    }
-}
-
-void LumiMotionSensor::onDelayTimerTimeout()
-{
-    setPresent(false);
 }

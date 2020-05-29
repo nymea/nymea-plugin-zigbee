@@ -310,32 +310,32 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        return;
     //    }
 
-    //    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
-    //        qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(lumiButtonSensorThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
-    //        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
-    //            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
-    //        });
-    //        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
-    //            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
-    //        });
+    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiButtonSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
+        connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
+            emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
+        });
+        connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
+            emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
+        });
 
-    //        m_zigbeeDevices.insert(thing, sensor);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
-    //    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
-    //        qCDebug(dcZigbee()) << "Lumi motion sensor" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMotionSensorThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, sensor);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi motion sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMotionSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiMotionSensor *sensor = new LumiMotionSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     if (thing->thingClassId() == lumiWaterSensorThingClassId) {
         qCDebug(dcZigbee()) << "Lumi water sensor" << thing;
@@ -504,19 +504,19 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        return;
     //    }
 
-    //    // Lumi button sensor
-    //    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
-    //        LumiButtonSensor *sensor = qobject_cast<LumiButtonSensor *>(m_zigbeeDevices.value(thing));
-    //        sensor->executeAction(info);
-    //        return;
-    //    }
+    // Lumi button sensor
+    if (thing->thingClassId() == lumiButtonSensorThingClassId) {
+        LumiButtonSensor *sensor = qobject_cast<LumiButtonSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
+    }
 
-    //    // Lumi motion sensor
-    //    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
-    //        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
-    //        sensor->executeAction(info);
-    //        return;
-    //    }
+    // Lumi motion sensor
+    if (thing->thingClassId() == lumiMotionSensorThingClassId) {
+        LumiMotionSensor *sensor = qobject_cast<LumiMotionSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
+    }
 
     // Lumi water sensor
     if (thing->thingClassId() == lumiWaterSensorThingClassId) {
@@ -723,14 +723,11 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
             continue;
         }
 
-        QString modelIdentifier = endpoint->modelIdentifier();
-        qCDebug(dcZigbee()) << "Model identifier" << modelIdentifier;
+        qCDebug(dcZigbee()) << "Model identifier" << endpoint->modelIdentifier();
 
         // Note: Lumi / Xiaomi / Aquara devices id are not in the specs, so no enum here
         if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                modelIdentifier.startsWith("lumi.sensor_ht") &&
-                endpoint->hasInputCluster(Zigbee::ClusterIdTemperatureMeasurement) &&
-                endpoint->hasInputCluster(Zigbee::ClusterIdRelativeHumidityMeasurement)) {
+                endpoint->modelIdentifier().startsWith("lumi.sensor_ht")) {
 
             qCDebug(dcZigbee()) << "This device is a lumi temperature humidity sensor";
             if (myThings().filterByThingClassId(lumiTemperatureHumidityThingClassId)
@@ -752,7 +749,7 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
 
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
         if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                modelIdentifier.startsWith("lumi.sensor_magnet")) {
+                endpoint->modelIdentifier().startsWith("lumi.sensor_magnet")) {
 
             qCDebug(dcZigbee()) << "This device is a lumi magnet sensor";
             if (myThings().filterByThingClassId(lumiMagnetSensorThingClassId)
@@ -775,7 +772,7 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
 
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
         if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                modelIdentifier.startsWith("lumi.sensor_switch")) {
+                endpoint->modelIdentifier().startsWith("lumi.sensor_switch")) {
 
             qCDebug(dcZigbee()) << "This device is a lumi button sensor";
             if (myThings().filterByThingClassId(lumiButtonSensorThingClassId)
@@ -797,7 +794,7 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
 
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
         if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                modelIdentifier.startsWith("lumi.sensor_motion")) {
+                endpoint->modelIdentifier().startsWith("lumi.sensor_motion")) {
 
             qCDebug(dcZigbee()) << "This device is a lumi motion sensor";
             if (myThings().filterByThingClassId(lumiMotionSensorThingClassId)
@@ -819,7 +816,7 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
 
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
         if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
-                modelIdentifier.startsWith("lumi.sensor_wleak")) {
+                endpoint->modelIdentifier().startsWith("lumi.sensor_wleak")) {
 
             qCDebug(dcZigbee()) << "This device is a lumi water sensor";
             if (myThings().filterByThingClassId(lumiWaterSensorThingClassId)

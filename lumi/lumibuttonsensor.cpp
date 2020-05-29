@@ -47,13 +47,23 @@ LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    // Get the ZigbeeClusterOnOff server
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    if (!m_onOffCluster) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
+            qCDebug(dcZigbee()) << m_thing << "power state changed" << power;
+            setPressed(power);
+        });
+    }
+
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiButtonSensor::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiButtonSensor::onEndpointClusterAttributeChanged);
 }
 
 void LumiButtonSensor::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    //m_node->leaveNetworkRequest();
 }
 
 void LumiButtonSensor::checkOnlineStatus()
@@ -76,19 +86,14 @@ void LumiButtonSensor::executeAction(ThingActionInfo *info)
 
 void LumiButtonSensor::setPressed(bool pressed)
 {
-    if (m_pressed == pressed)
-        return;
-
     m_pressed = pressed;
     if (m_pressed) {
-        qCDebug(dcZigbee()) << "Button pressed";
+        qCDebug(dcZigbee()) << "Button pressed" << thing();
         m_longPressedTimer->start();
     } else {
-        qCDebug(dcZigbee()) << "Button released";
-        if (m_longPressedTimer->isActive()) {
-            m_longPressedTimer->stop();
-            emit buttonPressed();
-        }
+        qCDebug(dcZigbee()) << "Button released" << thing();
+        m_longPressedTimer->stop();
+        emit buttonPressed();
     }
 }
 
@@ -99,21 +104,9 @@ void LumiButtonSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
     checkOnlineStatus();
 }
 
-void LumiButtonSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    qCDebug(dcZigbee()) << "Lumi button cluster attribute changed" << cluster << attribute;
-    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-        QByteArray data = attribute.data();
-        QDataStream stream(&data, QIODevice::ReadOnly);
-        quint8 pressedRaw = 0;
-        stream >> pressedRaw;
-        setPressed(!static_cast<bool>(pressedRaw));
-    }
-}
-
 void LumiButtonSensor::onLongPressedTimeout()
 {
-    qCDebug(dcZigbee()) << "Button long pressed";
+    qCDebug(dcZigbee()) << "Button long pressed" << thing();
     m_longPressedTimer->stop();
     emit buttonLongPressed();
 }

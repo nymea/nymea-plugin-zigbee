@@ -48,9 +48,12 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOccupancySensing *m_occupancyCluster = nullptr;
+    ZigbeeClusterIlluminanceMeasurment *m_illuminanceCluster = nullptr;
+
+    // Settings timer for presence state
     QTimer *m_delayTimer = nullptr;
     bool m_present = false;
-
     void setPresent(bool present);
 
 signals:
@@ -58,8 +61,6 @@ signals:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
-    void onDelayTimerTimeout();
 
 };
 
