@@ -28,34 +28,29 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef GENERICONOFFLIGHT_H
-#define GENERICONOFFLIGHT_H
+#ifndef LUMIWATERSENSOR_H
+#define LUMIWATERSENSOR_H
 
 #include <QObject>
 
 #include "zigbeedevice.h"
 
-class GenericOnOffLight : public ZigbeeDevice
+class LumiWaterSensor : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
+    explicit LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    void checkOnlineStatus() override;
     void removeFromNetwork() override;
+    void checkOnlineStatus() override;
     void executeAction(ThingActionInfo *info) override;
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
-    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterIasZone *m_iasZoneCluster = nullptr;
 
-    void readOnOffState();
-
-private slots:
-    void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onOnOffClusterAttributeChanged(const ZigbeeClusterAttribute &attribute);
+signals:
 
 };
 
-#endif // GENERICONOFFLIGHT_H
+#endif // LUMIWATERSENSOR_H

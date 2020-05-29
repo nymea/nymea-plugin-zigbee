@@ -45,50 +45,50 @@ IntegrationPluginZigbee::IntegrationPluginZigbee()
 
 void IntegrationPluginZigbee::init()
 {       
-    QByteArray dataLittleEndian = QByteArray::fromHex("40e201");
-    ZigbeeDataType type(Zigbee::Uint24, dataLittleEndian);
-    qCDebug(dcZigbee()) << "Data" << type.data() << ZigbeeUtils::convertByteArrayToHexString(type.data());
-    bool convertOk = false;
-    qCDebug(dcZigbee()) << "Value" << type.toUInt32(&convertOk) << convertOk;
+    //    QByteArray dataLittleEndian = QByteArray::fromHex("40e201");
+    //    ZigbeeDataType type(Zigbee::Uint24, dataLittleEndian);
+    //    qCDebug(dcZigbee()) << "Data" << type.data() << ZigbeeUtils::convertByteArrayToHexString(type.data());
+    //    bool convertOk = false;
+    //    qCDebug(dcZigbee()) << "Value" << type.toUInt32(&convertOk) << convertOk;
 
-    quint8 uint8Value = 0xff;
-    ZigbeeDataType uint8Type(uint8Value);
-    qCDebug(dcZigbee()) << uint8Type << uint8Value << uint8Type.toUInt8(&convertOk) << convertOk;
+    //    quint8 uint8Value = 0xff;
+    //    ZigbeeDataType uint8Type(uint8Value);
+    //    qCDebug(dcZigbee()) << uint8Type << uint8Value << uint8Type.toUInt8(&convertOk) << convertOk;
 
-    quint16 uint16Value = 0xaabb;
-    ZigbeeDataType uint16Type(uint16Value);
-    qCDebug(dcZigbee()) << uint16Type << uint16Value << uint16Type.toUInt16(&convertOk) << convertOk;
+    //    quint16 uint16Value = 0xaabb;
+    //    ZigbeeDataType uint16Type(uint16Value);
+    //    qCDebug(dcZigbee()) << uint16Type << uint16Value << uint16Type.toUInt16(&convertOk) << convertOk;
 
-    quint32 uint24Value = 0xaabbcc;
-    ZigbeeDataType uint24Type(uint24Value, Zigbee::Uint24);
-    qCDebug(dcZigbee()) << uint24Type << uint24Value << uint24Type.toUInt32(&convertOk) << convertOk;
+    //    quint32 uint24Value = 0xaabbcc;
+    //    ZigbeeDataType uint24Type(uint24Value, Zigbee::Uint24);
+    //    qCDebug(dcZigbee()) << uint24Type << uint24Value << uint24Type.toUInt32(&convertOk) << convertOk;
 
-    quint32 uint32Value = 0xaabbccdd;
-    ZigbeeDataType uint32Type(uint32Value);
-    qCDebug(dcZigbee()) << uint32Type << uint32Value << uint32Type.toUInt32(&convertOk) << convertOk;
+    //    quint32 uint32Value = 0xaabbccdd;
+    //    ZigbeeDataType uint32Type(uint32Value);
+    //    qCDebug(dcZigbee()) << uint32Type << uint32Value << uint32Type.toUInt32(&convertOk) << convertOk;
 
-    quint64 uint40Value = 0xaabbccddee;
-    ZigbeeDataType uint40Type(uint40Value, Zigbee::Uint40);
-    qCDebug(dcZigbee()) << uint40Type << uint40Value << uint40Type.toUInt64(&convertOk) << convertOk;
+    //    quint64 uint40Value = 0xaabbccddee;
+    //    ZigbeeDataType uint40Type(uint40Value, Zigbee::Uint40);
+    //    qCDebug(dcZigbee()) << uint40Type << uint40Value << uint40Type.toUInt64(&convertOk) << convertOk;
 
-    quint64 uint48Value = 0xaabbccddeeff;
-    ZigbeeDataType uint48Type(uint48Value, Zigbee::Uint48);
-    qCDebug(dcZigbee()) << uint48Type << uint48Value << uint48Type.toUInt64(&convertOk) << convertOk;
+    //    quint64 uint48Value = 0xaabbccddeeff;
+    //    ZigbeeDataType uint48Type(uint48Value, Zigbee::Uint48);
+    //    qCDebug(dcZigbee()) << uint48Type << uint48Value << uint48Type.toUInt64(&convertOk) << convertOk;
 
-    quint64 uint56Value = 0xaabbccddeeff01;
-    ZigbeeDataType uint56Type(uint56Value, Zigbee::Uint56);
-    qCDebug(dcZigbee()) << uint56Type << uint56Value << uint56Type.toUInt64(&convertOk) << convertOk;
+    //    quint64 uint56Value = 0xaabbccddeeff01;
+    //    ZigbeeDataType uint56Type(uint56Value, Zigbee::Uint56);
+    //    qCDebug(dcZigbee()) << uint56Type << uint56Value << uint56Type.toUInt64(&convertOk) << convertOk;
 
-    quint64 uint64Value = 0xaabbccddeeff0102;
-    ZigbeeDataType uint64Type(uint64Value);
-    qCDebug(dcZigbee()) << uint64Type << uint64Value << uint64Type.toUInt64(&convertOk) << convertOk;
+    //    quint64 uint64Value = 0xaabbccddeeff0102;
+    //    ZigbeeDataType uint64Type(uint64Value);
+    //    qCDebug(dcZigbee()) << uint64Type << uint64Value << uint64Type.toUInt64(&convertOk) << convertOk;
 
-    ZigbeeDataType boolType(false);
-    qCDebug(dcZigbee()) << boolType << boolType.toBool(&convertOk) << convertOk;
+    //    ZigbeeDataType boolType(false);
+    //    qCDebug(dcZigbee()) << boolType << boolType.toBool(&convertOk) << convertOk;
 
-    QString string("ABC");
-    ZigbeeDataType stringType(string, Zigbee::CharString);
-    qCDebug(dcZigbee()) << stringType << string << stringType.toString(&convertOk) << convertOk;
+    //    QString string("ABC");
+    //    ZigbeeDataType stringType(string, Zigbee::CharString);
+    //    qCDebug(dcZigbee()) << stringType << string << stringType.toString(&convertOk) << convertOk;
 
 }
 
@@ -289,16 +289,16 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        return;
     //    }
 
-        // Lumi
-        if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
-            qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
-            ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
-            ZigbeeNetwork *network = findParentNetwork(thing);
-            LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
-            m_zigbeeDevices.insert(thing, sensor);
-            info->finish(Thing::ThingErrorNoError);
-            return;
-        }
+    // Lumi
+    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi temperature humidity" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiTemperatureHumidityThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiTemperatureSensor *sensor = new LumiTemperatureSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     //    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
     //        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
@@ -336,6 +336,16 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        info->finish(Thing::ThingErrorNoError);
     //        return;
     //    }
+
+    if (thing->thingClassId() == lumiWaterSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi water sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiWaterSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiWaterSensor *sensor = new LumiWaterSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     // Generic
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
@@ -480,12 +490,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        return;
     //    }
 
-        // Lumi temperature/humidity sensor
-        if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
-            LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
-            sensor->executeAction(info);
-            return;
-        }
+    // Lumi temperature/humidity sensor
+    if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
+        LumiTemperatureSensor *sensor = qobject_cast<LumiTemperatureSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
+    }
 
     //    // Lumi magnet sensor
     //    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
@@ -507,6 +517,13 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        sensor->executeAction(info);
     //        return;
     //    }
+
+    // Lumi water sensor
+    if (thing->thingClassId() == lumiWaterSensorThingClassId) {
+        LumiWaterSensor *sensor = qobject_cast<LumiWaterSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
+    }
 
     // Generic on/off light
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
@@ -799,6 +816,29 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
             }
             return true;
         }
+
+        // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                modelIdentifier.startsWith("lumi.sensor_wleak")) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi water sensor";
+            if (myThings().filterByThingClassId(lumiWaterSensorThingClassId)
+                    .filterByParam(lumiWaterSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi water sensor";
+                ThingDescriptor descriptor(lumiWaterSensorThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiWaterSensorThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiWaterSensorThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+
+            return true;
+        }
     }
 
     return false;
@@ -980,7 +1020,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
         return;
     }
 
-
+    // Print the node infromation for debugging if we don't support this device yet
     qCDebug(dcZigbee()) << "Node added. Check if we recognize this node" << node;
     foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
         qCDebug(dcZigbee()) << endpoint;

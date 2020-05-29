@@ -61,11 +61,16 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
     }
 
     // Get the ZigbeeClusterOnOff
-    m_clusterOnOff = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
-    if (!m_clusterOnOff) {
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
     } else {
-        connect(m_clusterOnOff, &ZigbeeClusterOnOff::attributeChanged, this, &GenericOnOffLight::onOnOffClusterAttributeChanged);
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::attributeChanged, this, &GenericOnOffLight::onOnOffClusterAttributeChanged);
+    }
+
+    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(Zigbee::ClusterIdIdentify);
+    if (!m_identifyCluster) {
+        qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
     }
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericOnOffLight::onNetworkStateChanged);
@@ -89,25 +94,31 @@ void GenericOnOffLight::removeFromNetwork()
 
 void GenericOnOffLight::executeAction(ThingActionInfo *info)
 {
-    if (info->action().actionTypeId() == genericOnOffLightIdentifyActionTypeId) {
-        //        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
-        //        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
-        //            // Note: reply will be deleted automatically
-        //            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
-        //                info->finish(Thing::ThingErrorHardwareFailure);
-        //            } else {
-        //                info->finish(Thing::ThingErrorNoError);
-        //            }
-        //        });
+    if (info->action().actionTypeId() == genericOnOffLightAlertActionTypeId) {
+        if (!m_identifyCluster) {
+            qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        ZigbeeClusterReply *reply =  m_identifyCluster->identify(2);
+        connect(reply, &ZigbeeClusterReply::finished, this, [reply, info](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+            }
+        });
     } else if (info->action().actionTypeId() == genericOnOffLightPowerActionTypeId) {
-        if (!m_clusterOnOff) {
+        if (!m_onOffCluster) {
             qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
             info->finish(Thing::ThingErrorHardwareFailure);
             return;
         }
 
         bool power = info->action().param(genericOnOffLightPowerActionPowerParamTypeId).value().toBool();
-        ZigbeeClusterReply *reply = (power ? m_clusterOnOff->commandOn() : m_clusterOnOff->commandOff());
+        ZigbeeClusterReply *reply = (power ? m_onOffCluster->commandOn() : m_onOffCluster->commandOff());
         connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, power](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
@@ -151,12 +162,12 @@ void GenericOnOffLight::executeAction(ThingActionInfo *info)
 
 void GenericOnOffLight::readOnOffState()
 {
-    if (!m_clusterOnOff) {
+    if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
         return;
     }
 
-    ZigbeeClusterReply *reply = m_clusterOnOff->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
+    ZigbeeClusterReply *reply = m_onOffCluster->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
     connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read on/off cluster attribute" << reply->error();

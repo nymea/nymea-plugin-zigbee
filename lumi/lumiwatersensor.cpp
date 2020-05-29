@@ -28,12 +28,12 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "lumitemperaturesensor.h"
+#include "lumiwatersensor.h"
 #include "extern-plugininfo.h"
 
 #include <QDataStream>
 
-LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
+LumiWaterSensor::LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent) :
     ZigbeeDevice(network, ieeeAddress, thing, parent)
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
@@ -42,56 +42,51 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
-    m_temperatureCluster = m_endpoint->inputCluster<ZigbeeClusterTemperatureMeasurement>(Zigbee::ClusterIdTemperatureMeasurement);
-    if (!m_temperatureCluster) {
-        qCWarning(dcZigbee()) << "Could not find the temperature measurement server cluster on" << m_thing << m_endpoint;
+    m_iasZoneCluster = m_endpoint->inputCluster<ZigbeeClusterIasZone>(Zigbee::ClusterIdIasZone);
+    if (!m_iasZoneCluster) {
+        qCWarning(dcZigbee()) << "Could not find the IAS zone server cluster on" << m_thing << m_endpoint;
     } else {
-        connect(m_temperatureCluster, &ZigbeeClusterTemperatureMeasurement::temperatureChanged, this, [this](double temperature){
-            qCDebug(dcZigbee()) << m_thing << "temperature changed" << temperature << "°C";
-            m_thing->setStateValue(lumiTemperatureHumidityTemperatureStateTypeId, temperature);
+        connect(m_iasZoneCluster, &ZigbeeClusterIasZone::zoneStatusChanged, this, [this](ZigbeeClusterIasZone::ZoneStatusFlags zoneStatus, quint8 extendedStatus, quint8 zoneId, quint16 delay){
+            qCDebug(dcZigbee()) << m_thing << "zone status changed" << zoneStatus << extendedStatus << zoneId << delay;
+
+            // Water detected gets indicated in the Alarm1 flag
+            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagAlarm1)) {
+                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, true);
+            } else {
+                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, false);
+            }
+
+            // Battery alarm
+            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagBattery)) {
+                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+            } else {
+                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+            }
         });
     }
-
-    m_humidityCluster = m_endpoint->inputCluster<ZigbeeClusterRelativeHumidityMeasurement>(Zigbee::ClusterIdRelativeHumidityMeasurement);
-    if (!m_humidityCluster) {
-        qCWarning(dcZigbee()) << "Could not find the relative humidity measurement server cluster on" << m_thing << m_endpoint;
-    } else {
-        connect(m_humidityCluster, &ZigbeeClusterRelativeHumidityMeasurement::humidityChanged, this, [this](double humidity){
-            qCDebug(dcZigbee()) << m_thing << "humidity changed" << humidity << "%";
-            m_thing->setStateValue(lumiTemperatureHumidityHumidityStateTypeId, humidity);
-        });
-    }
-
-    connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiTemperatureSensor::onNetworkStateChanged);
 }
 
-void LumiTemperatureSensor::removeFromNetwork()
+void LumiWaterSensor::removeFromNetwork()
 {
     // FIXME
     //m_node->deviceObject()->requestMgmtLeaveNetwork();
 }
 
-void LumiTemperatureSensor::checkOnlineStatus()
+void LumiWaterSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
-        thing()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());    
+        thing()->setStateValue(lumiWaterSensorConnectedStateTypeId, true);
+        thing()->setStateValue(lumiWaterSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        // TODO: read the initial status once connected
     } else {
-        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
+        thing()->setStateValue(lumiWaterSensorConnectedStateTypeId, false);
     }
 }
 
-void LumiTemperatureSensor::executeAction(ThingActionInfo *info)
+void LumiWaterSensor::executeAction(ThingActionInfo *info)
 {
-    if (info->action().actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
+    if (info->action().actionTypeId() == lumiWaterSensorRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
     }
 }
-
-void LumiTemperatureSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
-{
-    Q_UNUSED(state)
-    checkOnlineStatus();
-}
-

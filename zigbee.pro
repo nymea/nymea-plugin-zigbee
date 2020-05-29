@@ -37,6 +37,7 @@ SOURCES += \
     #lumi/lumimagnetsensor.cpp \
     #lumi/lumimotionsensor.cpp \
     lumi/lumitemperaturesensor.cpp \
+    lumi/lumiwatersensor.cpp \
     zigbeedevice.cpp
 
 HEADERS += \
@@ -55,5 +56,6 @@ HEADERS += \
     #lumi/lumimagnetsensor.h \
     #lumi/lumimotionsensor.h \
     lumi/lumitemperaturesensor.h \
+    lumi/lumiwatersensor.h \
     zigbeedevice.h
 

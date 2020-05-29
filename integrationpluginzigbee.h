@@ -45,6 +45,7 @@
 #include "lumi/lumibuttonsensor.h"
 #include "lumi/lumimotionsensor.h"
 #include "lumi/lumitemperaturesensor.h"
+#include "lumi/lumiwatersensor.h"
 
 #include "generic/genericonofflight.h"
 #include "generic/genericpowersocket.h"

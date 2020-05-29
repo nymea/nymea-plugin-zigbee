@@ -125,7 +125,7 @@
                     "id": "7fbc3165-e618-4dc0-8255-8dac2cc08dfa",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "light", "connectable" ],
+                    "interfaces": [ "light", "alert", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "1b434d5d-4fe4-439c-b842-3483e8e24820",
@@ -182,7 +182,7 @@
                     "actionTypes": [
                         {
                             "id": "9388290d-5db2-484a-a702-53a0d842d412",
-                            "name": "identify",
+                            "name": "alert",
                             "displayName": "Identify"
                         },
                         {
@@ -754,6 +754,69 @@
                     "actionTypes": [
                         {
                             "id": "2797c499-ca7f-4cf6-a732-c8e3cd580e56",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
+                    "name": "lumiWaterSensor",
+                    "displayName": "Water sensor",
+                    "id": "e8e18bbe-27bb-4fd7-98fc-f5cef3b5f213",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "sensor", "battery", "connectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "e12453e7-5fc3-4549-b4fc-8b85f78607c6",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "03fc0e4d-dcd9-41dc-8aac-dbe735f11ef7",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "bae1014f-67f5-4dcc-b36f-e15eb43afd6e",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "e43532a7-cbee-446e-9e4a-aff88026ad1a",
+                            "name": "waterDetected",
+                            "displayName": "Water detected",
+                            "displayNameEvent": "Water detected changed",
+                            "type": "bool",
+                            "defaultValue": true
+                        },
+                        {
+                            "id": "72aa617c-88cc-4992-a1a2-400b5e19106e",
+                            "name": "batteryCritical",
+                            "displayName": "Battery critical",
+                            "displayNameEvent": "Battery critical changed",
+                            "type": "bool",
+                            "defaultValue": false
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "ed085bda-5608-419d-88e2-81ebcb9f26e1",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
                         }
