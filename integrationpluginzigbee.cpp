@@ -154,9 +154,9 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
                 descriptor.setParams(params);
                 info->addThingDescriptor(descriptor);
             } else {
-                // Assume this is an NXP, can be changed in in the add command if not readable
-                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "NXP"));
-                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 115200));
+                // FIXME
+                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "deCONZ"));
+                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 38400));
                 ThingDescriptor descriptor(zigbeeControllerThingClassId);
                 descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
                 descriptor.setDescription(serialPortInfo.systemLocation());
