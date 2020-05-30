@@ -47,9 +47,9 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-    ZigbeeClusterIasZone *m_iasZoneCluster = nullptr;
 
-signals:
+private slots:
+    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 

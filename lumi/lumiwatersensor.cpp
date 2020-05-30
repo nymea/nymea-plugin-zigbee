@@ -38,32 +38,41 @@ LumiWaterSensor::LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddre
 {
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
-    // Initialize the endpoint 0x01 since that endpoint contains temperature and humidity clusters
+    // Initialize the endpoint 0x01 since that endpoint contains ISA zone cluster
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
-    m_iasZoneCluster = m_endpoint->inputCluster<ZigbeeClusterIasZone>(Zigbee::ClusterIdIasZone);
-    if (!m_iasZoneCluster) {
-        qCWarning(dcZigbee()) << "Could not find the IAS zone server cluster on" << m_thing << m_endpoint;
-    } else {
-        connect(m_iasZoneCluster, &ZigbeeClusterIasZone::zoneStatusChanged, this, [this](ZigbeeClusterIasZone::ZoneStatusFlags zoneStatus, quint8 extendedStatus, quint8 zoneId, quint16 delay){
-            qCDebug(dcZigbee()) << m_thing << "zone status changed" << zoneStatus << extendedStatus << zoneId << delay;
+    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiWaterSensor::onClusterAttributeChanged);
 
-            // Water detected gets indicated in the Alarm1 flag
-            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagAlarm1)) {
-                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, true);
-            } else {
-                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, false);
-            }
+    // Note: the device does not list the IAS zone cluster in the simple descriptor endpoint discovery. This is out of spec.
+    // In order to make it work never the less, we can read the attrubte when the device sends the first notification.
+    // From that moment on we can also read the current ZoneStatus attribute.
 
-            // Battery alarm
-            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagBattery)) {
-                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
-            } else {
-                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
-            }
-        });
-    }
+    // FIXME: we should have the IAS Zone cluster from the very begining since we want to read the current status when nymea starts
+    // Currently we only can react on notifications
+
+    //    m_iasZoneCluster = m_endpoint->inputCluster<ZigbeeClusterIasZone>(Zigbee::ClusterIdIasZone);
+    //    if (!m_iasZoneCluster) {
+    //        qCWarning(dcZigbee()) << "Could not find the IAS zone server cluster on" << m_thing << m_endpoint;
+    //    } else {
+    //        connect(m_iasZoneCluster, &ZigbeeClusterIasZone::zoneStatusChanged, this, [this](ZigbeeClusterIasZone::ZoneStatusFlags zoneStatus, quint8 extendedStatus, quint8 zoneId, quint16 delay){
+    //            qCDebug(dcZigbee()) << m_thing << "zone status changed" << zoneStatus << extendedStatus << zoneId << delay;
+
+    //            // Water detected gets indicated in the Alarm1 flag
+    //            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagAlarm1)) {
+    //                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, true);
+    //            } else {
+    //                m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, false);
+    //            }
+
+    //            // Battery alarm
+    //            if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusFlagBattery)) {
+    //                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+    //            } else {
+    //                m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+    //            }
+    //        });
+    //    }
 }
 
 void LumiWaterSensor::removeFromNetwork()
@@ -88,5 +97,35 @@ void LumiWaterSensor::executeAction(ThingActionInfo *info)
     if (info->action().actionTypeId() == lumiWaterSensorRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
+    }
+}
+
+void LumiWaterSensor::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
+{
+    qCDebug(dcZigbee()) << m_thing << "cluster attribute changed" << cluster << attribute;
+    if (cluster->clusterId() == Zigbee::ClusterIdIasZone) {
+        if (attribute.id() == ZigbeeClusterIasZone::AttributeZoneState) {
+            bool valueOk = false;
+            ZigbeeClusterIasZone::ZoneStatusFlags zoneStatus = static_cast<ZigbeeClusterIasZone::ZoneStatusFlags>(attribute.dataType().toUInt16(&valueOk));
+            if (!valueOk) {
+                qCWarning(dcZigbee()) << m_thing << "failed to convert attribute data to uint16 flag. Not updating the states from" << attribute;
+            } else {
+                qCDebug(dcZigbee()) << m_thing << "zone status changed" << zoneStatus;
+
+                // Water detected gets indicated in the Alarm1 flag
+                if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusAlarm1)) {
+                    m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, true);
+                } else {
+                    m_thing->setStateValue(lumiWaterSensorWaterDetectedStateTypeId, false);
+                }
+
+                // Battery alarm
+                if (zoneStatus.testFlag(ZigbeeClusterIasZone::ZoneStatusBattery)) {
+                    m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+                } else {
+                    m_thing->setStateValue(lumiWaterSensorBatteryCriticalStateTypeId, true);
+                }
+            }
+        }
     }
 }

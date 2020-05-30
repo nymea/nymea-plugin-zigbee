@@ -97,7 +97,6 @@ void LumiButtonSensor::setPressed(bool pressed)
     }
 }
 
-
 void LumiButtonSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
