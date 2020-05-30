@@ -165,8 +165,6 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
             }
 
             qCDebug(dcZigbee()) << "Using baudrate param" << params.paramValue(zigbeeControllerThingBaudrateParamTypeId);
-
-
         }
     }
 
@@ -300,15 +298,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    //    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
-    //        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMagnetSensorThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, sensor);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi magnet sensor" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiMagnetSensorThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiMagnetSensor *sensor = new LumiMagnetSensor(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, sensor);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     if (thing->thingClassId() == lumiButtonSensorThingClassId) {
         qCDebug(dcZigbee()) << "Lumi button sensor" << thing;
@@ -316,9 +314,11 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         ZigbeeNetwork *network = findParentNetwork(thing);
         LumiButtonSensor *sensor = new LumiButtonSensor(network, ieeeAddress, thing, this);
         connect(sensor, &LumiButtonSensor::buttonPressed, this, [this, thing](){
+            qCDebug(dcZigbee()) << thing << "clicked event";
             emit emitEvent(Event(lumiButtonSensorPressedEventTypeId, thing->id()));
         });
         connect(sensor, &LumiButtonSensor::buttonLongPressed, this, [this, thing](){
+            qCDebug(dcZigbee()) << thing << "long pressed event";
             emit emitEvent(Event(lumiButtonSensorLongPressedEventTypeId, thing->id()));
         });
 
@@ -497,12 +497,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    //    // Lumi magnet sensor
-    //    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
-    //        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
-    //        sensor->executeAction(info);
-    //        return;
-    //    }
+    // Lumi magnet sensor
+    if (thing->thingClassId() == lumiMagnetSensorThingClassId) {
+        LumiMagnetSensor *sensor = qobject_cast<LumiMagnetSensor *>(m_zigbeeDevices.value(thing));
+        sensor->executeAction(info);
+        return;
+    }
 
     // Lumi button sensor
     if (thing->thingClassId() == lumiButtonSensorThingClassId) {

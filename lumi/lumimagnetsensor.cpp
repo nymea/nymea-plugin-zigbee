@@ -42,13 +42,24 @@ LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    // Get the ZigbeeClusterOnOff server
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    if (!m_onOffCluster) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
+            bool closed = !power;
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (closed ? "closed" : "open");
+            m_thing->setStateValue(lumiMagnetSensorClosedStateTypeId, closed);
+        });
+    }
+
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiMagnetSensor::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &LumiMagnetSensor::onEndpointClusterAttributeChanged);
 }
 
 void LumiMagnetSensor::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    //m_node->leaveNetworkRequest();
 }
 
 void LumiMagnetSensor::checkOnlineStatus()
@@ -75,13 +86,13 @@ void LumiMagnetSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
     checkOnlineStatus();
 }
 
-void LumiMagnetSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-        QByteArray data = attribute.data();
-        QDataStream stream(&data, QIODevice::ReadOnly);
-        quint8 closedRaw = 0;
-        stream >> closedRaw;
-        thing()->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
-    }
-}
+//void LumiMagnetSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
+//{
+//    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
+//        QByteArray data = attribute.data();
+//        QDataStream stream(&data, QIODevice::ReadOnly);
+//        quint8 closedRaw = 0;
+//        stream >> closedRaw;
+//        thing()->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
+//    }
+//}

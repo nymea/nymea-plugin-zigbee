@@ -53,8 +53,9 @@ LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
     } else {
         connect(m_onOffCluster, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
-            qCDebug(dcZigbee()) << m_thing << "power state changed" << power;
-            setPressed(power);
+            bool pressed = !power;
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (pressed ? "pressed" : "released");
+            setPressed(!power);
         });
     }
 
@@ -86,14 +87,17 @@ void LumiButtonSensor::executeAction(ThingActionInfo *info)
 
 void LumiButtonSensor::setPressed(bool pressed)
 {
+    if (m_pressed == pressed)
+        return;
+
     m_pressed = pressed;
     if (m_pressed) {
-        qCDebug(dcZigbee()) << "Button pressed" << thing();
         m_longPressedTimer->start();
     } else {
-        qCDebug(dcZigbee()) << "Button released" << thing();
-        m_longPressedTimer->stop();
-        emit buttonPressed();
+        if (m_longPressedTimer->isActive()) {
+            m_longPressedTimer->stop();
+            emit buttonPressed();
+        }
     }
 }
 
@@ -105,7 +109,6 @@ void LumiButtonSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 
 void LumiButtonSensor::onLongPressedTimeout()
 {
-    qCDebug(dcZigbee()) << "Button long pressed" << thing();
     m_longPressedTimer->stop();
     emit buttonLongPressed();
 }

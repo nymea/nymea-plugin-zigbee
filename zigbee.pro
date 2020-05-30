@@ -34,7 +34,7 @@ SOURCES += \
     #ikea/tradfrirangeextender.cpp \
     #ikea/tradfriremote.cpp \
     lumi/lumibuttonsensor.cpp \
-    #lumi/lumimagnetsensor.cpp \
+    lumi/lumimagnetsensor.cpp \
     lumi/lumimotionsensor.cpp \
     lumi/lumitemperaturesensor.cpp \
     lumi/lumiwatersensor.cpp \
@@ -53,7 +53,7 @@ HEADERS += \
     #ikea/tradfrirangeextender.h \
     #ikea/tradfriremote.h \
     lumi/lumibuttonsensor.h \
-    #lumi/lumimagnetsensor.h \
+    lumi/lumimagnetsensor.h \
     lumi/lumimotionsensor.h \
     lumi/lumitemperaturesensor.h \
     lumi/lumiwatersensor.h \

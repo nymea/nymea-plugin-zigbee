@@ -49,17 +49,6 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_thing << m_endpoint;
-    qCDebug(dcZigbee()) << "Input clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
-
-    qCDebug(dcZigbee()) << "Output clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
-
     // Get the ZigbeeClusterOnOff server
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
     if (!m_onOffCluster) {

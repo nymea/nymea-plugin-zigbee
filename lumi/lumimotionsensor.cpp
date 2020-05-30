@@ -59,6 +59,7 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
             qCDebug(dcZigbee()) << m_thing << "occupied changed" << occupied;
             emit motionDetected();
             setPresent(true);
+            m_thing->setStateValue(lumiMotionSensorLastSeenTimeStateTypeId, QDateTime::currentMSecsSinceEpoch() / 1000);
         });
     }
 
@@ -101,6 +102,7 @@ void LumiMotionSensor::executeAction(ThingActionInfo *info)
 
 void LumiMotionSensor::setPresent(bool present)
 {
+    qCDebug(dcZigbee()) << m_thing << "present changed to" << present;
     m_present = present;
     thing()->setStateValue(lumiMotionSensorIsPresentStateTypeId, m_present);
     if (m_present) {

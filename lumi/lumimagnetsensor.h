@@ -47,12 +47,11 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-
-signals:
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
+    //void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 

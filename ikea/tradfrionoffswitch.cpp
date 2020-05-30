@@ -46,17 +46,6 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_thing << m_endpoint;
-    qCDebug(dcZigbee()) << "Input clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
-
-    qCDebug(dcZigbee()) << "Output clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
-
     // Get the onOff client cluster in order to receive signals if the cluster executed a command
     m_onOffCluster = m_endpoint->outputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
     if (!m_onOffCluster) {
