@@ -958,11 +958,6 @@ void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State s
     qCDebug(dcZigbee()) << "Controller state changed" << state << thing;
 
     switch (state) {
-    case ZigbeeNetwork::StateUninitialized:
-        break;
-    case ZigbeeNetwork::StateOffline:
-        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
-        break;
     case ZigbeeNetwork::StateRunning:
         thing->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         thing->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetwork->bridgeController()->firmwareVersion());
@@ -971,11 +966,8 @@ void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State s
         thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
         thing->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
         break;
-    case ZigbeeNetwork::StateStarting:
-        //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
-        break;
-    case ZigbeeNetwork::StateStopping:
-        //device->setStateValue(zigbeeControllerConnectedStateTypeId, true);
+    default:
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
         break;
     }
 }

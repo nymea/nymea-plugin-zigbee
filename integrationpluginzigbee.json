@@ -561,6 +561,11 @@
                             "id": "ce853c00-d175-45bc-a3d9-3c8c93d88099",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
+                        },
+                        {
+                            "id": "4a9d9427-52cf-4c13-9b71-496145b18476",
+                            "name": "test1",
+                            "displayName": "Test 1"
                         }
                     ],
                     "eventTypes": [
@@ -573,7 +578,7 @@
                     "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable", "closablesensor" ],
+                    "interfaces": [ "closablesensor", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "36d8a40a-7f37-4d59-a0d9-6d4977ea63f3",
@@ -628,7 +633,7 @@
                     "id": "42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable", "longpressbutton" ],
+                    "interfaces": [ "longpressbutton", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "929eb2be-6d8f-46b7-8cc9-896e7e2c494a",

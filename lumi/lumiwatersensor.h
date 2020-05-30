@@ -49,6 +49,7 @@ private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
 
 private slots:
+    void onNetworkStateChanged(ZigbeeNetwork::State state);
     void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };

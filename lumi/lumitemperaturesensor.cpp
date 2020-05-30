@@ -86,6 +86,28 @@ void LumiTemperatureSensor::executeAction(ThingActionInfo *info)
     if (info->action().actionTypeId() == lumiTemperatureHumidityRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
+    } else if (info->action().actionTypeId() == lumiTemperatureHumidityTest1ActionTypeId) {
+
+        // Test action
+        // Try to read the values
+
+        if (!m_temperatureCluster) {
+            qCWarning(dcZigbee()) << "Could not read from temperature cluster. There is no cluster object.";
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        ZigbeeClusterReply *reply = m_temperatureCluster->readAttributes({ZigbeeClusterTemperatureMeasurement::AttributeMeasuredValue});
+        connect(reply, &ZigbeeClusterReply::finished, this, [reply, info](){
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                qCWarning(dcZigbee()) << "Failed to read temperature cluster attributes" << reply->error();
+                info->finish(Thing::ThingErrorHardwareFailure);
+                return;
+            }
+
+            qCDebug(dcZigbee()) << "Reading temperature cluster attributes finished successfully";
+            info->finish(Thing::ThingErrorNoError);
+        });
     }
 }
 
