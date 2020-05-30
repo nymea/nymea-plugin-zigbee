@@ -28,15 +28,15 @@
                             "name": "baudrate",
                             "displayName": "Baudtate",
                             "type": "uint",
-                            "defaultValue": 115200
+                            "defaultValue": 38400
                         },
                         {
                             "id": "9a31274c-4511-425b-ad5a-f970b8a5b334",
                             "name": "hardware",
                             "displayName": "Hardware",
                             "type": "QString",
-                            "allowedValues": [ "NXP", "deCONZ" ],
-                            "defaultValue": "NXP"
+                            "allowedValues": [ "deCONZ" ],
+                            "defaultValue": "deCONZ"
                         }
                     ],
                     "stateTypes": [
