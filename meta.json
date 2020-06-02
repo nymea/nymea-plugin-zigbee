@@ -1,0 +1,16 @@
+{
+    "title": "ZigBee",
+    "tagline": "Connect ZigBee devices.",
+    "icon": "zigbee.svg",
+    "stability": "community",
+    "offline": true,
+    "technologies": [
+        "zigbee"
+    ],
+    "categories": [
+        "light",
+        "switch",
+        "socket",
+        "sensor"
+    ]
+}
