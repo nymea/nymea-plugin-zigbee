@@ -7,7 +7,7 @@
             "name": "zigbee",
             "displayName": "Zigbee",
             "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "zigbeeController",
                     "displayName": "Zigbee controller",
@@ -130,7 +130,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "1e49780f-2090-494a-a3a0-ee708638fba0",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
@@ -161,7 +161,7 @@
             "name": "xiaomi",
             "displayName": "Xiaomi ",
             "id": "f58dac98-0ba1-408f-946a-25d452080baa",
-            "deviceClasses": [
+            "thingClasses": [
                 {
                     "name": "xiaomiTemperatureHumidity",
                     "displayName": "Temperature humidity sensor",
@@ -180,7 +180,7 @@
                     ],
                     "stateTypes": [
                         {
-                            "id": "d7b1550e-8244-4e62-b204-1dc20fef56cb",
+                            "id": "d8599c12-520f-4a6e-a54b-738fe52a274e",
                             "name": "connected",
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
