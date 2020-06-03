@@ -67,8 +67,7 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
 
 void LumiTemperatureSensor::removeFromNetwork()
 {
-    // FIXME
-    //m_node->deviceObject()->requestMgmtLeaveNetwork();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void LumiTemperatureSensor::checkOnlineStatus()

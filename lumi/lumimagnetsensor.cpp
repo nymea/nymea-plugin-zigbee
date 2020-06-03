@@ -59,7 +59,7 @@ LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
 
 void LumiMagnetSensor::removeFromNetwork()
 {
-    //m_node->leaveNetworkRequest();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void LumiMagnetSensor::checkOnlineStatus()

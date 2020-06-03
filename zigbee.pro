@@ -28,7 +28,7 @@ SOURCES += \
     #generic/genericpowersocket.cpp \
     integrationpluginzigbee.cpp \
     #ikea/tradfricolorlight.cpp \
-    #ikea/tradfricolortemperaturelight.cpp \
+    ikea/tradfricolortemperaturelight.cpp \
     ikea/tradfrionoffswitch.cpp \
     #ikea/tradfripowersocket.cpp \
     #ikea/tradfrirangeextender.cpp \
@@ -47,7 +47,7 @@ HEADERS += \
     #generic/genericpowersocket.h \
     integrationpluginzigbee.h \
     #ikea/tradfricolorlight.h \
-    #ikea/tradfricolortemperaturelight.h \
+    ikea/tradfricolortemperaturelight.h \
     ikea/tradfrionoffswitch.h \
     #ikea/tradfripowersocket.h \
     #ikea/tradfrirangeextender.h \

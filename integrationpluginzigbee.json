@@ -1142,7 +1142,7 @@
                     "id": "92ff113a-9205-451b-a172-361e20ebb873",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colortemperaturelight", "connectable" ],
+                    "interfaces": [ "colortemperaturelight", "alert", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "ed777cf9-a533-4350-aec0-7d2fd8adbd09",
@@ -1210,7 +1210,7 @@
                     "actionTypes": [
                         {
                             "id": "7cba7c88-e949-4cb4-91c7-170677da2a3a",
-                            "name": "identify",
+                            "name": "alert",
                             "displayName": "Identify"
                         },
                         {

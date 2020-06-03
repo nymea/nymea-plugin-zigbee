@@ -52,8 +52,7 @@ LumiWaterSensor::LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddre
 
 void LumiWaterSensor::removeFromNetwork()
 {
-    // FIXME
-    //m_node->deviceObject()->requestMgmtLeaveNetwork();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void LumiWaterSensor::checkOnlineStatus()

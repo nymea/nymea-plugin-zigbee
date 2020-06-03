@@ -64,7 +64,7 @@ LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
 
 void LumiButtonSensor::removeFromNetwork()
 {
-    //m_node->leaveNetworkRequest();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void LumiButtonSensor::checkOnlineStatus()

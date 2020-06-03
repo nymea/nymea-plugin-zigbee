@@ -79,7 +79,7 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
 
 void LumiMotionSensor::removeFromNetwork()
 {
-    //m_node->leaveNetworkRequest();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void LumiMotionSensor::checkOnlineStatus()

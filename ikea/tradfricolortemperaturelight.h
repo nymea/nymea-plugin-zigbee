@@ -48,6 +48,9 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
 
     void readOnOffState();
     void readLevelValue();

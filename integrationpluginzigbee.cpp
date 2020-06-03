@@ -257,15 +257,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        return;
     //    }
 
-    //    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
-    //        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorTemperatureLightThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, light);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriColorTemperatureLight *light = new TradfriColorTemperatureLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     //    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
     //        qCDebug(dcZigbee()) << "Tradfri power socket" << thing;
@@ -476,12 +476,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        return;
     //    }
 
-    //    // Tradfri color temperature light
-    //    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
-    //        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-    //        light->executeAction(info);
-    //        return;
-    //    }
+    // Tradfri color temperature light
+    if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
+        TradfriColorTemperatureLight *light = qobject_cast<TradfriColorTemperatureLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
+    }
 
     //    // Tradfri color light
     //    if (thing->thingClassId() == tradfriColorLightThingClassId) {
@@ -959,6 +959,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State s
 
     switch (state) {
     case ZigbeeNetwork::StateRunning:
+        qCDebug(dcZigbee()) << "Coordinator node" <<  zigbeeNetwork->coordinatorNode();
         thing->setStateValue(zigbeeControllerConnectedStateTypeId, true);
         thing->setStateValue(zigbeeControllerVersionStateTypeId, zigbeeNetwork->bridgeController()->firmwareVersion());
         thing->setStateValue(zigbeeControllerPanIdStateTypeId, zigbeeNetwork->panId());
@@ -1038,7 +1039,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     // Lets see who recognizes this device, if we have no matching device class for this, create a generic node with some information
 
     // Check ikea devices
-    if (node->manufacturerCode() == Zigbee::Manufacturer::Ikea) {
+    if (node->nodeDescriptor().manufacturerCode == Zigbee::Manufacturer::Ikea) {
         qCDebug(dcZigbee()) << "This device is from Ikea";
         if (createIkeaDevice(networkManagerDevice, node)) {
             // Recognized and created or already created
@@ -1047,7 +1048,7 @@ void IntegrationPluginZigbee::onZigbeeNetworkNodeAdded(ZigbeeNode *node)
     }
 
     // Check if this is Lumi
-    if (node->manufacturerCode() == 0x1037) {
+    if (node->nodeDescriptor().manufacturerCode == 0x1037) {
         // Note: Lumi / Xiaomi / Aquara devices are not in the specs, so no enum here
         qCDebug(dcZigbee()) << "This device is from Lumi";
         if (createLumiDevice(networkManagerDevice, node)) {

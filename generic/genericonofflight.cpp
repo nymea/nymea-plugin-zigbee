@@ -81,7 +81,7 @@ void GenericOnOffLight::checkOnlineStatus()
 
 void GenericOnOffLight::removeFromNetwork()
 {
-    m_node->deviceObject()->requestMgmtLeaveNetwork();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void GenericOnOffLight::executeAction(ThingActionInfo *info)
