@@ -51,6 +51,7 @@ private:
     ZigbeeClusterIdentify *m_identifyCluster= nullptr;
     ZigbeeClusterOnOff *m_onOffCluster = nullptr;
     ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
+    ZigbeeClusterColorControl *m_colorCluster = nullptr;
 
     void readOnOffState();
     void readLevelValue();
