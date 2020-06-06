@@ -247,15 +247,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    //    if (thing->thingClassId() == tradfriColorLightThingClassId) {
-    //        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorLightThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, light);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriColorLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriColorLight *light = new TradfriColorLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri colour light" << thing;
@@ -483,12 +483,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    //    // Tradfri color light
-    //    if (thing->thingClassId() == tradfriColorLightThingClassId) {
-    //        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
-    //        light->executeAction(info);
-    //        return;
-    //    }
+    // Tradfri color light
+    if (thing->thingClassId() == tradfriColorLightThingClassId) {
+        TradfriColorLight *light = qobject_cast<TradfriColorLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
+    }
 
     // Lumi temperature/humidity sensor
     if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {

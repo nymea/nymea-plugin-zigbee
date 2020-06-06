@@ -48,10 +48,13 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
+    ZigbeeClusterColorControl *m_colorCluster = nullptr;
+
     quint16 m_currentX = 0;
     quint16 m_currentY = 0;
-
-    int m_colorAttributesArrived = 0;
 
     void readColorCapabilities();
     void readOnOffState();
@@ -62,7 +65,6 @@ private:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 };
 
 #endif // TRADFRICOLORLIGHT_H

@@ -1040,7 +1040,7 @@
                     "id": "1cf18470-5193-4800-8f45-1f11b2dff204",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colorlight", "connectable" ],
+                    "interfaces": [ "colorlight", "alert", "connectable" ],
                     "paramTypes": [
                         {
                             "id": "9a70dbb2-fa0a-4ba9-8e46-2581cdf4f21c",
@@ -1118,13 +1118,8 @@
                     "actionTypes": [
                         {
                             "id": "5c5bc2e7-df75-4a15-89aa-ac0d77d11fea",
-                            "name": "identify",
+                            "name": "alert",
                             "displayName": "Identify"
-                        },
-                        {
-                            "id": "4ce06b12-fbc5-41de-8ce7-fd0913f98737",
-                            "name": "factoryReset",
-                            "displayName": "Factory reset node"
                         },
                         {
                             "id": "bc57b137-9d7b-48d7-b887-f7f2c868b15f",

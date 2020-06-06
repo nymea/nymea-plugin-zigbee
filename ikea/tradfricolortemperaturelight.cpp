@@ -83,7 +83,7 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
         qCWarning(dcZigbee()) << "Could not find the color control input cluster on" << m_thing << m_endpoint;
     }
 
-    connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriColorTemperatureLight::onNetworkStateChanged);
+    connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriColorTemperatureLight::onNetworkStateChanged, Qt::QueuedConnection);
 }
 
 void TradfriColorTemperatureLight::removeFromNetwork()
@@ -160,18 +160,15 @@ void TradfriColorTemperatureLight::executeAction(ThingActionInfo *info)
                 thing()->setStateValue(tradfriColorTemperatureLightBrightnessStateTypeId, brightness);
             }
         });
-
     } else if (info->action().actionTypeId() == tradfriColorTemperatureLightColorTemperatureActionTypeId) {
         quint16 colorTemperature = info->action().param(tradfriColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toUInt();
-        // Note: time unit is 1/10 s
-
         if (!m_colorCluster) {
             qCWarning(dcZigbee()) << "Could not find the ColorControl input cluster on" << m_thing << m_endpoint;
             info->finish(Thing::ThingErrorHardwareFailure);
             return;
         }
 
-
+        // Note: time unit is 1/10 s
         ZigbeeClusterReply *reply = m_colorCluster->commandMoveToColorTemperature(colorTemperature, 0);
         connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, colorTemperature](){
             // Note: reply will be deleted automatically
