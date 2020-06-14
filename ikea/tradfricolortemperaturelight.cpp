@@ -50,8 +50,17 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(tradfriColorTemperatureLightSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(tradfriColorTemperatureLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
     // Get the ZigbeeCluster servers
-    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
     } else {
@@ -61,7 +70,7 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
         });
     }
 
-    m_levelControlCluster = m_endpoint->inputCluster<ZigbeeClusterLevelControl>(Zigbee::ClusterIdLevelControl);
+    m_levelControlCluster = m_endpoint->inputCluster<ZigbeeClusterLevelControl>(ZigbeeClusterLibrary::ClusterIdLevelControl);
     if (!m_levelControlCluster) {
         qCWarning(dcZigbee()) << "Could not find the LevelControl input cluster on" << m_thing << m_endpoint;
     } else {
@@ -72,13 +81,12 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
         });
     }
 
-
-    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(Zigbee::ClusterIdIdentify);
+    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(ZigbeeClusterLibrary::ClusterIdIdentify);
     if (!m_identifyCluster) {
         qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
     }
 
-    m_colorCluster = m_endpoint->inputCluster<ZigbeeClusterColorControl>(Zigbee::ClusterIdColorControl);
+    m_colorCluster = m_endpoint->inputCluster<ZigbeeClusterColorControl>(ZigbeeClusterLibrary::ClusterIdColorControl);
     if (!m_identifyCluster) {
         qCWarning(dcZigbee()) << "Could not find the color control input cluster on" << m_thing << m_endpoint;
     }
@@ -255,13 +263,13 @@ void TradfriColorTemperatureLight::onNetworkStateChanged(ZigbeeNetwork::State st
 //{
 //    qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 
-//    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
+//    if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
 //        bool power = static_cast<bool>(attribute.data().at(0));
 //        thing()->setStateValue(tradfriColorTemperatureLightPowerStateTypeId, power);
-//    } else if (cluster->clusterId() == Zigbee::ClusterIdLevelControl && attribute.id() == ZigbeeCluster::LevelClusterAttributeCurrentLevel) {
+//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdLevelControl && attribute.id() == ZigbeeCluster::LevelClusterAttributeCurrentLevel) {
 //        quint8 currentLevel = static_cast<quint8>(attribute.data().at(0));
 //        thing()->setStateValue(tradfriColorTemperatureLightBrightnessStateTypeId, qRound(currentLevel * 100.0 / 255.0));
-//    } else if (cluster->clusterId() == Zigbee::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeColorTemperatureMireds) {
+//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeColorTemperatureMireds) {
 //        quint16 colorTemperature = 0;
 //        QByteArray data = attribute.data();
 //        QDataStream stream(&data, QIODevice::ReadOnly);

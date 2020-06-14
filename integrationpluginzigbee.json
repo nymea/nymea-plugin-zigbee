@@ -26,7 +26,7 @@
                         {
                             "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
                             "name": "baudrate",
-                            "displayName": "Baudtate",
+                            "displayName": "Baudrate",
                             "type": "uint",
                             "defaultValue": 38400
                         },
@@ -125,7 +125,7 @@
                     "id": "7fbc3165-e618-4dc0-8255-8dac2cc08dfa",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "light", "alert", "connectable" ],
+                    "interfaces": [ "light", "alert", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "1b434d5d-4fe4-439c-b842-3483e8e24820",
@@ -158,6 +158,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "5857943e-ed90-4321-966e-b56eddaf2441",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "f5b5e0b3-2c34-4ccc-baef-8e29b84e7a2b",
@@ -206,7 +217,7 @@
                     "id": "5cdb8589-0bb4-48e7-8926-eb43da69cf74",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "powersocket", "connectable" ],
+                    "interfaces": [ "powersocket", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "d7110c59-b516-4256-ac18-51c5fd3bfabe",
@@ -239,6 +250,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "df6212a2-cbe0-414d-bbb9-314ce4f068bc",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "b3c6dfbf-c913-441c-a05a-26a33595afea",
@@ -282,7 +304,7 @@
                     "id": "498815c1-a6a3-48e9-9c9b-bff974694b26",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colortemperaturelight", "connectable" ],
+                    "interfaces": [ "colortemperaturelight", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "1d407ee6-3b33-48ee-b1c2-66926944103e",
@@ -315,6 +337,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "45e5b606-1e4d-42b8-9ee1-0442751247ef",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "477a1531-5f87-4f21-9b32-01161be93cd2",
@@ -383,7 +416,7 @@
                     "id": "8d157281-73c0-4d2c-96a0-572d26e9dd4f",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colorlight", "connectable" ],
+                    "interfaces": [ "colorlight", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "4b064480-8451-40b9-8109-ecef44b39017",
@@ -416,6 +449,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "62789a2c-c6e6-47b4-b022-29a2d183f690",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "084b8268-4ae6-482d-b42b-67a57b5a7147",
@@ -506,7 +550,7 @@
                     "id": "dfabab0e-d483-43f8-82c6-720899e70c86",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable", "temperaturesensor", "humiditysensor" ],
+                    "interfaces": [ "temperaturesensor", "humiditysensor", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "bd0b2bf2-2ec3-497f-9679-a63850101257",
@@ -525,6 +569,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "0cb72e84-01c4-4041-9aee-1dabf26a062e",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "968ff8bb-b852-48d8-bde2-28cfa810b20e",
@@ -578,7 +633,7 @@
                     "id": "b3e30f37-7467-4c66-8694-9fe624aebd10",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "closablesensor", "connectable" ],
+                    "interfaces": [ "closablesensor", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "36d8a40a-7f37-4d59-a0d9-6d4977ea63f3",
@@ -597,6 +652,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "7fef2f25-91ac-4818-bc7a-e427bdeff438",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "ac0e4cd1-553b-4e43-b08a-6dd8d617e765",
@@ -633,7 +699,7 @@
                     "id": "42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "longpressbutton", "connectable" ],
+                    "interfaces": [ "longpressbutton", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "929eb2be-6d8f-46b7-8cc9-896e7e2c494a",
@@ -652,6 +718,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "6e9de8ee-cb28-4f7d-a0f6-fe9e64df0463",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "11d03ab4-7450-4caf-81ec-0b2b73e56b08",
@@ -689,7 +766,7 @@
                     "id": "b5530192-0891-4934-88a2-7338b069be24",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "presencesensor", "lightsensor", "connectable" ],
+                    "interfaces": [ "presencesensor", "lightsensor", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "3a44ed47-5a70-4052-9a14-78f9033eab85",
@@ -719,6 +796,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "c5913170-e377-484b-a330-c5d5b590fee2",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "d1337b3b-0dfb-4505-90f1-e5b2b45be9bd",
@@ -773,7 +861,7 @@
                     "id": "e8e18bbe-27bb-4fd7-98fc-f5cef3b5f213",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "sensor", "battery", "connectable" ],
+                    "interfaces": [ "sensor", "battery", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "e12453e7-5fc3-4549-b4fc-8b85f78607c6",
@@ -792,6 +880,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "b3bba018-b9d0-47a8-a2cf-d8d2d6fcecce",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "bae1014f-67f5-4dcc-b36f-e15eb43afd6e",
@@ -843,7 +942,7 @@
                     "id": "f16386d8-afe5-4d7d-b5dc-a2613d2cefc4",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "connectable" ],
+                    "interfaces": [ "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "6846c872-f6e6-426f-bcc5-fcd755cc8c0c",
@@ -862,6 +961,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "ad2243c8-c999-44c3-bfc8-325fc916f267",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "b6fc2d47-a5d6-4043-bace-eea14d35feb3",
@@ -890,7 +1000,7 @@
                     "id": "cec4b104-6076-4a6d-9ee2-595be25a2dcc",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "longpressmultibutton", "batterylevel", "connectable" ],
+                    "interfaces": [ "longpressmultibutton", "batterylevel", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "7ec1beb6-c21b-4cc6-9e2a-fcb2182c8046",
@@ -909,6 +1019,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "92da9348-7f30-459f-a5ae-ed80a116aa9a",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "6239117f-dd75-4d2f-9673-7ddc48971141",
@@ -988,7 +1109,7 @@
                     "id": "b217337e-3c98-47fa-b8ea-cf240e54f203",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "gateway", "connectable" ],
+                    "interfaces": [ "gateway", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "e453d393-6a60-4bf7-add2-ccecfdb74370",
@@ -1009,6 +1130,17 @@
                             "defaultValue": false
                         },
                         {
+                            "id": "2f7b030a-22af-42a1-b135-d1a7151453c7",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
+                        },
+                        {
                             "id": "753f483b-4386-45e8-90cc-b9b189b5ced2",
                             "name": "version",
                             "displayName": "Version",
@@ -1019,11 +1151,6 @@
                         }
                     ],
                     "actionTypes": [
-                        {
-                            "id": "05d88536-72a7-42c0-afe9-37e8365395e8",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
                         {
                             "id": "5e08b296-8020-4506-aa56-277057b1b13a",
                             "name": "removeFromNetwork",
@@ -1040,7 +1167,7 @@
                     "id": "1cf18470-5193-4800-8f45-1f11b2dff204",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colorlight", "alert", "connectable" ],
+                    "interfaces": [ "colorlight", "alert", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "9a70dbb2-fa0a-4ba9-8e46-2581cdf4f21c",
@@ -1059,6 +1186,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "c3778dc2-4154-4c73-ba6a-c47c01f3dba8",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "bd2c35b1-60c4-4981-81dd-547d9928f485",
@@ -1137,7 +1275,7 @@
                     "id": "92ff113a-9205-451b-a172-361e20ebb873",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colortemperaturelight", "alert", "connectable" ],
+                    "interfaces": [ "colortemperaturelight", "alert", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "ed777cf9-a533-4350-aec0-7d2fd8adbd09",
@@ -1156,6 +1294,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "2d50e2a9-a831-4bc8-a8b8-1680e0b4de6a",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "bc885e96-bf57-4ed2-88a5-3b885fa67913",
@@ -1224,7 +1373,7 @@
                     "id": "56181685-6703-4640-a14f-6a7ced10d6ed",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "powersocket", "connectable" ],
+                    "interfaces": [ "powersocket", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "145ff3d6-02d7-4533-9878-027da89de723",
@@ -1243,6 +1392,17 @@
                             "type": "bool",
                             "cached": false,
                             "defaultValue": false
+                        },
+                        {
+                            "id": "aae2c4e0-00c6-4119-998c-5a1d2c39704f",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
                         },
                         {
                             "id": "ae715551-a642-4018-b501-16ff405e27d6",

@@ -31,7 +31,7 @@ SOURCES += \
     ikea/tradfricolortemperaturelight.cpp \
     ikea/tradfrionoffswitch.cpp \
     #ikea/tradfripowersocket.cpp \
-    #ikea/tradfrirangeextender.cpp \
+    ikea/tradfrirangeextender.cpp \
     #ikea/tradfriremote.cpp \
     lumi/lumibuttonsensor.cpp \
     lumi/lumimagnetsensor.cpp \
@@ -50,7 +50,7 @@ HEADERS += \
     ikea/tradfricolortemperaturelight.h \
     ikea/tradfrionoffswitch.h \
     #ikea/tradfripowersocket.h \
-    #ikea/tradfrirangeextender.h \
+    ikea/tradfrirangeextender.h \
     #ikea/tradfriremote.h \
     lumi/lumibuttonsensor.h \
     lumi/lumimagnetsensor.h \

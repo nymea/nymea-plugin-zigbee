@@ -42,8 +42,17 @@ LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(lumiMagnetSensorSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(lumiMagnetSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
     // Get the ZigbeeClusterOnOff server
-    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
     } else {
@@ -88,7 +97,7 @@ void LumiMagnetSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 
 //void LumiMagnetSensor::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
 //{
-//    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
+//    if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
 //        QByteArray data = attribute.data();
 //        QDataStream stream(&data, QIODevice::ReadOnly);
 //        quint8 closedRaw = 0;

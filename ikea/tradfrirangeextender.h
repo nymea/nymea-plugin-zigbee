@@ -50,7 +50,6 @@ private:
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 

@@ -45,19 +45,18 @@ public:
     void checkOnlineStatus() override;
     void executeAction(ThingActionInfo *info) override;
 
-    void testAction();
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+
     ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelCluster = nullptr;
+    ZigbeeClusterPowerConfiguration *m_powerCluster = nullptr;
 
-    void readAttribute();
-    void configureReporting();
-
+    void testAction();
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onZigbeeOnOffClusterCommandSent(ZigbeeClusterOnOff::Command command);
 
 signals:
     void onPressed();

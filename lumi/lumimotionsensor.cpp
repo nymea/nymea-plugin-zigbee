@@ -51,7 +51,16 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
-    m_occupancyCluster = m_endpoint->inputCluster<ZigbeeClusterOccupancySensing>(Zigbee::ClusterIdOccupancySensing);
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(lumiMotionSensorSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(lumiMotionSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
+    m_occupancyCluster = m_endpoint->inputCluster<ZigbeeClusterOccupancySensing>(ZigbeeClusterLibrary::ClusterIdOccupancySensing);
     if (!m_occupancyCluster) {
         qCWarning(dcZigbee()) << "Could not find the occupancy sensing server cluster on" << m_thing << m_endpoint;
     } else {
@@ -63,7 +72,7 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         });
     }
 
-    m_illuminanceCluster = m_endpoint->inputCluster<ZigbeeClusterIlluminanceMeasurment>(Zigbee::ClusterIdIlluminanceMeasurement);
+    m_illuminanceCluster = m_endpoint->inputCluster<ZigbeeClusterIlluminanceMeasurment>(ZigbeeClusterLibrary::ClusterIdIlluminanceMeasurement);
     if (!m_illuminanceCluster) {
         qCWarning(dcZigbee()) << "Could not find the illuminance measurement server cluster on" << m_thing << m_endpoint;
     } else {

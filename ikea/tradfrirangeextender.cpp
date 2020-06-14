@@ -46,24 +46,21 @@ TradfriRangeExtender::TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_thing << m_endpoint;
-    qCDebug(dcZigbee()) << "Input clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(tradfriRangeExtenderSignalStrengthStateTypeId, signalStrength);
+    });
 
-    qCDebug(dcZigbee()) << "Output clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
-    }
+    m_thing->setStateValue(tradfriRangeExtenderSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriRangeExtender::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &TradfriRangeExtender::onEndpointClusterAttributeChanged);
 }
 
 void TradfriRangeExtender::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void TradfriRangeExtender::checkOnlineStatus()
@@ -78,17 +75,7 @@ void TradfriRangeExtender::checkOnlineStatus()
 
 void TradfriRangeExtender::executeAction(ThingActionInfo *info)
 {
-    if (info->action().actionTypeId() == tradfriRangeExtenderIdentifyActionTypeId) {
-        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
-            // Note: reply will be deleted automatically
-            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
-                info->finish(Thing::ThingErrorHardwareFailure);
-            } else {
-                info->finish(Thing::ThingErrorNoError);
-            }
-        });
-    } else if (info->action().actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
+    if (info->action().actionTypeId() == tradfriRangeExtenderRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
     }
@@ -98,9 +85,4 @@ void TradfriRangeExtender::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
-}
-
-void TradfriRangeExtender::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
 }

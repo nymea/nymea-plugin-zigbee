@@ -49,8 +49,17 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(genericOnOffLightSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(genericOnOffLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
     // Get the ZigbeeClusterOnOff server
-    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
     } else {
@@ -60,7 +69,7 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
         });
     }
 
-    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(Zigbee::ClusterIdIdentify);
+    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(ZigbeeClusterLibrary::ClusterIdIdentify);
     if (!m_identifyCluster) {
         qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
     }
@@ -126,7 +135,7 @@ void GenericOnOffLight::executeAction(ThingActionInfo *info)
     } else if (info->action().actionTypeId() == genericOnOffLightTestActionTypeId) {
         qCDebug(dcZigbee()) << "Test action !!!!!!";
         // Get basic cluster
-        ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(Zigbee::ClusterIdBasic);
+        ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(ZigbeeClusterLibrary::ClusterIdBasic);
         if (!basicCluster) {
             qCWarning(dcZigbee()) << "Could not get basic cluster";
             return;

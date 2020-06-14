@@ -42,6 +42,14 @@ LumiWaterSensor::LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddre
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(lumiWaterSensorSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(lumiWaterSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
     // Note: the device does not list the IAS zone cluster in the simple descriptor endpoint discovery. This is out of spec.
     // In order to make it work never the less, we can read the attrubte when the device sends the first notification.
     // From that moment on we can also read the current ZoneStatus attribute.
@@ -83,7 +91,7 @@ void LumiWaterSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 void LumiWaterSensor::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
 {
     qCDebug(dcZigbee()) << m_thing << "cluster attribute changed" << cluster << attribute;
-    if (cluster->clusterId() == Zigbee::ClusterIdIasZone) {
+    if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdIasZone) {
         if (attribute.id() == ZigbeeClusterIasZone::AttributeZoneState) {
             bool valueOk = false;
             ZigbeeClusterIasZone::ZoneStatusFlags zoneStatus = static_cast<ZigbeeClusterIasZone::ZoneStatusFlags>(attribute.dataType().toUInt16(&valueOk));

@@ -234,11 +234,24 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
             emit emitEvent(Event(tradfriOnOffSwitchPressedEventTypeId, thing->id(), params));
         });
 
+        connect(remote, &TradfriOnOffSwitch::onLongPressed, this, [this, thing](){
+            ParamList params;
+            params.append(Param(tradfriOnOffSwitchLongPressedEventButtonNameParamTypeId, "ON"));
+            emit emitEvent(Event(tradfriOnOffSwitchLongPressedEventTypeId, thing->id(), params));
+        });
+
         connect(remote, &TradfriOnOffSwitch::offPressed, this, [this, thing](){
             ParamList params;
             params.append(Param(tradfriOnOffSwitchPressedEventButtonNameParamTypeId, "OFF"));
             emit emitEvent(Event(tradfriOnOffSwitchPressedEventTypeId, thing->id(), params));
         });
+
+        connect(remote, &TradfriOnOffSwitch::offLongPressed, this, [this, thing](){
+            ParamList params;
+            params.append(Param(tradfriOnOffSwitchLongPressedEventButtonNameParamTypeId, "OFF"));
+            emit emitEvent(Event(tradfriOnOffSwitchLongPressedEventTypeId, thing->id(), params));
+        });
+
 
         // TODO: long pressed
 
@@ -277,15 +290,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        return;
     //    }
 
-    //    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
-    //        qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRangeExtenderThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, extender);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+        qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriRangeExtenderThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        TradfriRangeExtender *extender = new TradfriRangeExtender(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, extender);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     // Lumi
     if (thing->thingClassId() == lumiTemperatureHumidityThingClassId) {
@@ -455,12 +468,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        return;
     //    }
 
-    //    // Tradfri range extender
-    //    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
-    //        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
-    //        extender->executeAction(info);
-    //        return;
-    //    }
+    // Tradfri range extender
+    if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
+        TradfriRangeExtender *extender = qobject_cast<TradfriRangeExtender *>(m_zigbeeDevices.value(thing));
+        extender->executeAction(info);
+        return;
+    }
 
     // Tradfri on/off switch
     if (thing->thingClassId() == tradfriOnOffSwitchThingClassId) {
@@ -718,7 +731,7 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
     foreach (ZigbeeNodeEndpoint *endpoint, node->endpoints()) {
 
         // Get the model identifier if present from the first endpoint. Also this is out of spec
-        if (!endpoint->hasInputCluster(Zigbee::ClusterIdBasic)) {
+        if (!endpoint->hasInputCluster(ZigbeeClusterLibrary::ClusterIdBasic)) {
             qCWarning(dcZigbee()) << "This lumi device does not have the basic input cluster yet.";
             continue;
         }

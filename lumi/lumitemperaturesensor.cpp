@@ -42,7 +42,17 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
     m_endpoint = m_node->getEndpoint(0x01);
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
-    m_temperatureCluster = m_endpoint->inputCluster<ZigbeeClusterTemperatureMeasurement>(Zigbee::ClusterIdTemperatureMeasurement);
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
+    // Get temperature cluster
+    m_temperatureCluster = m_endpoint->inputCluster<ZigbeeClusterTemperatureMeasurement>(ZigbeeClusterLibrary::ClusterIdTemperatureMeasurement);
     if (!m_temperatureCluster) {
         qCWarning(dcZigbee()) << "Could not find the temperature measurement server cluster on" << m_thing << m_endpoint;
     } else {
@@ -52,7 +62,7 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
         });
     }
 
-    m_humidityCluster = m_endpoint->inputCluster<ZigbeeClusterRelativeHumidityMeasurement>(Zigbee::ClusterIdRelativeHumidityMeasurement);
+    m_humidityCluster = m_endpoint->inputCluster<ZigbeeClusterRelativeHumidityMeasurement>(ZigbeeClusterLibrary::ClusterIdRelativeHumidityMeasurement);
     if (!m_humidityCluster) {
         qCWarning(dcZigbee()) << "Could not find the relative humidity measurement server cluster on" << m_thing << m_endpoint;
     } else {

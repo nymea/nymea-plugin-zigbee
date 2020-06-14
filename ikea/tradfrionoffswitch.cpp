@@ -46,22 +46,89 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(tradfriOnOffSwitchSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(tradfriOnOffSwitchSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
     // Get the onOff client cluster in order to receive signals if the cluster executed a command
-    m_onOffCluster = m_endpoint->outputCluster<ZigbeeClusterOnOff>(Zigbee::ClusterIdOnOff);
+    m_onOffCluster = m_endpoint->outputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find on/off client cluster on" << m_thing << m_endpoint;
     } else {
-        connect(m_onOffCluster, &ZigbeeClusterOnOff::commandSent, this, &TradfriOnOffSwitch::onZigbeeOnOffClusterCommandSent);
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::commandSent, this, [this](ZigbeeClusterOnOff::Command command){
+            qCDebug(dcZigbee()) << m_thing << "button pressed" << command;
+            if (command == ZigbeeClusterOnOff::CommandOn) {
+                emit onPressed();
+            } else if (command == ZigbeeClusterOnOff::CommandOff) {
+                emit offPressed();
+            } else {
+                // Ignore any other command executed by the on/off client cluster
+            }
+        });
     }
 
-    // TODO: do the same with the level cluster since long pressed results into a level command
+    // Get the level client cluster in order to receive signals if the cluster executed a command
+    m_levelCluster = m_endpoint->outputCluster<ZigbeeClusterLevelControl>(ZigbeeClusterLibrary::ClusterIdLevelControl);
+    if (!m_levelCluster) {
+        qCWarning(dcZigbee()) << "Could not find level client cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_levelCluster, &ZigbeeClusterLevelControl::commandSent, this, [this](ZigbeeClusterLevelControl::Command command, const QByteArray &payload){
+            qCDebug(dcZigbee()) << m_thing << "button pressed" << command << payload.toHex();
+            switch (command) {
+            case ZigbeeClusterLevelControl::CommandMoveWithOnOff:
+                emit onLongPressed();
+                break;
+            case ZigbeeClusterLevelControl::CommandMove:
+                emit offLongPressed();
+                break;
+            default:
+                break;
+            }
+        });
+    }
+
+    m_powerCluster = m_endpoint->inputCluster<ZigbeeClusterPowerConfiguration>(ZigbeeClusterLibrary::ClusterIdPowerConfiguration);
+    if (!m_powerCluster) {
+        qCWarning(dcZigbee()) << "Could not find power configuration cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_powerCluster, &ZigbeeClusterPowerConfiguration::batteryPercentageChanged, this, [this](double percentage){
+            qCDebug(dcZigbee()) << "Battery percentage changed" << percentage << "%" << m_thing;
+            m_thing->setStateValue(tradfriOnOffSwitchBatteryLevelStateTypeId, percentage);
+            m_thing->setStateValue(tradfriOnOffSwitchBatteryCriticalStateTypeId, (percentage < 10.0));
+        });
+    }
+
+    //    ZigbeeClusterReply *reply = m_powerCluster->readAttributes({ZigbeeClusterPowerConfiguration::AttributeBatteryPercentageRemaining});
+    //    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
+    //        if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+    //            qCWarning(dcZigbee()) << "Failed to read power cluster attributes" << reply->error();
+    //            return;
+    //        }
+
+    //        // Bind
+    //        ZigbeeDeviceObjectReply *zdoReply =
+    //                m_node->deviceObject()->requestBindIeeeAddress(m_endpoint->endpointId(),
+    //                                                               static_cast<quint16>(m_powerCluster->clusterId()),
+    //                                                               m_network->coordinatorNode()->extendedAddress(), 0x01);
+    //        connect(zdoReply, &ZigbeeDeviceObjectReply::finished, this, [zdoReply](){
+    //            if (zdoReply->error() != ZigbeeDeviceObjectReply::ErrorNoError) {
+    //                qCWarning(dcZigbee()) << "Failed to bind power cluster attributes" << zdoReply->error();
+    //                return;
+    //            }
+    //        });
+    //    });
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriOnOffSwitch::onNetworkStateChanged);
 }
 
 void TradfriOnOffSwitch::removeFromNetwork()
 {
-    m_node->deviceObject()->requestMgmtLeaveNetwork();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void TradfriOnOffSwitch::checkOnlineStatus()
@@ -90,61 +157,31 @@ void TradfriOnOffSwitch::testAction()
     qCDebug(dcZigbee()) << "Test action !!!!!!";
 
     // Get basic cluster
-    ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(Zigbee::ClusterIdBasic);
-    if (!basicCluster) {
-        qCWarning(dcZigbee()) << "Could not get basic cluster";
+    if (!m_powerCluster) {
+        qCWarning(dcZigbee()) << "Could not get power cluster";
         return;
     }
 
-    ZigbeeClusterReply *reply = basicCluster->readAttributes({ZigbeeClusterBasic::AttributeManufacturerName, ZigbeeClusterBasic::AttributeModelIdentifier, ZigbeeClusterBasic::AttributeSwBuildId});
+    ZigbeeClusterLibrary::AttributeReportingConfiguration reportingConfig;
+    reportingConfig.attributeId = ZigbeeClusterPowerConfiguration::AttributeBatteryPercentageRemaining;
+    reportingConfig.dataType = Zigbee::Uint8;
+    reportingConfig.minReportingInterval = 300;
+    reportingConfig.maxReportingInterval = 2700;
+    reportingConfig.reportableChange = ZigbeeDataType(static_cast<quint8>(1)).data();
+
+    ZigbeeClusterReply *reply = m_powerCluster->configureReporting({reportingConfig});
     connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
-            qCWarning(dcZigbee()) << "Failed to read basic cluster attributes" << reply->error();
+            qCWarning(dcZigbee()) << "Failed to read power cluster attributes" << reply->error();
             return;
         }
 
-        qCDebug(dcZigbee()) << "Reading basic cluster attributes finished successfully" << reply->responseFrame().header.command;
-        QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
-        foreach (const ZigbeeClusterLibrary::ReadAttributeStatusRecord &attributeStatusRecord, attributeStatusRecords) {
-            qCDebug(dcZigbee()) << "-->" << attributeStatusRecord;
-        }
+        qCDebug(dcZigbee()) << "Reporting config finished" << ZigbeeClusterLibrary::parseAttributeReportingStatusRecords(reply->responseFrame().payload);
     });
-}
-
-void TradfriOnOffSwitch::readAttribute()
-{
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        if (cluster->clusterId() == Zigbee::ClusterIdBasic) {
-            //m_endpoint->readAttribute(cluster, {0x0004, 0x0005});
-        }
-    }
-}
-
-void TradfriOnOffSwitch::configureReporting()
-{
-//    //m_endpoint->addGroup(0x01, 0x0001);
-//    m_endpoint->bindUnicast(Zigbee::ClusterIdOnOff, m_network->coordinatorNode()->extendedAddress(), 0x01);
-//    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-//        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-//            m_endpoint->configureReporting(cluster, { ZigbeeCluster::OnOffClusterAttributeOnOff });
-//        }
-//    }
 }
 
 void TradfriOnOffSwitch::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
     Q_UNUSED(state)
     checkOnlineStatus();
-}
-
-void TradfriOnOffSwitch::onZigbeeOnOffClusterCommandSent(ZigbeeClusterOnOff::Command command)
-{
-    qCDebug(dcZigbee()) << m_thing << "button pressed" << command;
-    if (command == ZigbeeClusterOnOff::CommandOn) {
-        emit onPressed();
-    } else if (command == ZigbeeClusterOnOff::CommandOff) {
-        emit offPressed();
-    } else {
-        // Ignore any other command executed by the on/off client cluster
-    }
 }
