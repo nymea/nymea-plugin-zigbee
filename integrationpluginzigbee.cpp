@@ -252,9 +252,6 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
             emit emitEvent(Event(tradfriOnOffSwitchLongPressedEventTypeId, thing->id(), params));
         });
 
-
-        // TODO: long pressed
-
         m_zigbeeDevices.insert(thing, remote);
         info->finish(Thing::ThingErrorNoError);
         return;
@@ -279,16 +276,6 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         info->finish(Thing::ThingErrorNoError);
         return;
     }
-
-    //    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
-    //        qCDebug(dcZigbee()) << "Tradfri power socket" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(tradfriPowerSocketThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        TradfriPowerSocket *socket = new TradfriPowerSocket(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, socket);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
 
     if (thing->thingClassId() == tradfriRangeExtenderThingClassId) {
         qCDebug(dcZigbee()) << "Tradfri range extender" << thing;
@@ -371,15 +358,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    //    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
-    //        qCDebug(dcZigbee()) << "Color temperature light" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        GenericColorTemperatureLight *light = new GenericColorTemperatureLight(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, light);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+        qCDebug(dcZigbee()) << "Color temperature light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericColorTemperatureLight *light = new GenericColorTemperatureLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     //    if (thing->thingClassId() == genericColorLightThingClassId) {
     //        qCDebug(dcZigbee()) << "Color light" << thing;
@@ -391,15 +378,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
     //        return;
     //    }
 
-    //    if (thing->thingClassId() == genericPowerSocketThingClassId) {
-    //        qCDebug(dcZigbee()) << "Power socket" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(genericPowerSocketThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, socket);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+        qCDebug(dcZigbee()) << "Power socket" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericPowerSocketThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericPowerSocket *socket = new GenericPowerSocket(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, socket);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     info->finish(Thing::ThingErrorThingClassNotFound);
 }
@@ -438,25 +425,6 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
             return;
         }
 
-        if (action.actionTypeId() == zigbeeControllerTest1ActionTypeId) {
-            qCDebug(dcZigbee()) << "Test 1";
-            //            ZigbeeNodeEndpoint *endpoint = zigbeeNetwork->coordinatorNode()->getEndpoint(0x01);
-            //            if (!endpoint) {
-            //                qCWarning(dcZigbee()) << "Could not find node endpoint";
-            //            } else {
-            //                endpoint->addGroup(01, 0x0000);
-            //            }
-
-            info->finish(Thing::ThingErrorNoError);
-            return;
-        }
-
-        if (action.actionTypeId() == zigbeeControllerTest2ActionTypeId) {
-            qCDebug(dcZigbee()) << "Test 2";
-            info->finish(Thing::ThingErrorNoError);
-            return;
-        }
-
         info->finish(Thing::ThingErrorActionTypeNotFound);
         return;
     }
@@ -481,13 +449,6 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         remote->executeAction(info);
         return;
     }
-
-    //    // Tradfri power socket
-    //    if (thing->thingClassId() == tradfriPowerSocketThingClassId) {
-    //        TradfriPowerSocket *socket = qobject_cast<TradfriPowerSocket *>(m_zigbeeDevices.value(thing));
-    //        socket->executeAction(info);
-    //        return;
-    //    }
 
     // Tradfri color temperature light
     if (thing->thingClassId() == tradfriColorTemperatureLightThingClassId) {
@@ -545,12 +506,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    //    // Generic color temperature light
-    //    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
-    //        GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
-    //        light->executeAction(info);
-    //        return;
-    //    }
+    // Generic color temperature light
+    if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
+        GenericColorTemperatureLight *light = qobject_cast<GenericColorTemperatureLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
+    }
 
     //    // Generic color light
     //    if (thing->thingClassId() == genericColorLightThingClassId) {
@@ -559,12 +520,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
     //        return;
     //    }
 
-    //    // Generic power socket
-    //    if (thing->thingClassId() == genericPowerSocketThingClassId) {
-    //        GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
-    //        socket->executeAction(info);
-    //        return;
-    //    }
+    // Generic power socket
+    if (thing->thingClassId() == genericPowerSocketThingClassId) {
+        GenericPowerSocket *socket = qobject_cast<GenericPowerSocket *>(m_zigbeeDevices.value(thing));
+        socket->executeAction(info);
+        return;
+    }
 }
 
 ZigbeeNetwork *IntegrationPluginZigbee::findParentNetwork(Thing *thing) const
@@ -639,7 +600,7 @@ bool IntegrationPluginZigbee::createIkeaDevice(Thing *networkManagerDevice, Zigb
         if ( (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceExtendedColourLight) ||
              (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourLight)) {
 
-            qCDebug(dcZigbee()) << "Found Ikea Tradfri Colour Light";
+            qCDebug(dcZigbee()) << "Found ikea tradfri colour light";
             // Check if node already added
             if (myThings().filterByThingClassId(tradfriColorLightThingClassId)
                     .filterByParam(tradfriColorLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
@@ -658,30 +619,11 @@ bool IntegrationPluginZigbee::createIkeaDevice(Thing *networkManagerDevice, Zigb
             return true;
         }
 
-        if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffPlugin) {
-            qCDebug(dcZigbee()) << "Found Ikea tradfri power socket";
-            // Check if node already added
-            if (myThings().filterByThingClassId(tradfriPowerSocketThingClassId)
-                    .filterByParam(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString())
-                    .isEmpty()) {
-                qCDebug(dcZigbee()) << "Adding new tradfri power socket";
-                ThingDescriptor descriptor(tradfriPowerSocketThingClassId);
-                descriptor.setTitle(supportedThings().findById(tradfriPowerSocketThingClassId).displayName());
-                ParamList params;
-                params.append(Param(tradfriPowerSocketThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
-                descriptor.setParams(params);
-                descriptor.setParentId(networkManagerDevice->id());
-                emit autoThingsAppeared({descriptor});
-            } else {
-                qCDebug(dcZigbee()) << "The device for this node has already been created.";
-            }
-            return true;
-        }
 
         if ( (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceColourTemperatureLight) ||
              (endpoint->profile() == Zigbee::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDeviceColourTemperatureLight)) {
 
-            qCDebug(dcZigbee()) << "Found Ikea tradfri color temperature light";
+            qCDebug(dcZigbee()) << "Found ikea tradfri color temperature light";
             // Check if node already added
             if (myThings().filterByThingClassId(tradfriColorTemperatureLightThingClassId)
                     .filterByParam(tradfriColorTemperatureLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
@@ -703,7 +645,7 @@ bool IntegrationPluginZigbee::createIkeaDevice(Thing *networkManagerDevice, Zigb
         if (endpoint->profile() == Zigbee::ZigbeeProfileHomeAutomation &&
                 endpoint->deviceId() == Zigbee::HomeAutomationDeviceRangeExtender) {
 
-            qCDebug(dcZigbee()) << "Found Ikea tradfri range extender";
+            qCDebug(dcZigbee()) << "Found ikea tradfri range extender";
             // Check if node already added
             if (myThings().filterByThingClassId(tradfriRangeExtenderThingClassId)
                     .filterByParam(tradfriRangeExtenderThingIeeeAddressParamTypeId, node->extendedAddress().toString())

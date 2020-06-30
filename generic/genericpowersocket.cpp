@@ -49,19 +49,32 @@ GenericPowerSocket::GenericPowerSocket(ZigbeeNetwork *network, ZigbeeAddress iee
 
     Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice could not find endpoint.");
 
-    qCDebug(dcZigbee()) << m_thing << m_endpoint;
-    qCDebug(dcZigbee()) << "Input clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
+    // Update signal strength
+    connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
+        uint signalStrength = qRound(lqi * 100.0 / 255.0);
+        qCDebug(dcZigbee()) << m_thing << "signal strength changed" << signalStrength << "%";
+        m_thing->setStateValue(genericPowerSocketSignalStrengthStateTypeId, signalStrength);
+    });
+
+    m_thing->setStateValue(genericPowerSocketSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+
+    // Get the ZigbeeClusterOnOff server
+    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
+    if (!m_onOffCluster) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+    } else {
+        connect(m_onOffCluster, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
+            qCDebug(dcZigbee()) << m_thing << "power state changed" << power;
+            m_thing->setStateValue(genericPowerSocketPowerStateTypeId, power);
+        });
     }
 
-    qCDebug(dcZigbee()) << "Output clusters";
-    foreach (ZigbeeCluster *cluster, m_endpoint->outputClusters()) {
-        qCDebug(dcZigbee()) << " -" << cluster;
+    m_identifyCluster = m_endpoint->inputCluster<ZigbeeClusterIdentify>(ZigbeeClusterLibrary::ClusterIdIdentify);
+    if (!m_identifyCluster) {
+        qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
     }
 
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &GenericPowerSocket::onNetworkStateChanged);
-    connect(m_endpoint, &ZigbeeNodeEndpoint::clusterAttributeChanged, this, &GenericPowerSocket::onEndpointClusterAttributeChanged);
 }
 
 void GenericPowerSocket::checkOnlineStatus()
@@ -69,7 +82,7 @@ void GenericPowerSocket::checkOnlineStatus()
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         thing()->setStateValue(genericPowerSocketConnectedStateTypeId, true);
         thing()->setStateValue(genericPowerSocketVersionStateTypeId, m_endpoint->softwareBuildId());
-        readAttribute();
+        readOnOffState();
     } else {
         thing()->setStateValue(genericPowerSocketConnectedStateTypeId, false);
     }
@@ -77,31 +90,43 @@ void GenericPowerSocket::checkOnlineStatus()
 
 void GenericPowerSocket::removeFromNetwork()
 {
-    m_node->leaveNetworkRequest();
+    m_network->removeZigbeeNode(m_node->extendedAddress());
 }
 
 void GenericPowerSocket::executeAction(ThingActionInfo *info)
 {
-    if (info->action().actionTypeId() == genericPowerSocketIdentifyActionTypeId) {
-        ZigbeeNetworkReply *reply = m_endpoint->identify(2);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [reply, info](){
+    if (info->action().actionTypeId() == genericPowerSocketAlertActionTypeId) {
+        if (!m_identifyCluster) {
+            qCWarning(dcZigbee()) << "Could not find the identify input cluster on" << m_thing << m_endpoint;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        ZigbeeClusterReply *reply =  m_identifyCluster->identify(2);
+        connect(reply, &ZigbeeClusterReply::finished, this, [reply, info](){
             // Note: reply will be deleted automatically
-            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
             }
         });
     } else if (info->action().actionTypeId() == genericPowerSocketPowerActionTypeId) {
+        if (!m_onOffCluster) {
+            qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
         bool power = info->action().param(genericPowerSocketPowerActionPowerParamTypeId).value().toBool();
-        ZigbeeNetworkReply *reply = m_endpoint->sendOnOffClusterCommand(power ? ZigbeeCluster::OnOffClusterCommandOn : ZigbeeCluster::OnOffClusterCommandOff);
-        connect(reply, &ZigbeeNetworkReply::finished, this, [this, reply, info](){
+        ZigbeeClusterReply *reply = (power ? m_onOffCluster->commandOn() : m_onOffCluster->commandOff());
+        connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, power](){
             // Note: reply will be deleted automatically
-            if (reply->error() != ZigbeeNetworkReply::ErrorNoError) {
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                readAttribute();
+                thing()->setStateValue(genericPowerSocketPowerStateTypeId, power);
             }
         });
     } else if (info->action().actionTypeId() == genericPowerSocketRemoveFromNetworkActionTypeId) {
@@ -110,14 +135,38 @@ void GenericPowerSocket::executeAction(ThingActionInfo *info)
     }
 }
 
-void GenericPowerSocket::readAttribute()
+void GenericPowerSocket::readOnOffState()
 {
-    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-        if (cluster->clusterId() == Zigbee::ClusterIdOnOff) {
-            m_endpoint->readAttribute(cluster, { ZigbeeCluster::OnOffClusterAttributeOnOff });
-        }
+    if (!m_onOffCluster) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+        return;
     }
+
+    ZigbeeClusterReply *reply = m_onOffCluster->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
+        if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+            qCWarning(dcZigbee()) << "Failed to read on/off cluster attribute" << reply->error();
+            return;
+        }
+
+        qCDebug(dcZigbee()) << "Reading on/off cluster attribute finished successfully";
+        QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
+        if (attributeStatusRecords.count() != 1) {
+            qCWarning(dcZigbee()) << "Could not read on/off attribute from cluster";
+            return;
+        }
+
+        bool dataOk = false;
+        bool powerValue = attributeStatusRecords.first().dataType.toBool(&dataOk);
+        if (!dataOk) {
+            qCWarning(dcZigbee()) << thing() << "Could not convert attribute data to bool" << attributeStatusRecords.first().dataType;
+            return;
+        }
+        qCDebug(dcZigbee()) << thing() << "power state" << powerValue;
+        thing()->setStateValue(genericPowerSocketPowerStateTypeId, powerValue);
+    });
 }
+
 
 void GenericPowerSocket::onNetworkStateChanged(ZigbeeNetwork::State state)
 {
@@ -125,17 +174,3 @@ void GenericPowerSocket::onNetworkStateChanged(ZigbeeNetwork::State state)
     checkOnlineStatus();
 }
 
-void GenericPowerSocket::onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-{
-    qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
-
-    if (cluster->clusterId() == Zigbee::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-        if (attribute.dataType() != Zigbee::DataType::Bool || attribute.data().count() == 0) {
-            qCWarning(dcZigbee()) << "Unexpected data type for attribute changed signal" << thing() << cluster << attribute;
-            return;
-        }
-
-        bool power = static_cast<bool>(attribute.data().at(0));
-        thing()->setStateValue(genericPowerSocketPowerStateTypeId, power);
-    }
-}

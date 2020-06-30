@@ -103,16 +103,6 @@
                             "id": "d6153a98-f1a8-4bc4-a1d7-6f986886bf46",
                             "name": "reset",
                             "displayName": "Reset controller"
-                        },
-                        {
-                            "id": "a5662c3e-fda0-4243-a013-732c46404b71",
-                            "name": "test1",
-                            "displayName": "Test 1"
-                        },
-                        {
-                            "id": "eda54af3-faae-48cf-9a06-1cd641b38a6b",
-                            "name": "test2",
-                            "displayName": "Test 2"
                         }
                     ],
                     "eventTypes": [
@@ -200,11 +190,6 @@
                             "id": "790cdb6d-d87f-4fc0-b870-34c3f40e07c1",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
-                        },
-                        {
-                            "id": "7037fae4-8d5b-45dd-b138-7a1c7eca1add",
-                            "name": "test",
-                            "displayName": "Test action"
                         }
                     ],
                     "eventTypes": [
@@ -217,7 +202,7 @@
                     "id": "5cdb8589-0bb4-48e7-8926-eb43da69cf74",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "powersocket", "wirelessconnectable" ],
+                    "interfaces": [ "powersocket", "alert", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "d7110c59-b516-4256-ac18-51c5fd3bfabe",
@@ -285,7 +270,7 @@
                     "actionTypes": [
                         {
                             "id": "66f8143a-34f6-403d-81aa-93a3c646c38b",
-                            "name": "identify",
+                            "name": "alert",
                             "displayName": "Identify"
                         },
                         {
@@ -304,7 +289,7 @@
                     "id": "498815c1-a6a3-48e9-9c9b-bff974694b26",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Auto" ],
-                    "interfaces": [ "colortemperaturelight", "wirelessconnectable" ],
+                    "interfaces": [ "colortemperaturelight", "alert", "wirelessconnectable" ],
                     "paramTypes": [
                         {
                             "id": "1d407ee6-3b33-48ee-b1c2-66926944103e",
@@ -383,13 +368,12 @@
                         {
                             "id": "69e94f88-a664-4bb9-ba04-2c3ea6cd7569",
                             "name": "colorTemperature",
-                            "displayName": "Color temperature",
-                            "displayNameEvent": "Color temperature changed",
-                            "displayNameAction": "Set color temperature",
-                            "unit": "Mired",
-                            "defaultValue": 170,
-                            "minValue": 250,
-                            "maxValue": 454,
+                            "displayName": "Color temperature scaled",
+                            "displayNameEvent": "Color temperature scaled changed",
+                            "displayNameAction": "Set color temperature scaled",
+                            "defaultValue": 100,
+                            "minValue": 0,
+                            "maxValue": 200,
                             "type": "int",
                             "writable": true
                         }
@@ -397,7 +381,7 @@
                     "actionTypes": [
                         {
                             "id": "4f8a38f4-652f-40e1-86dd-028dcd64349c",
-                            "name": "identify",
+                            "name": "alert",
                             "displayName": "Identify"
                         },
                         {
@@ -1263,6 +1247,11 @@
                             "id": "bc57b137-9d7b-48d7-b887-f7f2c868b15f",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
+                        },
+                        {
+                            "id": "6897c962-7398-409b-becb-f2168bf0503a",
+                            "name": "test",
+                            "displayName": "Test action"
                         }
                     ],
                     "eventTypes": [
@@ -1359,79 +1348,6 @@
                         },
                         {
                             "id": "05a5419c-b00a-4950-80f0-6bd20b0425de",
-                            "name": "removeFromNetwork",
-                            "displayName": "Remove from network"
-                        }
-                    ],
-                    "eventTypes": [
-
-                    ]
-                },
-                {
-                    "name": "tradfriPowerSocket",
-                    "displayName": "TRÅDFRI Power Socket",
-                    "id": "56181685-6703-4640-a14f-6a7ced10d6ed",
-                    "setupMethod": "JustAdd",
-                    "createMethods": [ "Auto" ],
-                    "interfaces": [ "powersocket", "wirelessconnectable" ],
-                    "paramTypes": [
-                        {
-                            "id": "145ff3d6-02d7-4533-9878-027da89de723",
-                            "name": "ieeeAddress",
-                            "displayName": "IEEE address",
-                            "type": "QString",
-                            "defaultValue": "00:00:00:00:00:00:00:00"
-                        }
-                    ],
-                    "stateTypes": [
-                        {
-                            "id": "f9a27525-aef3-48a2-aa55-6aedd3d52133",
-                            "name": "connected",
-                            "displayName": "Available",
-                            "displayNameEvent": "Available changed",
-                            "type": "bool",
-                            "cached": false,
-                            "defaultValue": false
-                        },
-                        {
-                            "id": "aae2c4e0-00c6-4119-998c-5a1d2c39704f",
-                            "name": "signalStrength",
-                            "displayName": "Signal strength",
-                            "displayNameEvent": "Signal strength changed",
-                            "defaultValue": 0,
-                            "maxValue": 100,
-                            "minValue": 0,
-                            "type": "uint",
-                            "unit": "Percentage"
-                        },
-                        {
-                            "id": "ae715551-a642-4018-b501-16ff405e27d6",
-                            "name": "version",
-                            "displayName": "Version",
-                            "displayNameEvent": "Version changed",
-                            "type": "QString",
-                            "cached": true,
-                            "defaultValue": ""
-                        },
-                        {
-                            "id": "fde59e2e-49cb-4247-bf4e-a06bbb86108c",
-                            "name": "power",
-                            "displayName": "Power",
-                            "displayNameEvent": "Power changed",
-                            "displayNameAction": "Set power",
-                            "type": "bool",
-                            "defaultValue": false,
-                            "writable": true
-                        }
-                    ],
-                    "actionTypes": [
-                        {
-                            "id": "42c8c602-9f25-4c93-a73f-14ea370b7ced",
-                            "name": "identify",
-                            "displayName": "Identify"
-                        },
-                        {
-                            "id": "dd275156-ab95-4d84-8a14-6f8671f21570",
                             "name": "removeFromNetwork",
                             "displayName": "Remove from network"
                         }

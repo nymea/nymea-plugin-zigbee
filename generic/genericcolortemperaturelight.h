@@ -47,14 +47,32 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
+    ZigbeeClusterColorControl *m_colorCluster = nullptr;
 
     void readOnOffState();
     void readLevelValue();
     void readColorTemperature();
 
+    // Use default values until we can load them from the device and map them
+    quint16 m_minColorTemperature = 250;
+    quint16 m_maxColorTemperature = 450;
+
+    // Used for scaling
+    int m_minScaleValue = 0;
+    int m_maxScaleValue = 200;
+
+    // Map methods between scale and actual value
+    quint16 mapScaledValueToColorTemperature(int scaledColorTemperature);
+    int mapColorTemperatureToScaledValue(quint16 colorTemperature);
+
+    void readColorTemperatureRange();
+    bool readCachedColorTemperatureRange();
+
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 

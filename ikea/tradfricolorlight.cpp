@@ -204,19 +204,55 @@ void TradfriColorLight::executeAction(ThingActionInfo *info)
     } else if (info->action().actionTypeId() == tradfriColorLightRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
+    }  else if (info->action().actionTypeId() == tradfriColorLightTestActionTypeId) {
+        if (!m_colorCluster) {
+            qCWarning(dcZigbee()) << "Could not find color cluster on" << m_thing;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        readColorCapabilities();
+        info->finish(Thing::ThingErrorNoError);
     }
 }
 
 void TradfriColorLight::readColorCapabilities()
 {
-    //    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-    //        if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl) {
-    //            // Note: set the color once both attribute read
-    //            m_colorAttributesArrived = 0;
-    //            m_endpoint->readAttribute(cluster, { ZigbeeCluster::ColorControlClusterAttributeColorMode,
-    //                                                 ZigbeeCluster::ColorControlClusterAttributeColorCapabilities });
-    //        }
-    //    }
+    if (!m_colorCluster) {
+        qCWarning(dcZigbee()) << "Cannot read color capabilities. Could not find color cluster on" << m_thing;
+        return;
+    }
+
+    // Read the color capabilities
+    if (m_colorCluster->hasAttribute(ZigbeeClusterColorControl::AttributeColorCapabilities)) {
+        ZigbeeClusterAttribute colorCapabilitiesAttribute = m_colorCluster->attribute(ZigbeeClusterColorControl::AttributeColorCapabilities);
+        bool valueOk = false;
+        quint16 colorCapabilitiesValue = colorCapabilitiesAttribute.dataType().toUInt16(&valueOk);
+        if (!valueOk) {
+            qCWarning(dcZigbee()) << "Failed to read color capabilities attribute value and convert it" << colorCapabilitiesAttribute;
+            return;
+        }
+        ZigbeeClusterColorControl::ColorCapabilities colorCapabilities = static_cast<ZigbeeClusterColorControl::ColorCapabilities>(colorCapabilitiesValue);
+        qCDebug(dcZigbee()) << "Cached color capabilities" << colorCapabilities;
+    } else {
+        // We have to read the capabilities
+        ZigbeeClusterReply *reply = m_colorCluster->readAttributes({ZigbeeClusterColorControl::AttributeColorCapabilities});
+        connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                return;
+            }
+
+            ZigbeeClusterAttribute colorCapabilitiesAttribute = m_colorCluster->attribute(ZigbeeClusterColorControl::AttributeColorCapabilities);
+            bool valueOk = false;
+            quint16 colorCapabilitiesValue = colorCapabilitiesAttribute.dataType().toUInt16(&valueOk);
+            if (!valueOk) {
+                qCWarning(dcZigbee()) << "Failed to read color capabilities attribute value and convert it" << colorCapabilitiesAttribute;
+                return;
+            }
+            ZigbeeClusterColorControl::ColorCapabilities colorCapabilities = static_cast<ZigbeeClusterColorControl::ColorCapabilities>(colorCapabilitiesValue);
+            qCDebug(dcZigbee()) << "Reading color capabilities finished successfully" << colorCapabilities;
+        });
+    }
 }
 
 void TradfriColorLight::readOnOffState()

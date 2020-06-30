@@ -132,32 +132,6 @@ void GenericOnOffLight::executeAction(ThingActionInfo *info)
     } else if (info->action().actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
-    } else if (info->action().actionTypeId() == genericOnOffLightTestActionTypeId) {
-        qCDebug(dcZigbee()) << "Test action !!!!!!";
-        // Get basic cluster
-        ZigbeeClusterBasic *basicCluster = m_endpoint->inputCluster<ZigbeeClusterBasic>(ZigbeeClusterLibrary::ClusterIdBasic);
-        if (!basicCluster) {
-            qCWarning(dcZigbee()) << "Could not get basic cluster";
-            return;
-        }
-
-        ZigbeeClusterReply *reply = basicCluster->readAttributes({ZigbeeClusterBasic::AttributeZclVersion, ZigbeeClusterBasic::AttributeManufacturerName, ZigbeeClusterBasic::AttributeModelIdentifier, ZigbeeClusterBasic::AttributeSwBuildId});
-        connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
-            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
-                qCWarning(dcZigbee()) << "Failed to read basic cluster attributes" << reply->error();
-                return;
-            }
-
-            qCDebug(dcZigbee()) << "Reading basic cluster attributes finished successfully" << reply->responseFrame().header.command;
-            QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
-            foreach (const ZigbeeClusterLibrary::ReadAttributeStatusRecord &attributeStatusRecord, attributeStatusRecords) {
-                qCDebug(dcZigbee()) << "-->" << attributeStatusRecord;
-                if (attributeStatusRecord.dataType == Zigbee::CharString)
-                    qCDebug(dcZigbee()) << attributeStatusRecord.dataType.toString();
-            }
-        });
-
-        info->finish(Thing::ThingErrorNoError);
     }
 }
 

@@ -146,10 +146,10 @@ void TradfriOnOffSwitch::executeAction(ThingActionInfo *info)
     if (info->action().actionTypeId() == tradfriOnOffSwitchRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
-    } else if (info->action().actionTypeId() == tradfriOnOffSwitchTestActionTypeId) {
+    }/* else if (info->action().actionTypeId() == tradfriOnOffSwitchTestActionTypeId) {
         testAction();
         info->finish(Thing::ThingErrorNoError);
-    }
+    }*/
 }
 
 void TradfriOnOffSwitch::testAction()

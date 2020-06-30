@@ -87,7 +87,7 @@ TradfriColorTemperatureLight::TradfriColorTemperatureLight(ZigbeeNetwork *networ
     }
 
     m_colorCluster = m_endpoint->inputCluster<ZigbeeClusterColorControl>(ZigbeeClusterLibrary::ClusterIdColorControl);
-    if (!m_identifyCluster) {
+    if (!m_colorCluster) {
         qCWarning(dcZigbee()) << "Could not find the color control input cluster on" << m_thing << m_endpoint;
     }
 
@@ -177,7 +177,7 @@ void TradfriColorTemperatureLight::executeAction(ThingActionInfo *info)
         }
 
         // Note: time unit is 1/10 s
-        ZigbeeClusterReply *reply = m_colorCluster->commandMoveToColorTemperature(colorTemperature, 0);
+        ZigbeeClusterReply *reply = m_colorCluster->commandMoveToColorTemperature(colorTemperature, 5);
         connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, colorTemperature](){
             // Note: reply will be deleted automatically
             if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
@@ -239,14 +239,27 @@ void TradfriColorTemperatureLight::readColorTemperature()
     }
 
     ZigbeeClusterReply *reply = m_colorCluster->readAttributes({ZigbeeClusterColorControl::AttributeColorTemperatureMireds});
-    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read ColorControl cluster attribute" << reply->error();
             return;
         }
 
-        // Note: the attribute gets updated internally and the state gets updated with the currentLevelChanged signal
         qCDebug(dcZigbee()) << "Reading ColorControl cluster attribute color temperature finished successfully";
+        QList<ZigbeeClusterLibrary::ReadAttributeStatusRecord> attributeStatusRecords = ZigbeeClusterLibrary::parseAttributeStatusRecords(reply->responseFrame().payload);
+        if (attributeStatusRecords.count() != 1) {
+            qCWarning(dcZigbee()) << "Failed to read color temperature from" << m_thing;
+            return;
+        }
+
+        bool valueOk = false;
+        quint16 colorTemperature = attributeStatusRecords.first().dataType.toUInt16(&valueOk);
+        if (!valueOk) {
+            qCWarning(dcZigbee()) << "Failed to convert color temperature attribute values from" << m_thing << attributeStatusRecords.first();
+            return;
+        }
+
+        m_thing->setStateValue(tradfriColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
     });
 }
 
@@ -259,22 +272,3 @@ void TradfriColorTemperatureLight::onNetworkStateChanged(ZigbeeNetwork::State st
     }
 }
 
-//void TradfriColorTemperatureLight::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-//{
-//    qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
-
-//    if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-//        bool power = static_cast<bool>(attribute.data().at(0));
-//        thing()->setStateValue(tradfriColorTemperatureLightPowerStateTypeId, power);
-//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdLevelControl && attribute.id() == ZigbeeCluster::LevelClusterAttributeCurrentLevel) {
-//        quint8 currentLevel = static_cast<quint8>(attribute.data().at(0));
-//        thing()->setStateValue(tradfriColorTemperatureLightBrightnessStateTypeId, qRound(currentLevel * 100.0 / 255.0));
-//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeColorTemperatureMireds) {
-//        quint16 colorTemperature = 0;
-//        QByteArray data = attribute.data();
-//        QDataStream stream(&data, QIODevice::ReadOnly);
-//        stream >> colorTemperature;
-//        qCDebug(dcZigbee()) << thing() << "current color temperature mired" << colorTemperature;
-//        thing()->setStateValue(tradfriColorTemperatureLightColorTemperatureStateTypeId, colorTemperature);
-//    }
-//}

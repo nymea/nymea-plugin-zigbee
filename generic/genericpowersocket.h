@@ -47,13 +47,13 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
 
-    void readAttribute();
+    void readOnOffState();
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onEndpointClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
-
 };
 
 #endif // GENERICPOWERSOCKET_H
