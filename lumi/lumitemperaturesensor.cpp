@@ -84,6 +84,15 @@ void LumiTemperatureSensor::checkOnlineStatus()
         m_thing->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
         m_thing->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
         m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+        // Directly read the current temp and humidity for having inital values
+        if (m_temperatureCluster && m_temperatureCluster->hasAttribute(ZigbeeClusterTemperatureMeasurement::AttributeMeasuredValue)) {
+            ZigbeeClusterAttribute temperatureAttribute = m_temperatureCluster->attribute(ZigbeeClusterTemperatureMeasurement::AttributeMeasuredValue);
+            m_thing->setStateValue(lumiTemperatureHumidityTemperatureStateTypeId, temperatureAttribute.dataType().toUInt16() / 100.0);
+        }
+        if (m_humidityCluster && m_humidityCluster->hasAttribute(ZigbeeClusterRelativeHumidityMeasurement::AttributeMeasuredValue)) {
+            ZigbeeClusterAttribute humitidyAttribute = m_humidityCluster->attribute(ZigbeeClusterRelativeHumidityMeasurement::AttributeMeasuredValue);
+            m_thing->setStateValue(lumiTemperatureHumidityHumidityStateTypeId, humitidyAttribute.dataType().toUInt16() / 100.0);
+        }
     } else {
         m_thing->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
     }
