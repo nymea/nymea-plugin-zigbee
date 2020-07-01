@@ -47,8 +47,9 @@
 #include "lumi/lumiwatersensor.h"
 
 #include "generic/genericonofflight.h"
-#include "generic/genericpowersocket.h"
 #include "generic/genericcolorlight.h"
+#include "generic/genericpowersocket.h"
+#include "generic/genericdimmablelight.h"
 #include "generic/genericcolortemperaturelight.h"
 
 class IntegrationPluginZigbee: public IntegrationPlugin

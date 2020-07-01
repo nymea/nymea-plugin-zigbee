@@ -358,6 +358,16 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
+    if (thing->thingClassId() == genericDimmableLightThingClassId) {
+        qCDebug(dcZigbee()) << "Dimmable light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericDimmableLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericDimmableLight *light = new GenericDimmableLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
+
     if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
         qCDebug(dcZigbee()) << "Color temperature light" << thing;
         ZigbeeAddress ieeeAddress(thing->paramValue(genericColorTemperatureLightThingIeeeAddressParamTypeId).toString());
@@ -505,6 +515,14 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         light->executeAction(info);
         return;
     }
+
+    // Generic dimmable light
+    if (thing->thingClassId() == genericDimmableLightThingClassId) {
+        GenericDimmableLight *light = qobject_cast<GenericDimmableLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
+    }
+
 
     // Generic color temperature light
     if (thing->thingClassId() == genericColorTemperatureLightThingClassId) {
@@ -824,8 +842,8 @@ bool IntegrationPluginZigbee::createGenericDevice(Thing *networkManagerDevice, Z
             return true;
         }
 
-        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink &&
-                endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffLight) {
+        if ((endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceOnOffLight) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceOnOffLight)) {
 
             // Create generic on/off light
             qCDebug(dcZigbee()) << "This device is an on/off light";
@@ -840,6 +858,31 @@ bool IntegrationPluginZigbee::createGenericDevice(Thing *networkManagerDevice, Z
                 params.append(Param(genericOnOffLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
                 params.append(Param(genericOnOffLightThingModelParamTypeId, endpoint->modelIdentifier()));
                 params.append(Param(genericOnOffLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
+            return true;
+        }
+
+        if ((endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileLightLink && endpoint->deviceId() == Zigbee::LightLinkDevice::LightLinkDeviceDimmableLight) ||
+                (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation && endpoint->deviceId() == Zigbee::HomeAutomationDeviceDimmableLight)) {
+
+            // Create generic dimmable light
+            qCDebug(dcZigbee()) << "This device is a dimmable light";
+            if (myThings().filterByThingClassId(genericDimmableLightThingClassId)
+                    .filterByParam(genericDimmableLightThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new generic dimmable light";
+                ThingDescriptor descriptor(genericDimmableLightThingClassId);
+                QString deviceClassName = supportedThings().findById(genericDimmableLightThingClassId).displayName();
+                descriptor.setTitle(QString("%1 (%2 - %3)").arg(deviceClassName).arg(endpoint->manufacturerName()).arg(endpoint->modelIdentifier()));
+                ParamList params;
+                params.append(Param(genericDimmableLightThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                params.append(Param(genericDimmableLightThingModelParamTypeId, endpoint->modelIdentifier()));
+                params.append(Param(genericDimmableLightThingManufacturerParamTypeId, endpoint->manufacturerName()));
                 descriptor.setParams(params);
                 descriptor.setParentId(networkManagerDevice->id());
                 emit autoThingsAppeared({descriptor});

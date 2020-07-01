@@ -24,6 +24,7 @@ PKGCONFIG += nymea-zigbee
 SOURCES += \
     generic/genericcolorlight.cpp \
     generic/genericcolortemperaturelight.cpp \
+    generic/genericdimmablelight.cpp \
     generic/genericonofflight.cpp \
     generic/genericpowersocket.cpp \
     integrationpluginzigbee.cpp \
@@ -42,6 +43,7 @@ SOURCES += \
 HEADERS += \
     generic/genericcolorlight.h \
     generic/genericcolortemperaturelight.h \
+    generic/genericdimmablelight.h \
     generic/genericonofflight.h \
     generic/genericpowersocket.h \
     integrationpluginzigbee.h \

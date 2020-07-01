@@ -197,6 +197,105 @@
                     ]
                 },
                 {
+                    "name": "genericDimmableLight",
+                    "displayName": "Dimmable Light",
+                    "id": "b2eeb554-ca5c-46b5-a897-bc443fb186ea",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "dimmablelight", "alert", "wirelessconnectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "dd9477bb-7195-4b28-9f6b-f8619253f828",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE address",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        },
+                        {
+                            "id": "0087a33e-88e9-4e90-bb99-82b25adba80b",
+                            "name": "manufacturer",
+                            "displayName": "Manufacturer",
+                            "type": "QString",
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "f6e06036-efb9-43e0-8a4e-309dd5ee4c97",
+                            "name": "model",
+                            "displayName": "Model",
+                            "type": "QString",
+                            "defaultValue": ""
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "f6c6fdf5-4be0-448e-8b89-ddebba23fdbf",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "ab75980d-12f5-4ddc-be2d-dc54514a3b75",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
+                        },
+                        {
+                            "id": "9390d2a6-7a17-4b42-8b35-cdb8b3d4d723",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "19d82a60-0009-4cff-966d-3b1c4fe358e1",
+                            "name": "power",
+                            "displayName": "Power",
+                            "displayNameEvent": "Power changed",
+                            "displayNameAction": "Set power",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "writable": true
+                        },
+                        {
+                            "id": "6376376f-3221-4e6b-bce3-41872a6fc98a",
+                            "name": "brightness",
+                            "displayName": "Brightness",
+                            "displayNameEvent": "Brightness changed",
+                            "displayNameAction": "Set brightness",
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "int",
+                            "defaultValue": 100,
+                            "writable": true
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "a04d9e2b-e854-4361-bb34-2da74f8f028f",
+                            "name": "alert",
+                            "displayName": "Identify"
+                        },
+                        {
+                            "id": "3c7b2672-1b56-4f10-91cc-5d7bfc5efc7a",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+
+                    ]
+                },
+                {
                     "name": "genericPowerSocket",
                     "displayName": "Power Socket",
                     "id": "5cdb8589-0bb4-48e7-8926-eb43da69cf74",
