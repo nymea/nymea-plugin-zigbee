@@ -49,8 +49,6 @@ LumiTemperatureSensor::LumiTemperatureSensor(ZigbeeNetwork *network, ZigbeeAddre
         m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Get temperature cluster
     m_temperatureCluster = m_endpoint->inputCluster<ZigbeeClusterTemperatureMeasurement>(ZigbeeClusterLibrary::ClusterIdTemperatureMeasurement);
     if (!m_temperatureCluster) {
@@ -83,10 +81,11 @@ void LumiTemperatureSensor::removeFromNetwork()
 void LumiTemperatureSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
-        thing()->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());    
+        m_thing->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, true);
+        m_thing->setStateValue(lumiTemperatureHumidityVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiTemperatureHumiditySignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
+        m_thing->setStateValue(lumiTemperatureHumidityConnectedStateTypeId, false);
     }
 }
 

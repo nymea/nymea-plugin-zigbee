@@ -53,8 +53,6 @@ TradfriOnOffSwitch::TradfriOnOffSwitch(ZigbeeNetwork *network, ZigbeeAddress iee
         m_thing->setStateValue(tradfriOnOffSwitchSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(tradfriOnOffSwitchSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Get the onOff client cluster in order to receive signals if the cluster executed a command
     m_onOffCluster = m_endpoint->outputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
@@ -134,10 +132,11 @@ void TradfriOnOffSwitch::removeFromNetwork()
 void TradfriOnOffSwitch::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, true);
-        thing()->setStateValue(tradfriOnOffSwitchVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, true);
+        m_thing->setStateValue(tradfriOnOffSwitchVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(tradfriOnOffSwitchSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, false);
+        m_thing->setStateValue(tradfriOnOffSwitchConnectedStateTypeId, false);
     }
 }
 

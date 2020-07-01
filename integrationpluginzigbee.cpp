@@ -368,15 +368,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
-    //    if (thing->thingClassId() == genericColorLightThingClassId) {
-    //        qCDebug(dcZigbee()) << "Color light" << thing;
-    //        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
-    //        ZigbeeNetwork *network = findParentNetwork(thing);
-    //        GenericColorLight *light = new GenericColorLight(network, ieeeAddress, thing, this);
-    //        m_zigbeeDevices.insert(thing, light);
-    //        info->finish(Thing::ThingErrorNoError);
-    //        return;
-    //    }
+    if (thing->thingClassId() == genericColorLightThingClassId) {
+        qCDebug(dcZigbee()) << "Color light" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(genericColorLightThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        GenericColorLight *light = new GenericColorLight(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, light);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
 
     if (thing->thingClassId() == genericPowerSocketThingClassId) {
         qCDebug(dcZigbee()) << "Power socket" << thing;
@@ -513,12 +513,12 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
-    //    // Generic color light
-    //    if (thing->thingClassId() == genericColorLightThingClassId) {
-    //        GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
-    //        light->executeAction(info);
-    //        return;
-    //    }
+    // Generic color light
+    if (thing->thingClassId() == genericColorLightThingClassId) {
+        GenericColorLight *light = qobject_cast<GenericColorLight *>(m_zigbeeDevices.value(thing));
+        light->executeAction(info);
+        return;
+    }
 
     // Generic power socket
     if (thing->thingClassId() == genericPowerSocketThingClassId) {

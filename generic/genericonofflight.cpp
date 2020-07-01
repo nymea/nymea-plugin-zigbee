@@ -56,8 +56,6 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
         m_thing->setStateValue(genericOnOffLightSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(genericOnOffLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Get the ZigbeeClusterOnOff server
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
@@ -80,11 +78,12 @@ GenericOnOffLight::GenericOnOffLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
 void GenericOnOffLight::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(genericOnOffLightConnectedStateTypeId, true);
-        thing()->setStateValue(genericOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(genericOnOffLightConnectedStateTypeId, true);
+        m_thing->setStateValue(genericOnOffLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(genericOnOffLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
         readOnOffState();
     } else {
-        thing()->setStateValue(genericOnOffLightConnectedStateTypeId, false);
+        m_thing->setStateValue(genericOnOffLightConnectedStateTypeId, false);
     }
 }
 
@@ -126,7 +125,7 @@ void GenericOnOffLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                thing()->setStateValue(genericOnOffLightPowerStateTypeId, power);
+                m_thing->setStateValue(genericOnOffLightPowerStateTypeId, power);
             }
         });
     } else if (info->action().actionTypeId() == genericOnOffLightRemoveFromNetworkActionTypeId) {
@@ -159,11 +158,11 @@ void GenericOnOffLight::readOnOffState()
         bool dataOk = false;
         bool powerValue = attributeStatusRecords.first().dataType.toBool(&dataOk);
         if (!dataOk) {
-            qCWarning(dcZigbee()) << thing() << "Could not convert attribute data to bool" << attributeStatusRecords.first().dataType;
+            qCWarning(dcZigbee()) << m_thing << "Could not convert attribute data to bool" << attributeStatusRecords.first().dataType;
             return;
         }
-        qCDebug(dcZigbee()) << thing() << "power state" << powerValue;
-        thing()->setStateValue(genericOnOffLightPowerStateTypeId, powerValue);
+        qCDebug(dcZigbee()) << m_thing << "power state" << powerValue;
+        m_thing->setStateValue(genericOnOffLightPowerStateTypeId, powerValue);
     });
 }
 

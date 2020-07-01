@@ -48,8 +48,6 @@ LumiWaterSensor::LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddre
         m_thing->setStateValue(lumiWaterSensorSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(lumiWaterSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Note: the device does not list the IAS zone cluster in the simple descriptor endpoint discovery. This is out of spec.
     // In order to make it work never the less, we can read the attrubte when the device sends the first notification.
     // From that moment on we can also read the current ZoneStatus attribute.
@@ -66,11 +64,12 @@ void LumiWaterSensor::removeFromNetwork()
 void LumiWaterSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiWaterSensorConnectedStateTypeId, true);
-        thing()->setStateValue(lumiWaterSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiWaterSensorConnectedStateTypeId, true);
+        m_thing->setStateValue(lumiWaterSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiWaterSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
         // Note: this device does not respond on reading request
     } else {
-        thing()->setStateValue(lumiWaterSensorConnectedStateTypeId, false);
+        m_thing->setStateValue(lumiWaterSensorConnectedStateTypeId, false);
     }
 }
 

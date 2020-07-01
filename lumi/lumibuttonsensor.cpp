@@ -54,8 +54,6 @@ LumiButtonSensor::LumiButtonSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         m_thing->setStateValue(lumiButtonSensorSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(lumiButtonSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Get the ZigbeeClusterOnOff server
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
@@ -79,10 +77,11 @@ void LumiButtonSensor::removeFromNetwork()
 void LumiButtonSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiButtonSensorConnectedStateTypeId, true);
-        thing()->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiButtonSensorConnectedStateTypeId, true);
+        m_thing->setStateValue(lumiButtonSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiButtonSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
+        m_thing->setStateValue(lumiButtonSensorConnectedStateTypeId, false);
     }
 }
 

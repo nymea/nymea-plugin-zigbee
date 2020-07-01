@@ -53,13 +53,12 @@ private:
     ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
     ZigbeeClusterColorControl *m_colorCluster = nullptr;
 
+    void readStates();
     void readOnOffState();
     void readLevelValue();
     void readColorXy();
 
     void readColorCapabilities();
-
-    void configureReporting();
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);

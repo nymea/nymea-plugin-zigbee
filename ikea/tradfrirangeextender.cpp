@@ -53,8 +53,6 @@ TradfriRangeExtender::TradfriRangeExtender(ZigbeeNetwork *network, ZigbeeAddress
         m_thing->setStateValue(tradfriRangeExtenderSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(tradfriRangeExtenderSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &TradfriRangeExtender::onNetworkStateChanged);
 }
 
@@ -66,10 +64,11 @@ void TradfriRangeExtender::removeFromNetwork()
 void TradfriRangeExtender::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(tradfriRangeExtenderConnectedStateTypeId, true);
-        thing()->setStateValue(tradfriRangeExtenderVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(tradfriRangeExtenderConnectedStateTypeId, true);
+        m_thing->setStateValue(tradfriRangeExtenderVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(tradfriRangeExtenderSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(tradfriRangeExtenderConnectedStateTypeId, false);
+        m_thing->setStateValue(tradfriRangeExtenderConnectedStateTypeId, false);
     }
 }
 

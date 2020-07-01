@@ -58,8 +58,6 @@ LumiMotionSensor::LumiMotionSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         m_thing->setStateValue(lumiMotionSensorSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(lumiMotionSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     m_occupancyCluster = m_endpoint->inputCluster<ZigbeeClusterOccupancySensing>(ZigbeeClusterLibrary::ClusterIdOccupancySensing);
     if (!m_occupancyCluster) {
         qCWarning(dcZigbee()) << "Could not find the occupancy sensing server cluster on" << m_thing << m_endpoint;
@@ -94,10 +92,11 @@ void LumiMotionSensor::removeFromNetwork()
 void LumiMotionSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiMotionSensorConnectedStateTypeId, true);
-        thing()->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiMotionSensorConnectedStateTypeId, true);
+        m_thing->setStateValue(lumiMotionSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiMotionSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
+        m_thing->setStateValue(lumiMotionSensorConnectedStateTypeId, false);
     }
 }
 
@@ -113,9 +112,9 @@ void LumiMotionSensor::setPresent(bool present)
 {
     qCDebug(dcZigbee()) << m_thing << "present changed to" << present;
     m_present = present;
-    thing()->setStateValue(lumiMotionSensorIsPresentStateTypeId, m_present);
+    m_thing->setStateValue(lumiMotionSensorIsPresentStateTypeId, m_present);
     if (m_present) {
-        m_delayTimer->setInterval(thing()->settings().paramValue(lumiMotionSensorSettingsTimeoutParamTypeId).toInt() * 1000);
+        m_delayTimer->setInterval(m_thing->settings().paramValue(lumiMotionSensorSettingsTimeoutParamTypeId).toInt() * 1000);
         m_delayTimer->start();
     } else {
         m_delayTimer->stop();

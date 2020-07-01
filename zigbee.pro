@@ -22,7 +22,7 @@ CONFIG += link_pkgconfig
 PKGCONFIG += nymea-zigbee
 
 SOURCES += \
-    #generic/genericcolorlight.cpp \
+    generic/genericcolorlight.cpp \
     generic/genericcolortemperaturelight.cpp \
     generic/genericonofflight.cpp \
     generic/genericpowersocket.cpp \
@@ -40,7 +40,7 @@ SOURCES += \
     zigbeedevice.cpp
 
 HEADERS += \
-    #generic/genericcolorlight.h \
+    generic/genericcolorlight.h \
     generic/genericcolortemperaturelight.h \
     generic/genericonofflight.h \
     generic/genericpowersocket.h \

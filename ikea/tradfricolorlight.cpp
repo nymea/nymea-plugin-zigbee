@@ -57,8 +57,6 @@ TradfriColorLight::TradfriColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeA
         m_thing->setStateValue(tradfriColorLightSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(tradfriColorLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
@@ -101,13 +99,12 @@ void TradfriColorLight::removeFromNetwork()
 void TradfriColorLight::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(tradfriColorLightConnectedStateTypeId, true);
-        thing()->setStateValue(tradfriColorLightVersionStateTypeId, m_endpoint->softwareBuildId());
-        readOnOffState();
-        readLevelValue();
-        readColorXy();
+        m_thing->setStateValue(tradfriColorLightConnectedStateTypeId, true);
+        m_thing->setStateValue(tradfriColorLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(tradfriColorLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+        readStates();
     } else {
-        thing()->setStateValue(tradfriColorLightConnectedStateTypeId, false);
+        m_thing->setStateValue(tradfriColorLightConnectedStateTypeId, false);
     }
 }
 
@@ -144,7 +141,7 @@ void TradfriColorLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                thing()->setStateValue(tradfriColorLightPowerStateTypeId, power);
+                m_thing->setStateValue(tradfriColorLightPowerStateTypeId, power);
             }
         });
     } else if (info->action().actionTypeId() == tradfriColorLightBrightnessActionTypeId) {
@@ -164,15 +161,15 @@ void TradfriColorLight::executeAction(ThingActionInfo *info)
             } else {
                 info->finish(Thing::ThingErrorNoError);
                 qCDebug(dcZigbee()) << "Set brightness" << brightness << "% finished successfully";
-                thing()->setStateValue(tradfriColorLightPowerStateTypeId, (brightness > 0 ? true : false));
-                thing()->setStateValue(tradfriColorLightBrightnessStateTypeId, brightness);
+                m_thing->setStateValue(tradfriColorLightPowerStateTypeId, (brightness > 0 ? true : false));
+                m_thing->setStateValue(tradfriColorLightBrightnessStateTypeId, brightness);
             }
         });
     } else if (info->action().actionTypeId() == tradfriColorLightColorTemperatureActionTypeId) {
         int colorTemperature = info->action().param(tradfriColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
         // Note: the color temperature command/attribute is not supported. It does support only xy, so we have to interpolate the colors
-        int minValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).minValue().toInt();
-        int maxValue = thing()->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).maxValue().toInt();
+        int minValue = m_thing->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).minValue().toInt();
+        int maxValue = m_thing->thingClass().getStateType(tradfriColorLightColorTemperatureStateTypeId).maxValue().toInt();
         QColor temperatureColor = ZigbeeUtils::interpolateColorFromColorTemperature(colorTemperature, minValue, maxValue);
         QPoint temperatureColorXyInt = ZigbeeUtils::convertColorToXYInt(temperatureColor);
         ZigbeeClusterReply *reply = m_colorCluster->commandMoveToColor(temperatureColorXyInt.x(), temperatureColorXyInt.y(), 2);
@@ -181,7 +178,7 @@ void TradfriColorLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 qCDebug(dcZigbee()) << "Set color temperature" << colorTemperature << "mired finished successfully";
-                thing()->setStateValue(tradfriColorLightColorTemperatureStateTypeId, colorTemperature);
+                m_thing->setStateValue(tradfriColorLightColorTemperatureStateTypeId, colorTemperature);
                 info->finish(Thing::ThingErrorNoError);
                 //readColorXy();
             }
@@ -214,6 +211,12 @@ void TradfriColorLight::executeAction(ThingActionInfo *info)
         readColorCapabilities();
         info->finish(Thing::ThingErrorNoError);
     }
+}
+
+void TradfriColorLight::readStates()
+{
+    // Start reading sequentially, on/off -> level -> color
+    readOnOffState();
 }
 
 void TradfriColorLight::readColorCapabilities()
@@ -263,7 +266,7 @@ void TradfriColorLight::readOnOffState()
     }
 
     ZigbeeClusterReply *reply = m_onOffCluster->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
-    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read on/off cluster attribute" << reply->error();
             return;
@@ -271,6 +274,7 @@ void TradfriColorLight::readOnOffState()
 
         // Note: the attribute gets updated internally and the state gets updated with the powerChanged signal
         qCDebug(dcZigbee()) << "Reading on/off cluster attribute finished successfully";
+        readLevelValue();
     });
 }
 
@@ -282,7 +286,7 @@ void TradfriColorLight::readLevelValue()
     }
 
     ZigbeeClusterReply *reply = m_levelControlCluster->readAttributes({ZigbeeClusterLevelControl::AttributeCurrentLevel});
-    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read LevelControl cluster attribute" << reply->error();
             return;
@@ -290,6 +294,7 @@ void TradfriColorLight::readLevelValue()
 
         // Note: the attribute gets updated internally and the state gets updated with the currentLevelChanged signal
         qCDebug(dcZigbee()) << "Reading LevelControl cluster attribute finished successfully";
+        readColorXy();
     });
 }
 
@@ -345,26 +350,8 @@ void TradfriColorLight::readColorXy()
         // Set the current color
         QColor color = ZigbeeUtils::convertXYToColor(currentX, currentY);
         qCDebug(dcZigbee()) << "Current color" << color.toRgb() << QPoint(currentX, currentY);
-        thing()->setStateValue(tradfriColorLightColorStateTypeId, color);
+        m_thing->setStateValue(tradfriColorLightColorStateTypeId, color);
     });
-}
-
-void TradfriColorLight::configureReporting()
-{
-    //    foreach (ZigbeeCluster *cluster, m_endpoint->inputClusters()) {
-    //        if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdOnOff) {
-    //            m_endpoint->configureReporting(cluster, { ZigbeeCluster::OnOffClusterAttributeOnOff });
-    //        }
-
-    //        if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdLevelControl) {
-    //            m_endpoint->configureReporting(cluster, { ZigbeeCluster::LevelClusterAttributeCurrentLevel });
-    //        }
-
-    //        if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl) {
-    //            m_endpoint->configureReporting(cluster, { ZigbeeCluster::ColorControlClusterAttributeColorMode,
-    //                                                      ZigbeeCluster::ColorControlClusterAttributeColorTemperatureMireds });
-    //        }
-    //    }
 }
 
 void TradfriColorLight::onNetworkStateChanged(ZigbeeNetwork::State state)
@@ -372,38 +359,3 @@ void TradfriColorLight::onNetworkStateChanged(ZigbeeNetwork::State state)
     Q_UNUSED(state)
     checkOnlineStatus();
 }
-
-//void TradfriColorLight::onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute)
-//{
-//    qCDebug(dcZigbee()) << thing() << "cluster attribute changed" << cluster << attribute;
-
-//    if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdOnOff && attribute.id() == ZigbeeCluster::OnOffClusterAttributeOnOff) {
-//        bool power = static_cast<bool>(attribute.data().at(0));
-//        thing()->setStateValue(tradfriColorLightPowerStateTypeId, power);
-//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdLevelControl && attribute.id() == ZigbeeCluster::LevelClusterAttributeCurrentLevel) {
-//        quint8 currentLevel = static_cast<quint8>(attribute.data().at(0));
-//        thing()->setStateValue(tradfriColorLightBrightnessStateTypeId, qRound(currentLevel * 100.0 / 255.0));
-//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeCurrentX) {
-//        QByteArray data = attribute.data();
-//        QDataStream stream(&data, QIODevice::ReadOnly);
-//        stream >> m_currentX;
-//        m_colorAttributesArrived++;
-//        if (m_colorAttributesArrived >= 2) {
-//            m_colorAttributesArrived = 0;
-//            // Color x and y read. Calculate color and update state
-//            QColor color = ZigbeeUtils::convertXYToColor(m_currentX, m_currentY);
-//            thing()->setStateValue(tradfriColorLightColorStateTypeId, color);
-//        }
-//    } else if (cluster->clusterId() == ZigbeeClusterLibrary::ClusterIdColorControl && attribute.id() == ZigbeeCluster::ColorControlClusterAttributeCurrentY) {
-//        QByteArray data = attribute.data();
-//        QDataStream stream(&data, QIODevice::ReadOnly);
-//        stream >> m_currentY;
-//        m_colorAttributesArrived++;
-//        if (m_colorAttributesArrived >= 2) {
-//            m_colorAttributesArrived = 0;
-//            // Color x and y read. Calculate color and update state
-//            QColor color = ZigbeeUtils::convertXYToColor(m_currentX, m_currentY);
-//            thing()->setStateValue(tradfriColorLightColorStateTypeId, color);
-//        }
-//    }
-//}

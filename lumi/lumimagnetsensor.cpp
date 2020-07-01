@@ -49,8 +49,6 @@ LumiMagnetSensor::LumiMagnetSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAdd
         m_thing->setStateValue(lumiMagnetSensorSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(lumiMagnetSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
-
     // Get the ZigbeeClusterOnOff server
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster) {
@@ -74,10 +72,11 @@ void LumiMagnetSensor::removeFromNetwork()
 void LumiMagnetSensor::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(lumiMagnetSensorConnectedStateTypeId, true);
-        thing()->setStateValue(lumiMagnetSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiMagnetSensorConnectedStateTypeId, true);
+        m_thing->setStateValue(lumiMagnetSensorVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiMagnetSensorSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
-        thing()->setStateValue(lumiMagnetSensorConnectedStateTypeId, false);
+        m_thing->setStateValue(lumiMagnetSensorConnectedStateTypeId, false);
     }
 }
 
@@ -102,6 +101,6 @@ void LumiMagnetSensor::onNetworkStateChanged(ZigbeeNetwork::State state)
 //        QDataStream stream(&data, QIODevice::ReadOnly);
 //        quint8 closedRaw = 0;
 //        stream >> closedRaw;
-//        thing()->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
+//        m_thing->setStateValue(lumiMagnetSensorClosedStateTypeId, !static_cast<bool>(closedRaw));
 //    }
 //}

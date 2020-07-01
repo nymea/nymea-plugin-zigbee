@@ -56,7 +56,6 @@ GenericColorTemperatureLight::GenericColorTemperatureLight(ZigbeeNetwork *networ
         m_thing->setStateValue(genericColorTemperatureLightSignalStrengthStateTypeId, signalStrength);
     });
 
-    m_thing->setStateValue(genericColorTemperatureLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
 
     // Get the ZigbeeCluster servers
     m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
@@ -104,13 +103,12 @@ void GenericColorTemperatureLight::removeFromNetwork()
 void GenericColorTemperatureLight::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
-        thing()->setStateValue(genericColorTemperatureLightConnectedStateTypeId, true);
-        thing()->setStateValue(genericColorTemperatureLightVersionStateTypeId, m_endpoint->softwareBuildId());
-        readOnOffState();
-        readLevelValue();
-        readColorTemperature();
+        m_thing->setStateValue(genericColorTemperatureLightConnectedStateTypeId, true);
+        m_thing->setStateValue(genericColorTemperatureLightVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(genericColorTemperatureLightSignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
+        readStates();
     } else {
-        thing()->setStateValue(genericColorTemperatureLightConnectedStateTypeId, false);
+        m_thing->setStateValue(genericColorTemperatureLightConnectedStateTypeId, false);
     }
 }
 
@@ -148,7 +146,7 @@ void GenericColorTemperatureLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                thing()->setStateValue(genericColorTemperatureLightPowerStateTypeId, power);
+                m_thing->setStateValue(genericColorTemperatureLightPowerStateTypeId, power);
             }
         });
     } else if (info->action().actionTypeId() == genericColorTemperatureLightBrightnessActionTypeId) {
@@ -167,8 +165,8 @@ void GenericColorTemperatureLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                thing()->setStateValue(genericColorTemperatureLightPowerStateTypeId, (brightness > 0 ? true : false));
-                thing()->setStateValue(genericColorTemperatureLightBrightnessStateTypeId, brightness);
+                m_thing->setStateValue(genericColorTemperatureLightPowerStateTypeId, (brightness > 0 ? true : false));
+                m_thing->setStateValue(genericColorTemperatureLightBrightnessStateTypeId, brightness);
             }
         });
     } else if (info->action().actionTypeId() == genericColorTemperatureLightColorTemperatureActionTypeId) {
@@ -190,13 +188,19 @@ void GenericColorTemperatureLight::executeAction(ThingActionInfo *info)
                 info->finish(Thing::ThingErrorHardwareFailure);
             } else {
                 info->finish(Thing::ThingErrorNoError);
-                thing()->setStateValue(genericColorTemperatureLightColorTemperatureStateTypeId, colorTemperatureScaled);
+                m_thing->setStateValue(genericColorTemperatureLightColorTemperatureStateTypeId, colorTemperatureScaled);
             }
         });
     } else if (info->action().actionTypeId() == genericColorTemperatureLightRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
     }
+}
+
+void GenericColorTemperatureLight::readStates()
+{
+    // Start reading sequentially, on/off -> level ->  color temperature
+    readOnOffState();
 }
 
 void GenericColorTemperatureLight::readOnOffState()
@@ -207,7 +211,7 @@ void GenericColorTemperatureLight::readOnOffState()
     }
 
     ZigbeeClusterReply *reply = m_onOffCluster->readAttributes({ZigbeeClusterOnOff::AttributeOnOff});
-    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read on/off cluster attribute" << reply->error();
             return;
@@ -215,6 +219,7 @@ void GenericColorTemperatureLight::readOnOffState()
 
         // Note: the attribute gets updated internally and the state gets updated with the powerChanged signal
         qCDebug(dcZigbee()) << "Reading on/off cluster attribute finished successfully";
+        readLevelValue();
     });
 }
 
@@ -226,7 +231,7 @@ void GenericColorTemperatureLight::readLevelValue()
     }
 
     ZigbeeClusterReply *reply = m_levelControlCluster->readAttributes({ZigbeeClusterLevelControl::AttributeCurrentLevel});
-    connect(reply, &ZigbeeClusterReply::finished, this, [reply](){
+    connect(reply, &ZigbeeClusterReply::finished, this, [this, reply](){
         if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
             qCWarning(dcZigbee()) << "Failed to read LevelControl cluster attribute" << reply->error();
             return;
@@ -234,6 +239,7 @@ void GenericColorTemperatureLight::readLevelValue()
 
         // Note: the attribute gets updated internally and the state gets updated with the currentLevelChanged signal
         qCDebug(dcZigbee()) << "Reading LevelControl cluster attribute finished successfully";
+        readColorTemperature();
     });
 }
 

@@ -38,7 +38,7 @@
 class GenericColorLight : public ZigbeeDevice
 {
     Q_OBJECT
-public:
+public:    
     explicit GenericColorLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
     void removeFromNetwork() override;
@@ -47,21 +47,41 @@ public:
 
 private:
     ZigbeeNodeEndpoint *m_endpoint = nullptr;
-    quint16 m_currentX = 0;
-    quint16 m_currentY = 0;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
+    ZigbeeClusterColorControl *m_colorCluster = nullptr;
 
-    int m_colorAttributesArrived = 0;
+    bool m_lampInformationCompleted = false;
+    ZigbeeClusterColorControl::ColorCapabilities m_colorCapabilities;
 
+    // Lamp capability informations
     void readColorCapabilities();
+    void processColorCapabilities();
+    void readColorTemperatureRange();
+    bool readCachedColorTemperatureRange();
+
+    // Fetch current states sequentially
+    void readStates();
     void readOnOffState();
     void readLevelValue();
+    void readColorTemperature();
     void readColorXy();
 
-    void configureReporting();
+    // Use default values until until can load them from the device and map them or we have to emulate with colors
+    quint16 m_minColorTemperature = 250;
+    quint16 m_maxColorTemperature = 450;
+
+    // Used for scaling
+    int m_minScaleValue = 0;
+    int m_maxScaleValue = 200;
+
+    // Map methods between scale and actual value
+    quint16 mapScaledValueToColorTemperature(int scaledColorTemperature);
+    int mapColorTemperatureToScaledValue(quint16 colorTemperature);
 
 private slots:
     void onNetworkStateChanged(ZigbeeNetwork::State state);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 };
 
 #endif // GENERICCOLORLIGHT_H
