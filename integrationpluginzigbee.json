@@ -1,16 +1,16 @@
 {
     "name": "zigbee",
-    "displayName": "Zigbee",
+    "displayName": "ZigBee",
     "id": "631431cf-4142-4d53-8ac7-3d5230b2972b",
     "vendors": [
         {
             "name": "zigbee",
-            "displayName": "Zigbee",
+            "displayName": "ZigBee",
             "id": "a3d21c79-fb7d-4cdd-add6-ea25d871131a",
             "thingClasses": [
                 {
                     "name": "zigbeeController",
-                    "displayName": "Zigbee controller",
+                    "displayName": "ZigBee controller",
                     "id": "ff29c3c5-9f0f-4a04-9cf6-aef34928d781",
                     "setupMethod": "JustAdd",
                     "createMethods": [ "Discovery" ],
@@ -26,7 +26,7 @@
                         {
                             "id": "0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8",
                             "name": "baudrate",
-                            "displayName": "Baudrate",
+                            "displayName": "Baud rate",
                             "type": "uint",
                             "defaultValue": 38400
                         },
@@ -60,8 +60,8 @@
                         {
                             "id": "739140aa-5001-468f-a401-e68f2ed8b126",
                             "name": "ieeeAddress",
-                            "displayName": "Coordinator IEEE adress",
-                            "displayNameEvent": "Coordinator IEEE adress changed",
+                            "displayName": "Coordinator IEEE address",
+                            "displayNameEvent": "Coordinator IEEE address changed",
                             "type": "QString",
                             "defaultValue": "00:00:00:00:00:00:00:00"
                         },
@@ -76,16 +76,16 @@
                         {
                             "id": "a7492f2a-4343-41f1-813f-768cdb84fdd3",
                             "name": "channel",
-                            "displayName": "Zigbee channel",
-                            "displayNameEvent": "Zigbee channel changed",
+                            "displayName": "ZigBee channel",
+                            "displayNameEvent": "ZigBee channel changed",
                             "type": "uint",
                             "defaultValue": 20
                         },
                         {
                             "id": "1cc99107-47e7-45a8-8a7f-47908e012337",
                             "name": "permitJoin",
-                            "displayName": "Permit joining enabled",
-                            "displayNameEvent": "Permit joining enabled changed",
+                            "displayName": "Permit joining",
+                            "displayNameEvent": "Permit joining changed",
                             "displayNameAction": "Permit joining",
                             "type": "bool",
                             "cached": false,
@@ -1327,8 +1327,8 @@
                         {
                             "id": "dfd21b01-7b4f-4981-a466-c1083c623320",
                             "name": "color",
-                            "displayName": "color",
-                            "displayNameEvent": "color changed",
+                            "displayName": "Color",
+                            "displayNameEvent": "Color changed",
                             "displayNameAction": "Set color",
                             "type": "QColor",
                             "defaultValue": "#000000",
