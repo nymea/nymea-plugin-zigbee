@@ -182,7 +182,7 @@ void GenericColorLight::executeAction(ThingActionInfo *info)
         if (m_colorCapabilities.testFlag(ZigbeeClusterColorControl::ColorCapabilityColorTemperature)) {
             // We can send the actual color temperature to the device since it supports that
             // Note: since the min/max colortemperature is device dependent, we need to map them in the range [0, 200]
-            int colorTemperatureScaled = info->action().param(genericColorTemperatureLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
+            int colorTemperatureScaled = info->action().param(genericColorLightColorTemperatureActionColorTemperatureParamTypeId).value().toInt();
             quint16 colorTemperature = mapScaledValueToColorTemperature(colorTemperatureScaled);
             qCDebug(dcZigbee()) << "Mapping action value" << colorTemperatureScaled << "to actual color temperature in the range of [" << m_minColorTemperature << "," << m_maxColorTemperature << "] -->" << colorTemperature << "mired";
             // Note: time unit is 1/10 s
@@ -193,7 +193,7 @@ void GenericColorLight::executeAction(ThingActionInfo *info)
                     info->finish(Thing::ThingErrorHardwareFailure);
                 } else {
                     info->finish(Thing::ThingErrorNoError);
-                    m_thing->setStateValue(genericColorTemperatureLightColorTemperatureStateTypeId, colorTemperatureScaled);
+                    m_thing->setStateValue(genericColorLightColorTemperatureStateTypeId, colorTemperatureScaled);
                 }
             });
         } else {
