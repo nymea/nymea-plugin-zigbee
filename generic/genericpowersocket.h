@@ -28,43 +28,32 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef XIAOMITEMPERATURESENSOR_H
-#define XIAOMITEMPERATURESENSOR_H
+#ifndef GENERICPOWERSOCKET_H
+#define GENERICPOWERSOCKET_H
 
 #include <QObject>
 
-#include "zigbeenode.h"
+#include "zigbeedevice.h"
 
-class XiaomiTemperatureSensor : public QObject
+class GenericPowerSocket : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit XiaomiTemperatureSensor(ZigbeeNode *node, QObject *parent = nullptr);
+    explicit GenericPowerSocket(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    bool connected() const;
-    double temperature() const;
-    double humidity() const;
+    void checkOnlineStatus() override;
+    void removeFromNetwork() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    ZigbeeNode *m_node = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
 
-    bool m_connected = false;
-    double m_temperature = 0;
-    double m_humidity = 0;
-
-    void setConnected(bool connected);
-    void setTemperature(double temperature);
-    void setHumidity(double humidity);
-
-signals:
-    void connectedChanged(bool connected);
-    void temperatureChanged(double temperature);
-    void humidityChanged(double humidity);
+    void readOnOffState();
 
 private slots:
-    void onNodeConnectedChanged(bool connected);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
-
+    void onNetworkStateChanged(ZigbeeNetwork::State state);
 };
 
-#endif // XIAOMITEMPERATURESENSOR_H
+#endif // GENERICPOWERSOCKET_H

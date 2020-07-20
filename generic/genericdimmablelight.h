@@ -28,48 +28,36 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef XIAOMIMOTIONSENSOR_H
-#define XIAOMIMOTIONSENSOR_H
+#ifndef GENERICDIMMABLELIGHT_H
+#define GENERICDIMMABLELIGHT_H
 
 #include <QObject>
-#include <QTimer>
 
-#include "zigbeenode.h"
+#include "zigbeedevice.h"
 
-class XiaomiMotionSensor : public QObject
+class GenericDimmableLight : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit XiaomiMotionSensor(ZigbeeNode *node, QObject *parent = nullptr);
+    explicit GenericDimmableLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    bool connected() const;
-    bool present() const;
-
-    int delay() const;
-    void setDelay(int delay);
+    void checkOnlineStatus() override;
+    void removeFromNetwork() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    ZigbeeNode *m_node = nullptr;
-    QTimer *m_delayTimer = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
 
-    bool m_connected = false;
-    bool m_present = false;
-    int m_delay = 60;
-
-    void setConnected(bool connected);
-    void setPresent(bool present);
-
-signals:
-    void connectedChanged(bool connected);
-    void delayChanged(int delay);
-    void presentChanged(bool present);
-    void motionDetected();
+    void readStates();
+    void readOnOffState();
+    void readLevelValue();
 
 private slots:
-    void onNodeConnectedChanged(bool connected);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
+    void onNetworkStateChanged(ZigbeeNetwork::State state);
 
-    void onDelayTimerTimeout();
 };
 
-#endif // XIAOMIMOTIONSENSOR_H
+#endif // GENERICDIMMABLELIGHT_H

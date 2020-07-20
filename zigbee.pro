@@ -12,26 +12,50 @@ isEmpty(PLUGIN_PRI) {
     error("plugin.pri not found. Cannot continue")
   }
 } else {
-#  message("Using $$PLUGIN_PRI")
+  message("Using $$PLUGIN_PRI")
   include($$PLUGIN_PRI)
 }
 
-QT += serialport
+QT += serialport sql
 
 CONFIG += link_pkgconfig
 PKGCONFIG += nymea-zigbee
 
 SOURCES += \
+    generic/genericcolorlight.cpp \
+    generic/genericcolortemperaturelight.cpp \
+    generic/genericdimmablelight.cpp \
+    generic/genericonofflight.cpp \
+    generic/genericpowersocket.cpp \
     integrationpluginzigbee.cpp \
-    xiaomi/xiaomibuttonsensor.cpp \
-    xiaomi/xiaomimagnetsensor.cpp \
-    xiaomi/xiaomimotionsensor.cpp \
-    xiaomi/xiaomitemperaturesensor.cpp
+    ikea/tradfricolorlight.cpp \
+    ikea/tradfricolortemperaturelight.cpp \
+    ikea/tradfrionoffswitch.cpp \
+    ikea/tradfrirangeextender.cpp \
+    #ikea/tradfriremote.cpp \
+    lumi/lumibuttonsensor.cpp \
+    lumi/lumimagnetsensor.cpp \
+    lumi/lumimotionsensor.cpp \
+    lumi/lumitemperaturesensor.cpp \
+    lumi/lumiwatersensor.cpp \
+    zigbeedevice.cpp
 
 HEADERS += \
+    generic/genericcolorlight.h \
+    generic/genericcolortemperaturelight.h \
+    generic/genericdimmablelight.h \
+    generic/genericonofflight.h \
+    generic/genericpowersocket.h \
     integrationpluginzigbee.h \
-    xiaomi/xiaomibuttonsensor.h \
-    xiaomi/xiaomimagnetsensor.h \
-    xiaomi/xiaomimotionsensor.h \
-    xiaomi/xiaomitemperaturesensor.h
+    ikea/tradfricolorlight.h \
+    ikea/tradfricolortemperaturelight.h \
+    ikea/tradfrionoffswitch.h \
+    ikea/tradfrirangeextender.h \
+    #ikea/tradfriremote.h \
+    lumi/lumibuttonsensor.h \
+    lumi/lumimagnetsensor.h \
+    lumi/lumimotionsensor.h \
+    lumi/lumitemperaturesensor.h \
+    lumi/lumiwatersensor.h \
+    zigbeedevice.h
 
