@@ -35,12 +35,16 @@
 #include "zigbeeutils.h"
 #include "zigbeenetworkkey.h"
 
+#include <QDir>
+#include <QFileInfo>
 #include <QDateTime>
 #include <QSerialPortInfo>
 
 IntegrationPluginZigbee::IntegrationPluginZigbee()
 {
-
+    m_monitorTimer = new QTimer(this);
+    m_monitorTimer->setSingleShot(false);
+    m_monitorTimer->setInterval(2000);
 }
 
 void IntegrationPluginZigbee::init()
@@ -94,7 +98,57 @@ void IntegrationPluginZigbee::init()
 
 void IntegrationPluginZigbee::startMonitoringAutoThings()
 {
-    // Start seaching for devices which can be discovered and added automatically
+    // FIXME: do this with udev which is more elegant
+    connect(m_monitorTimer, &QTimer::timeout, this, [this](){
+        if (!myThings().filterByThingClassId(zigbeeControllerThingClassId).isEmpty()) {
+            qCDebug(dcZigbee()) << "Stop monitoring for zigbee controllers. We already have one.";
+            m_monitorTimer->stop();
+            return;
+        }
+
+        foreach (const QSerialPortInfo &serialPortInfo, QSerialPortInfo::availablePorts()) {
+            if (serialPortInfo.manufacturer().toLower().contains("dresden elektronik") &&
+                    serialPortInfo.description().toLower().contains("conbee")) {
+
+                qCDebug(dcZigbee()) << "Found dresten electronics serial port" << serialPortInfo.portName();
+                qCDebug(dcZigbee()) << "   Description:" << serialPortInfo.description();
+                qCDebug(dcZigbee()) << "   System location:" << serialPortInfo.systemLocation();
+                qCDebug(dcZigbee()) << "   Manufacturer:" << serialPortInfo.manufacturer();
+                qCDebug(dcZigbee()) << "   Serialnumber:" << serialPortInfo.serialNumber();
+
+                if (serialPortInfo.hasProductIdentifier()) {
+                    qCDebug(dcZigbee()) << "   Product identifier:" << serialPortInfo.productIdentifier();
+                }
+                if (serialPortInfo.hasVendorIdentifier()) {
+                    qCDebug(dcZigbee()) << "   Vendor identifier:" << serialPortInfo.vendorIdentifier();
+                }
+
+                ParamList params;
+                params.append(Param(zigbeeControllerThingSerialPortParamTypeId, serialPortInfo.systemLocation()));
+                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 38400));
+                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "deCONZ"));
+
+                ThingDescriptor descriptor(zigbeeControllerThingClassId);
+                descriptor.setTitle(serialPortInfo.description());
+                descriptor.setDescription(serialPortInfo.systemLocation());
+                descriptor.setParams(params);
+
+                // Start with a factory reset since we are adding a new controller
+                m_factoryRestRequired = true;
+
+                emit autoThingsAppeared({descriptor});
+                // Note: stop the timer once the device gets actually added
+            }
+        }
+    });
+
+    // Search in regular intervals for
+    if (myThings().filterByThingClassId(zigbeeControllerThingClassId).isEmpty()) {
+        qCDebug(dcZigbee()) << "Start monitoring for deCONZ zigbee controllers...";
+        m_monitorTimer->start();
+    } else {
+        qCDebug(dcZigbee()) << "Not start monitoring for zigbee controllers, we already have one.";
+    }
 }
 
 void IntegrationPluginZigbee::postSetupThing(Thing *thing)
@@ -114,8 +168,11 @@ void IntegrationPluginZigbee::thingRemoved(Thing *thing)
     if (thing->thingClassId() == zigbeeControllerThingClassId) {
         ZigbeeNetwork *zigbeeNetwork = m_zigbeeNetworks.take(thing);
         if (zigbeeNetwork) {
-            zigbeeNetwork->deleteLater();
+            delete zigbeeNetwork;
         }
+
+        // Controller has been removed, lets restart the monitor
+        m_monitorTimer->start();
     } else {
         ZigbeeDevice *zigbeeDevice = m_zigbeeDevices.take(thing);
         if (zigbeeDevice)
@@ -184,12 +241,9 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         QString backendTypeName = thing->paramValue(zigbeeControllerThingHardwareParamTypeId).toString();
 
         ZigbeeNetworkManager::BackendType backendType = ZigbeeNetworkManager::BackendTypeDeconz;
-        //        if (backendTypeName.toLower() == "deconz") {
-        //            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
-        //        }
 
         ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(backendType, this);
-        zigbeeNetwork->setSettingsFileName(NymeaSettings::settingsPath() + "/nymea-zigbee.conf");
+        zigbeeNetwork->setSettingsFileName(QFileInfo(NymeaSettings::settingsPath() + QDir::separator() + "nymea-zigbee.conf").absoluteFilePath());
         zigbeeNetwork->setSerialPortName(serialPortName);
         zigbeeNetwork->setSerialBaudrate(baudrate);
 
@@ -206,7 +260,15 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
 
         m_zigbeeNetworks.insert(thing, zigbeeNetwork);
 
-        m_zigbeeNetworks.value(thing)->startNetwork();
+        if (m_factoryRestRequired) {
+            m_factoryRestRequired = false;
+            zigbeeNetwork->factoryResetNetwork();
+        } else {
+            zigbeeNetwork->startNetwork();
+        }
+
+        // Stop the monitor timer, we have a controller
+        m_monitorTimer->stop();
 
         info->finish(Thing::ThingErrorNoError);
         return;
@@ -964,8 +1026,22 @@ void IntegrationPluginZigbee::onZigbeeNetworkStateChanged(ZigbeeNetwork::State s
         thing->setStateValue(zigbeeControllerChannelStateTypeId, zigbeeNetwork->channel());
         thing->setStateValue(zigbeeControllerPermitJoinStateTypeId, zigbeeNetwork->permitJoining());
         thing->setStateValue(zigbeeControllerIeeeAddressStateTypeId, zigbeeNetwork->coordinatorNode()->extendedAddress().toString());
+        thing->setStateValue(zigbeeControllerStatusStateTypeId, tr("Network running"));
         break;
-    default:
+    case ZigbeeNetwork::StateOffline:
+        thing->setStateValue(zigbeeControllerStatusStateTypeId, tr("Network offline"));
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
+        break;
+    case ZigbeeNetwork::StateStarting:
+        thing->setStateValue(zigbeeControllerStatusStateTypeId, tr("Network starting..."));
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
+        break;
+    case ZigbeeNetwork::StateStopping:
+        thing->setStateValue(zigbeeControllerStatusStateTypeId, tr("Network stopping..."));
+        thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
+        break;
+    case ZigbeeNetwork::StateUninitialized:
+        thing->setStateValue(zigbeeControllerStatusStateTypeId, tr("Network uninitialized"));
         thing->setStateValue(zigbeeControllerConnectedStateTypeId, false);
         break;
     }

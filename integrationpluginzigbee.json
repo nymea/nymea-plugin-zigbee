@@ -13,7 +13,7 @@
                     "displayName": "Zigbee controller",
                     "id": "ff29c3c5-9f0f-4a04-9cf6-aef34928d781",
                     "setupMethod": "JustAdd",
-                    "createMethods": [ "Discovery" ],
+                    "createMethods": [ "Discovery", "Auto" ],
                     "interfaces": [ "gateway" ],
                     "paramTypes": [
                         {
@@ -46,6 +46,15 @@
                             "displayName": "Available",
                             "displayNameEvent": "Available changed",
                             "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "24131e69-d46f-483b-b344-8e37e0a0bcf1",
+                            "name": "status",
+                            "displayName": "Status",
+                            "displayNameEvent": "Status changed",
+                            "type": "QString",
                             "cached": false,
                             "defaultValue": false
                         },

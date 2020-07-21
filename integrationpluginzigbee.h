@@ -31,6 +31,7 @@
 #ifndef INTEGRATIONPLUGINZIGBEE_H
 #define INTEGRATIONPLUGINZIGBEE_H
 
+#include <QTimer>
 #include <integrations/integrationplugin.h>
 #include <zigbeenetworkmanager.h>
 
@@ -72,8 +73,11 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
+    QTimer *m_monitorTimer = nullptr;
     QHash<Thing *, ZigbeeNetwork *> m_zigbeeNetworks;
     QHash<Thing *, ZigbeeDevice *> m_zigbeeDevices;
+
+    bool m_factoryRestRequired = false;
 
     ZigbeeNetwork *findParentNetwork(Thing *thing) const;
     ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
