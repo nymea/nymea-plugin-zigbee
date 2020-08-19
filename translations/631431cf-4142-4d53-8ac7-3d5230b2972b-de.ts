@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1">
+<TS version="2.1" language="de">
 <context>
     <name>zigbee</name>
     <message>
@@ -68,7 +68,7 @@ The name of the StateType ({7548ac08-4ea1-4dcd-98b9-9d58bbc06ab7}) of ThingClass
 The name of the ParamType (ThingClass: zigbeeController, EventType: connected, ID: {eaa16ea3-73aa-45f3-ad64-be894b9167d8})
 ----------
 The name of the StateType ({eaa16ea3-73aa-45f3-ad64-be894b9167d8}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbar</translation>
     </message>
     <message>
         <source>Available changed</source>
@@ -103,19 +103,189 @@ The name of the EventType ({f6c6fdf5-4be0-448e-8b89-ddebba23fdbf}) of ThingClass
 The name of the EventType ({7548ac08-4ea1-4dcd-98b9-9d58bbc06ab7}) of ThingClass genericOnOffLight
 ----------
 The name of the EventType ({eaa16ea3-73aa-45f3-ad64-be894b9167d8}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbar geändert</translation>
+    </message>
+    <message>
+        <source>Button sensor</source>
+        <extracomment>The name of the ThingClass ({42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e})</extracomment>
+        <translation>Tastsensor</translation>
+    </message>
+    <message>
+        <source>Closed</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiMagnetSensor, EventType: closed, ID: {6fad76ec-9d36-408d-bbf1-00e5d18bf6b0})
+----------
+The name of the StateType ({6fad76ec-9d36-408d-bbf1-00e5d18bf6b0}) of ThingClass lumiMagnetSensor</extracomment>
+        <translation>Geschlossen</translation>
+    </message>
+    <message>
+        <source>Closed changed</source>
+        <extracomment>The name of the EventType ({6fad76ec-9d36-408d-bbf1-00e5d18bf6b0}) of ThingClass lumiMagnetSensor</extracomment>
+        <translation>Geschlossen geändert</translation>
+    </message>
+    <message>
+        <source>Factory reset network</source>
+        <extracomment>The name of the ActionType ({73ceb869-17e4-486e-971e-33979d613a49}) of ThingClass zigbeeController</extracomment>
+        <translation>Netzwerk auf Werkseinstellungen zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Firmware version</source>
+        <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: version, ID: {3f3c742c-19d5-4d45-b3e2-7cfd25b0611a})
+----------
+The name of the StateType ({3f3c742c-19d5-4d45-b3e2-7cfd25b0611a}) of ThingClass zigbeeController</extracomment>
+        <translation>Firmwareversion</translation>
+    </message>
+    <message>
+        <source>Firmware version changed</source>
+        <extracomment>The name of the EventType ({3f3c742c-19d5-4d45-b3e2-7cfd25b0611a}) of ThingClass zigbeeController</extracomment>
+        <translation>Firmwareversion geändert</translation>
+    </message>
+    <message>
+        <source>Hardware</source>
+        <extracomment>The name of the ParamType (ThingClass: zigbeeController, Type: thing, ID: {9a31274c-4511-425b-ad5a-f970b8a5b334})</extracomment>
+        <translation>Hardware</translation>
+    </message>
+    <message>
+        <source>Humidity</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiTemperatureHumidity, EventType: humidity, ID: {e6559d9e-2c64-485d-bb2b-8a9aec0ac656})
+----------
+The name of the StateType ({e6559d9e-2c64-485d-bb2b-8a9aec0ac656}) of ThingClass lumiTemperatureHumidity</extracomment>
+        <translation>Luftfeuchte</translation>
+    </message>
+    <message>
+        <source>Humidity changed</source>
+        <extracomment>The name of the EventType ({e6559d9e-2c64-485d-bb2b-8a9aec0ac656}) of ThingClass lumiTemperatureHumidity</extracomment>
+        <translation>Luftfeuchte geändert</translation>
+    </message>
+    <message>
+        <source>IEEE adress</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiWaterSensor, Type: thing, ID: {e12453e7-5fc3-4549-b4fc-8b85f78607c6})
+----------
+The name of the ParamType (ThingClass: lumiMotionSensor, Type: thing, ID: {3a44ed47-5a70-4052-9a14-78f9033eab85})
+----------
+The name of the ParamType (ThingClass: lumiButtonSensor, Type: thing, ID: {929eb2be-6d8f-46b7-8cc9-896e7e2c494a})
+----------
+The name of the ParamType (ThingClass: lumiMagnetSensor, Type: thing, ID: {36d8a40a-7f37-4d59-a0d9-6d4977ea63f3})
+----------
+The name of the ParamType (ThingClass: lumiTemperatureHumidity, Type: thing, ID: {bd0b2bf2-2ec3-497f-9679-a63850101257})</extracomment>
+        <translation>IEEE Adresse</translation>
+    </message>
+    <message>
+        <source>Identify</source>
+        <extracomment>The name of the ActionType ({7cba7c88-e949-4cb4-91c7-170677da2a3a}) of ThingClass tradfriColorTemperatureLight
+----------
+The name of the ActionType ({5c5bc2e7-df75-4a15-89aa-ac0d77d11fea}) of ThingClass tradfriColorLight
+----------
+The name of the ActionType ({062fa97d-50b6-48ee-ab74-03701e4c7220}) of ThingClass genericColorLight
+----------
+The name of the ActionType ({4f8a38f4-652f-40e1-86dd-028dcd64349c}) of ThingClass genericColorTemperatureLight
+----------
+The name of the ActionType ({66f8143a-34f6-403d-81aa-93a3c646c38b}) of ThingClass genericPowerSocket
+----------
+The name of the ActionType ({a04d9e2b-e854-4361-bb34-2da74f8f028f}) of ThingClass genericDimmableLight
+----------
+The name of the ActionType ({9388290d-5db2-484a-a702-53a0d842d412}) of ThingClass genericOnOffLight</extracomment>
+        <translation>Identifizieren</translation>
+    </message>
+    <message>
+        <source>Last seen time</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, EventType: lastSeenTime, ID: {021ce190-a775-40e0-b19b-c6307c73e343})
+----------
+The name of the StateType ({021ce190-a775-40e0-b19b-c6307c73e343}) of ThingClass lumiMotionSensor</extracomment>
+        <translation>Zuletzt gesehen</translation>
+    </message>
+    <message>
+        <source>Last seen time changed</source>
+        <extracomment>The name of the EventType ({021ce190-a775-40e0-b19b-c6307c73e343}) of ThingClass lumiMotionSensor</extracomment>
+        <translation>Zuletzt gesehen geändert</translation>
+    </message>
+    <message>
+        <source>Long pressed</source>
+        <extracomment>The name of the EventType ({6e9dda9f-e51b-48c4-9839-01aa33085e2c}) of ThingClass lumiButtonSensor</extracomment>
+        <translation>Lange gedrückt</translation>
+    </message>
+    <message>
+        <source>Magnet sensor</source>
+        <extracomment>The name of the ThingClass ({b3e30f37-7467-4c66-8694-9fe624aebd10})</extracomment>
+        <translation>Magnetsensor</translation>
+    </message>
+    <message>
+        <source>Motion sensor</source>
+        <extracomment>The name of the ThingClass ({b5530192-0891-4934-88a2-7338b069be24})</extracomment>
+        <translation>Bewegungsmelder</translation>
+    </message>
+    <message>
+        <source>Permit joining</source>
+        <extracomment>The name of the ParamType (ThingClass: zigbeeController, ActionType: permitJoin, ID: {1cc99107-47e7-45a8-8a7f-47908e012337})
+----------
+The name of the ActionType ({1cc99107-47e7-45a8-8a7f-47908e012337}) of ThingClass zigbeeController
+----------
+The name of the ParamType (ThingClass: zigbeeController, EventType: permitJoin, ID: {1cc99107-47e7-45a8-8a7f-47908e012337})
+----------
+The name of the StateType ({1cc99107-47e7-45a8-8a7f-47908e012337}) of ThingClass zigbeeController</extracomment>
+        <translation>Beitritt zulassen</translation>
+    </message>
+    <message>
+        <source>Present</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, EventType: isPresent, ID: {fed7582b-c057-42ab-b7c0-d562a2e7917c})
+----------
+The name of the StateType ({fed7582b-c057-42ab-b7c0-d562a2e7917c}) of ThingClass lumiMotionSensor</extracomment>
+        <translation>Präsens</translation>
+    </message>
+    <message>
+        <source>Present changed</source>
+        <extracomment>The name of the EventType ({fed7582b-c057-42ab-b7c0-d562a2e7917c}) of ThingClass lumiMotionSensor</extracomment>
+        <translation>Präsens geändert</translation>
+    </message>
+    <message>
+        <source>Pressed</source>
+        <extracomment>The name of the EventType ({2515e40a-8146-4f11-8d79-2be9e20224e5}) of ThingClass lumiButtonSensor</extracomment>
+        <translation>Gedrückt</translation>
+    </message>
+    <message>
+        <source>Private network identification (PAN)</source>
+        <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: panId, ID: {d95271bc-2b39-4ae8-8e67-efccf7fc3523})
+----------
+The name of the StateType ({d95271bc-2b39-4ae8-8e67-efccf7fc3523}) of ThingClass zigbeeController</extracomment>
+        <translation>Private Netzwerkidentifikation (PAN)</translation>
+    </message>
+    <message>
+        <source>Private network identification (PAN) changed</source>
+        <extracomment>The name of the EventType ({d95271bc-2b39-4ae8-8e67-efccf7fc3523}) of ThingClass zigbeeController</extracomment>
+        <translation>Private Netzwerkidentifikation (PAN) gändert</translation>
+    </message>
+    <message>
+        <source>Serial port</source>
+        <extracomment>The name of the ParamType (ThingClass: zigbeeController, Type: thing, ID: {c27df339-43c2-4b14-8bd8-aa051716e5d8})</extracomment>
+        <translation>Serielle Schnittstelle</translation>
+    </message>
+    <message>
+        <source>Temperature</source>
+        <extracomment>The name of the ParamType (ThingClass: lumiTemperatureHumidity, EventType: temperature, ID: {152b475e-6bd8-4e6f-8765-0636c0bc8e9d})
+----------
+The name of the StateType ({152b475e-6bd8-4e6f-8765-0636c0bc8e9d}) of ThingClass lumiTemperatureHumidity</extracomment>
+        <translation>Temperatur</translation>
+    </message>
+    <message>
+        <source>Temperature changed</source>
+        <extracomment>The name of the EventType ({152b475e-6bd8-4e6f-8765-0636c0bc8e9d}) of ThingClass lumiTemperatureHumidity</extracomment>
+        <translation>Temperatur geändert</translation>
+    </message>
+    <message>
+        <source>Temperature humidity sensor</source>
+        <extracomment>The name of the ThingClass ({dfabab0e-d483-43f8-82c6-720899e70c86})</extracomment>
+        <translation>Temperatur und Luftfeuchte Sensor</translation>
     </message>
     <message>
         <source>Battery</source>
         <extracomment>The name of the ParamType (ThingClass: tradfriOnOffSwitch, EventType: batteryLevel, ID: {06b6c163-742d-480d-862b-bd1328e74ee9})
 ----------
 The name of the StateType ({06b6c163-742d-480d-862b-bd1328e74ee9}) of ThingClass tradfriOnOffSwitch</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Batterie</translation>
     </message>
     <message>
         <source>Battery changed</source>
         <extracomment>The name of the EventType ({06b6c163-742d-480d-862b-bd1328e74ee9}) of ThingClass tradfriOnOffSwitch</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Batterie geändert</translation>
     </message>
     <message>
         <source>Battery critical</source>
@@ -126,14 +296,14 @@ The name of the StateType ({4cdd86f3-c3b1-4ae6-8b20-cb54772fe33c}) of ThingClass
 The name of the ParamType (ThingClass: lumiWaterSensor, EventType: batteryCritical, ID: {72aa617c-88cc-4992-a1a2-400b5e19106e})
 ----------
 The name of the StateType ({72aa617c-88cc-4992-a1a2-400b5e19106e}) of ThingClass lumiWaterSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Batterie kritisch</translation>
     </message>
     <message>
         <source>Battery critical changed</source>
         <extracomment>The name of the EventType ({4cdd86f3-c3b1-4ae6-8b20-cb54772fe33c}) of ThingClass tradfriOnOffSwitch
 ----------
 The name of the EventType ({72aa617c-88cc-4992-a1a2-400b5e19106e}) of ThingClass lumiWaterSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Batterie kritisch geändert</translation>
     </message>
     <message>
         <source>Brightness</source>
@@ -166,7 +336,7 @@ The name of the ParamType (ThingClass: genericDimmableLight, ActionType: brightn
 The name of the ParamType (ThingClass: genericDimmableLight, EventType: brightness, ID: {6376376f-3221-4e6b-bce3-41872a6fc98a})
 ----------
 The name of the StateType ({6376376f-3221-4e6b-bce3-41872a6fc98a}) of ThingClass genericDimmableLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Helligkeit</translation>
     </message>
     <message>
         <source>Brightness changed</source>
@@ -179,51 +349,34 @@ The name of the EventType ({7329b2eb-fb7e-4098-a551-c3ff24fc2962}) of ThingClass
 The name of the EventType ({b72177f9-b673-49b5-864a-345936e5c821}) of ThingClass genericColorTemperatureLight
 ----------
 The name of the EventType ({6376376f-3221-4e6b-bce3-41872a6fc98a}) of ThingClass genericDimmableLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Helligkeit geändert</translation>
     </message>
     <message>
         <source>Button longpressed</source>
         <extracomment>The name of the EventType ({c7f2b6e5-0590-4c03-bcee-6bc268440593}) of ThingClass tradfriOnOffSwitch</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Taster lang gedrückt</translation>
     </message>
     <message>
         <source>Button name</source>
         <extracomment>The name of the ParamType (ThingClass: tradfriOnOffSwitch, EventType: longPressed, ID: {231c1de6-9a33-4ff9-875b-462a6e7efa1e})
 ----------
 The name of the ParamType (ThingClass: tradfriOnOffSwitch, EventType: pressed, ID: {3b90c778-98ed-4a8f-b530-1e4ed0293486})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tastername</translation>
     </message>
     <message>
         <source>Button pressed</source>
         <extracomment>The name of the EventType ({26e577af-f151-43d8-b278-7ae2d5a6a62f}) of ThingClass tradfriOnOffSwitch</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Button sensor</source>
-        <extracomment>The name of the ThingClass ({42c1edba-cc5f-4eb9-84f8-1b0d47a6f95e})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Closed</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiMagnetSensor, EventType: closed, ID: {6fad76ec-9d36-408d-bbf1-00e5d18bf6b0})
-----------
-The name of the StateType ({6fad76ec-9d36-408d-bbf1-00e5d18bf6b0}) of ThingClass lumiMagnetSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Closed changed</source>
-        <extracomment>The name of the EventType ({6fad76ec-9d36-408d-bbf1-00e5d18bf6b0}) of ThingClass lumiMagnetSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Taster gedrückt</translation>
     </message>
     <message>
         <source>Color Light</source>
         <extracomment>The name of the ThingClass ({8d157281-73c0-4d2c-96a0-572d26e9dd4f})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farblicht</translation>
     </message>
     <message>
         <source>Color Temperature Light</source>
         <extracomment>The name of the ThingClass ({498815c1-a6a3-48e9-9c9b-bff974694b26})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbtemperturlicht</translation>
     </message>
     <message>
         <source>Color temperature</source>
@@ -238,14 +391,14 @@ The name of the ParamType (ThingClass: tradfriColorLight, ActionType: colorTempe
 The name of the ParamType (ThingClass: tradfriColorLight, EventType: colorTemperature, ID: {bb2700fb-7f6f-4261-9ddf-d2d615d8376a})
 ----------
 The name of the StateType ({bb2700fb-7f6f-4261-9ddf-d2d615d8376a}) of ThingClass tradfriColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbtemperatur</translation>
     </message>
     <message>
         <source>Color temperature changed</source>
         <extracomment>The name of the EventType ({9a1a2247-bb8c-404b-9827-d6457f280165}) of ThingClass tradfriColorTemperatureLight
 ----------
 The name of the EventType ({bb2700fb-7f6f-4261-9ddf-d2d615d8376a}) of ThingClass tradfriColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbtemperatur geändert</translation>
     </message>
     <message>
         <source>Color temperature scaled</source>
@@ -260,58 +413,24 @@ The name of the ParamType (ThingClass: genericColorTemperatureLight, ActionType:
 The name of the ParamType (ThingClass: genericColorTemperatureLight, EventType: colorTemperature, ID: {69e94f88-a664-4bb9-ba04-2c3ea6cd7569})
 ----------
 The name of the StateType ({69e94f88-a664-4bb9-ba04-2c3ea6cd7569}) of ThingClass genericColorTemperatureLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbtemperatur skaliert</translation>
     </message>
     <message>
         <source>Color temperature scaled changed</source>
         <extracomment>The name of the EventType ({c2817667-afd0-434b-b0a3-e020d2c90082}) of ThingClass genericColorLight
 ----------
 The name of the EventType ({69e94f88-a664-4bb9-ba04-2c3ea6cd7569}) of ThingClass genericColorTemperatureLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbtemperatur skaliert geändert</translation>
     </message>
     <message>
         <source>Dimmable Light</source>
         <extracomment>The name of the ThingClass ({b2eeb554-ca5c-46b5-a897-bc443fb186ea})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Factory reset network</source>
-        <extracomment>The name of the ActionType ({73ceb869-17e4-486e-971e-33979d613a49}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Dimmbares Licht</translation>
     </message>
     <message>
         <source>Factory reset node</source>
         <extracomment>The name of the ActionType ({86e82d91-5f6a-4bb1-b8e8-acc64df7c108}) of ThingClass genericColorLight</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Firmware version</source>
-        <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: version, ID: {3f3c742c-19d5-4d45-b3e2-7cfd25b0611a})
-----------
-The name of the StateType ({3f3c742c-19d5-4d45-b3e2-7cfd25b0611a}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Firmware version changed</source>
-        <extracomment>The name of the EventType ({3f3c742c-19d5-4d45-b3e2-7cfd25b0611a}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hardware</source>
-        <extracomment>The name of the ParamType (ThingClass: zigbeeController, Type: thing, ID: {9a31274c-4511-425b-ad5a-f970b8a5b334})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Humidity</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiTemperatureHumidity, EventType: humidity, ID: {e6559d9e-2c64-485d-bb2b-8a9aec0ac656})
-----------
-The name of the StateType ({e6559d9e-2c64-485d-bb2b-8a9aec0ac656}) of ThingClass lumiTemperatureHumidity</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Humidity changed</source>
-        <extracomment>The name of the EventType ({e6559d9e-2c64-485d-bb2b-8a9aec0ac656}) of ThingClass lumiTemperatureHumidity</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Werksreset Node</translation>
     </message>
     <message>
         <source>IEEE address</source>
@@ -334,81 +453,29 @@ The name of the ParamType (ThingClass: genericPowerSocket, Type: thing, ID: {d71
 The name of the ParamType (ThingClass: genericDimmableLight, Type: thing, ID: {dd9477bb-7195-4b28-9f6b-f8619253f828})
 ----------
 The name of the ParamType (ThingClass: genericOnOffLight, Type: thing, ID: {1b434d5d-4fe4-439c-b842-3483e8e24820})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IEEE adress</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiWaterSensor, Type: thing, ID: {e12453e7-5fc3-4549-b4fc-8b85f78607c6})
-----------
-The name of the ParamType (ThingClass: lumiMotionSensor, Type: thing, ID: {3a44ed47-5a70-4052-9a14-78f9033eab85})
-----------
-The name of the ParamType (ThingClass: lumiButtonSensor, Type: thing, ID: {929eb2be-6d8f-46b7-8cc9-896e7e2c494a})
-----------
-The name of the ParamType (ThingClass: lumiMagnetSensor, Type: thing, ID: {36d8a40a-7f37-4d59-a0d9-6d4977ea63f3})
-----------
-The name of the ParamType (ThingClass: lumiTemperatureHumidity, Type: thing, ID: {bd0b2bf2-2ec3-497f-9679-a63850101257})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Identify</source>
-        <extracomment>The name of the ActionType ({7cba7c88-e949-4cb4-91c7-170677da2a3a}) of ThingClass tradfriColorTemperatureLight
-----------
-The name of the ActionType ({5c5bc2e7-df75-4a15-89aa-ac0d77d11fea}) of ThingClass tradfriColorLight
-----------
-The name of the ActionType ({062fa97d-50b6-48ee-ab74-03701e4c7220}) of ThingClass genericColorLight
-----------
-The name of the ActionType ({4f8a38f4-652f-40e1-86dd-028dcd64349c}) of ThingClass genericColorTemperatureLight
-----------
-The name of the ActionType ({66f8143a-34f6-403d-81aa-93a3c646c38b}) of ThingClass genericPowerSocket
-----------
-The name of the ActionType ({a04d9e2b-e854-4361-bb34-2da74f8f028f}) of ThingClass genericDimmableLight
-----------
-The name of the ActionType ({9388290d-5db2-484a-a702-53a0d842d412}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>IEEE Adresse</translation>
     </message>
     <message>
         <source>Ikea</source>
         <extracomment>The name of the vendor ({ddf2394c-b213-4991-abe7-7f4b2c43a358})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Last seen time</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, EventType: lastSeenTime, ID: {021ce190-a775-40e0-b19b-c6307c73e343})
-----------
-The name of the StateType ({021ce190-a775-40e0-b19b-c6307c73e343}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Last seen time changed</source>
-        <extracomment>The name of the EventType ({021ce190-a775-40e0-b19b-c6307c73e343}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ikea</translation>
     </message>
     <message>
         <source>Light intensity</source>
         <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, EventType: lightIntensity, ID: {eb3fb43e-a9bb-4498-880b-464cbb752ff6})
 ----------
 The name of the StateType ({eb3fb43e-a9bb-4498-880b-464cbb752ff6}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lichtintensität</translation>
     </message>
     <message>
         <source>Light intensity changed</source>
         <extracomment>The name of the EventType ({eb3fb43e-a9bb-4498-880b-464cbb752ff6}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Long pressed</source>
-        <extracomment>The name of the EventType ({6e9dda9f-e51b-48c4-9839-01aa33085e2c}) of ThingClass lumiButtonSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lichtintensität geändert</translation>
     </message>
     <message>
         <source>Lumi</source>
         <extracomment>The name of the vendor ({f58dac98-0ba1-408f-946a-25d452080baa})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Magnet sensor</source>
-        <extracomment>The name of the ThingClass ({b3e30f37-7467-4c66-8694-9fe624aebd10})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Lumi</translation>
     </message>
     <message>
         <source>Manufacturer</source>
@@ -421,7 +488,7 @@ The name of the ParamType (ThingClass: genericPowerSocket, Type: thing, ID: {567
 The name of the ParamType (ThingClass: genericDimmableLight, Type: thing, ID: {0087a33e-88e9-4e90-bb99-82b25adba80b})
 ----------
 The name of the ParamType (ThingClass: genericOnOffLight, Type: thing, ID: {acb5e910-ed8b-4968-972e-5fc57f466b8a})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Hersteller</translation>
     </message>
     <message>
         <source>Model</source>
@@ -434,28 +501,12 @@ The name of the ParamType (ThingClass: genericPowerSocket, Type: thing, ID: {afa
 The name of the ParamType (ThingClass: genericDimmableLight, Type: thing, ID: {f6e06036-efb9-43e0-8a4e-309dd5ee4c97})
 ----------
 The name of the ParamType (ThingClass: genericOnOffLight, Type: thing, ID: {3d942b2d-302a-4c42-8cf5-be2865736736})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Motion sensor</source>
-        <extracomment>The name of the ThingClass ({b5530192-0891-4934-88a2-7338b069be24})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modell</translation>
     </message>
     <message>
         <source>On/Off Light</source>
         <extracomment>The name of the ThingClass ({7fbc3165-e618-4dc0-8255-8dac2cc08dfa})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Permit joining</source>
-        <extracomment>The name of the ParamType (ThingClass: zigbeeController, ActionType: permitJoin, ID: {1cc99107-47e7-45a8-8a7f-47908e012337})
-----------
-The name of the ActionType ({1cc99107-47e7-45a8-8a7f-47908e012337}) of ThingClass zigbeeController
-----------
-The name of the ParamType (ThingClass: zigbeeController, EventType: permitJoin, ID: {1cc99107-47e7-45a8-8a7f-47908e012337})
-----------
-The name of the StateType ({1cc99107-47e7-45a8-8a7f-47908e012337}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Ein-/Ausschalter</translation>
     </message>
     <message>
         <source>Power</source>
@@ -500,12 +551,12 @@ The name of the ParamType (ThingClass: genericOnOffLight, ActionType: power, ID:
 The name of the ParamType (ThingClass: genericOnOffLight, EventType: power, ID: {ae03155c-f17f-4d9f-bb40-157a8cb1f83c})
 ----------
 The name of the StateType ({ae03155c-f17f-4d9f-bb40-157a8cb1f83c}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eingeschalten</translation>
     </message>
     <message>
         <source>Power Socket</source>
         <extracomment>The name of the ThingClass ({5cdb8589-0bb4-48e7-8926-eb43da69cf74})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Steckdose</translation>
     </message>
     <message>
         <source>Power changed</source>
@@ -522,36 +573,7 @@ The name of the EventType ({07a50aa7-8388-4a98-a790-47baac092903}) of ThingClass
 The name of the EventType ({19d82a60-0009-4cff-966d-3b1c4fe358e1}) of ThingClass genericDimmableLight
 ----------
 The name of the EventType ({ae03155c-f17f-4d9f-bb40-157a8cb1f83c}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Present</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, EventType: isPresent, ID: {fed7582b-c057-42ab-b7c0-d562a2e7917c})
-----------
-The name of the StateType ({fed7582b-c057-42ab-b7c0-d562a2e7917c}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Present changed</source>
-        <extracomment>The name of the EventType ({fed7582b-c057-42ab-b7c0-d562a2e7917c}) of ThingClass lumiMotionSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Pressed</source>
-        <extracomment>The name of the EventType ({2515e40a-8146-4f11-8d79-2be9e20224e5}) of ThingClass lumiButtonSensor</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Private network identification (PAN)</source>
-        <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: panId, ID: {d95271bc-2b39-4ae8-8e67-efccf7fc3523})
-----------
-The name of the StateType ({d95271bc-2b39-4ae8-8e67-efccf7fc3523}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Private network identification (PAN) changed</source>
-        <extracomment>The name of the EventType ({d95271bc-2b39-4ae8-8e67-efccf7fc3523}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Eingeschalten geändert</translation>
     </message>
     <message>
         <source>Remove from network</source>
@@ -584,17 +606,12 @@ The name of the ActionType ({95596dd9-2e1c-4f93-a163-cd5d3e85a140}) of ThingClas
 The name of the ActionType ({3c7b2672-1b56-4f10-91cc-5d7bfc5efc7a}) of ThingClass genericDimmableLight
 ----------
 The name of the ActionType ({790cdb6d-d87f-4fc0-b870-34c3f40e07c1}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Vom Netzwerk entfernen</translation>
     </message>
     <message>
         <source>Reset controller</source>
         <extracomment>The name of the ActionType ({d6153a98-f1a8-4bc4-a1d7-6f986886bf46}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Serial port</source>
-        <extracomment>The name of the ParamType (ThingClass: zigbeeController, Type: thing, ID: {c27df339-43c2-4b14-8bd8-aa051716e5d8})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Controller zurücksetzen</translation>
     </message>
     <message>
         <source>Set brightness</source>
@@ -607,28 +624,28 @@ The name of the ActionType ({7329b2eb-fb7e-4098-a551-c3ff24fc2962}) of ThingClas
 The name of the ActionType ({b72177f9-b673-49b5-864a-345936e5c821}) of ThingClass genericColorTemperatureLight
 ----------
 The name of the ActionType ({6376376f-3221-4e6b-bce3-41872a6fc98a}) of ThingClass genericDimmableLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setze Helligkeit</translation>
     </message>
     <message>
         <source>Set color</source>
         <extracomment>The name of the ActionType ({dfd21b01-7b4f-4981-a466-c1083c623320}) of ThingClass tradfriColorLight
 ----------
 The name of the ActionType ({51e8e6da-426c-4812-9c00-70f1356190dc}) of ThingClass genericColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setze Farbe</translation>
     </message>
     <message>
         <source>Set color temperature</source>
         <extracomment>The name of the ActionType ({9a1a2247-bb8c-404b-9827-d6457f280165}) of ThingClass tradfriColorTemperatureLight
 ----------
 The name of the ActionType ({bb2700fb-7f6f-4261-9ddf-d2d615d8376a}) of ThingClass tradfriColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setze Farbtemperatur</translation>
     </message>
     <message>
         <source>Set color temperature scaled</source>
         <extracomment>The name of the ActionType ({c2817667-afd0-434b-b0a3-e020d2c90082}) of ThingClass genericColorLight
 ----------
 The name of the ActionType ({69e94f88-a664-4bb9-ba04-2c3ea6cd7569}) of ThingClass genericColorTemperatureLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setze skalierte Farbtemperatur</translation>
     </message>
     <message>
         <source>Set power</source>
@@ -645,7 +662,7 @@ The name of the ActionType ({07a50aa7-8388-4a98-a790-47baac092903}) of ThingClas
 The name of the ActionType ({19d82a60-0009-4cff-966d-3b1c4fe358e1}) of ThingClass genericDimmableLight
 ----------
 The name of the ActionType ({ae03155c-f17f-4d9f-bb40-157a8cb1f83c}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Setze Eingeschalten</translation>
     </message>
     <message>
         <source>Signal strength</source>
@@ -708,7 +725,7 @@ The name of the StateType ({ab75980d-12f5-4ddc-be2d-dc54514a3b75}) of ThingClass
 The name of the ParamType (ThingClass: genericOnOffLight, EventType: signalStrength, ID: {5857943e-ed90-4321-966e-b56eddaf2441})
 ----------
 The name of the StateType ({5857943e-ed90-4321-966e-b56eddaf2441}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signalstärke</translation>
     </message>
     <message>
         <source>Signal strength changed</source>
@@ -741,66 +758,49 @@ The name of the EventType ({df6212a2-cbe0-414d-bbb9-314ce4f068bc}) of ThingClass
 The name of the EventType ({ab75980d-12f5-4ddc-be2d-dc54514a3b75}) of ThingClass genericDimmableLight
 ----------
 The name of the EventType ({5857943e-ed90-4321-966e-b56eddaf2441}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Signalstärke geändert</translation>
     </message>
     <message>
         <source>TRÅDFRI Color Light</source>
         <extracomment>The name of the ThingClass ({1cf18470-5193-4800-8f45-1f11b2dff204})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>TRÅDFRI Farblicht</translation>
     </message>
     <message>
         <source>TRÅDFRI Color Temperature Light</source>
         <extracomment>The name of the ThingClass ({92ff113a-9205-451b-a172-361e20ebb873})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>TRÅDFRI Farbtemperaturlicht</translation>
     </message>
     <message>
         <source>TRÅDFRI On/Off Switch</source>
         <extracomment>The name of the ThingClass ({cec4b104-6076-4a6d-9ee2-595be25a2dcc})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>TRÅDFRI Ein-/Ausschalter</translation>
     </message>
     <message>
         <source>TRÅDFRI Remote</source>
         <extracomment>The name of the ThingClass ({f16386d8-afe5-4d7d-b5dc-a2613d2cefc4})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>TRÅDFRI Fernbedienung</translation>
     </message>
     <message>
         <source>TRÅDFRI Signal Repeater</source>
         <extracomment>The name of the ThingClass ({b217337e-3c98-47fa-b8ea-cf240e54f203})</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Temperature</source>
-        <extracomment>The name of the ParamType (ThingClass: lumiTemperatureHumidity, EventType: temperature, ID: {152b475e-6bd8-4e6f-8765-0636c0bc8e9d})
-----------
-The name of the StateType ({152b475e-6bd8-4e6f-8765-0636c0bc8e9d}) of ThingClass lumiTemperatureHumidity</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Temperature changed</source>
-        <extracomment>The name of the EventType ({152b475e-6bd8-4e6f-8765-0636c0bc8e9d}) of ThingClass lumiTemperatureHumidity</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Temperature humidity sensor</source>
-        <extracomment>The name of the ThingClass ({dfabab0e-d483-43f8-82c6-720899e70c86})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>TRÅDFRI Signalverstärker</translation>
     </message>
     <message>
         <source>Test 1</source>
         <extracomment>The name of the ActionType ({4a9d9427-52cf-4c13-9b71-496145b18476}) of ThingClass lumiTemperatureHumidity</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Test 1</translation>
     </message>
     <message>
         <source>Test action</source>
         <extracomment>The name of the ActionType ({6897c962-7398-409b-becb-f2168bf0503a}) of ThingClass tradfriColorLight
 ----------
 The name of the ActionType ({b4f72ad4-33ac-4195-bde3-eff86aef1ae5}) of ThingClass tradfriOnOffSwitch</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Testaktion</translation>
     </message>
     <message>
         <source>Time period</source>
         <extracomment>The name of the ParamType (ThingClass: lumiMotionSensor, Type: settings, ID: {4aeb84fa-e3ef-495e-8754-a5f6c3aa934a})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Zeitraum</translation>
     </message>
     <message>
         <source>Version</source>
@@ -863,7 +863,7 @@ The name of the StateType ({9390d2a6-7a17-4b42-8b35-cdb8b3d4d723}) of ThingClass
 The name of the ParamType (ThingClass: genericOnOffLight, EventType: version, ID: {f5b5e0b3-2c34-4ccc-baef-8e29b84e7a2b})
 ----------
 The name of the StateType ({f5b5e0b3-2c34-4ccc-baef-8e29b84e7a2b}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Version</translation>
     </message>
     <message>
         <source>Version changed</source>
@@ -896,24 +896,24 @@ The name of the EventType ({b3c6dfbf-c913-441c-a05a-26a33595afea}) of ThingClass
 The name of the EventType ({9390d2a6-7a17-4b42-8b35-cdb8b3d4d723}) of ThingClass genericDimmableLight
 ----------
 The name of the EventType ({f5b5e0b3-2c34-4ccc-baef-8e29b84e7a2b}) of ThingClass genericOnOffLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Version geändert</translation>
     </message>
     <message>
         <source>Water detected</source>
         <extracomment>The name of the ParamType (ThingClass: lumiWaterSensor, EventType: waterDetected, ID: {e43532a7-cbee-446e-9e4a-aff88026ad1a})
 ----------
 The name of the StateType ({e43532a7-cbee-446e-9e4a-aff88026ad1a}) of ThingClass lumiWaterSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wasser erkannt</translation>
     </message>
     <message>
         <source>Water detected changed</source>
         <extracomment>The name of the EventType ({e43532a7-cbee-446e-9e4a-aff88026ad1a}) of ThingClass lumiWaterSensor</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wasser erkannt geändert</translation>
     </message>
     <message>
         <source>Water sensor</source>
         <extracomment>The name of the ThingClass ({e8e18bbe-27bb-4fd7-98fc-f5cef3b5f213})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wassersensor</translation>
     </message>
     <message>
         <source>color</source>
@@ -922,17 +922,17 @@ The name of the StateType ({e43532a7-cbee-446e-9e4a-aff88026ad1a}) of ThingClass
 The name of the ParamType (ThingClass: genericColorLight, EventType: color, ID: {51e8e6da-426c-4812-9c00-70f1356190dc})
 ----------
 The name of the StateType ({51e8e6da-426c-4812-9c00-70f1356190dc}) of ThingClass genericColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>farbe</translation>
     </message>
     <message>
         <source>color changed</source>
         <extracomment>The name of the EventType ({51e8e6da-426c-4812-9c00-70f1356190dc}) of ThingClass genericColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbe gändert</translation>
     </message>
     <message>
         <source>Baud rate</source>
         <extracomment>The name of the ParamType (ThingClass: zigbeeController, Type: thing, ID: {0a7ef4de-6d82-42d4-b56f-1e7ffc06e9f8})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Baudrate</translation>
     </message>
     <message>
         <source>Color</source>
@@ -941,53 +941,53 @@ The name of the StateType ({51e8e6da-426c-4812-9c00-70f1356190dc}) of ThingClass
 The name of the ParamType (ThingClass: tradfriColorLight, EventType: color, ID: {dfd21b01-7b4f-4981-a466-c1083c623320})
 ----------
 The name of the StateType ({dfd21b01-7b4f-4981-a466-c1083c623320}) of ThingClass tradfriColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbe</translation>
     </message>
     <message>
         <source>Color changed</source>
         <extracomment>The name of the EventType ({dfd21b01-7b4f-4981-a466-c1083c623320}) of ThingClass tradfriColorLight</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Farbe geändert</translation>
     </message>
     <message>
         <source>Coordinator IEEE address</source>
         <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: ieeeAddress, ID: {739140aa-5001-468f-a401-e68f2ed8b126})
 ----------
 The name of the StateType ({739140aa-5001-468f-a401-e68f2ed8b126}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Koordinator IEEE-Adresse</translation>
     </message>
     <message>
         <source>Coordinator IEEE address changed</source>
         <extracomment>The name of the EventType ({739140aa-5001-468f-a401-e68f2ed8b126}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Koordinator IEEE-Adresse geändert</translation>
     </message>
     <message>
         <source>Permit joining changed</source>
         <extracomment>The name of the EventType ({1cc99107-47e7-45a8-8a7f-47908e012337}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Beitrittserlaubnis geändert</translation>
     </message>
     <message>
         <source>ZigBee</source>
         <extracomment>The name of the vendor ({a3d21c79-fb7d-4cdd-add6-ea25d871131a})
 ----------
 The name of the plugin zigbee ({631431cf-4142-4d53-8ac7-3d5230b2972b})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ZigBee</translation>
     </message>
     <message>
         <source>ZigBee channel</source>
         <extracomment>The name of the ParamType (ThingClass: zigbeeController, EventType: channel, ID: {a7492f2a-4343-41f1-813f-768cdb84fdd3})
 ----------
 The name of the StateType ({a7492f2a-4343-41f1-813f-768cdb84fdd3}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ZeigBee Kanal</translation>
     </message>
     <message>
         <source>ZigBee channel changed</source>
         <extracomment>The name of the EventType ({a7492f2a-4343-41f1-813f-768cdb84fdd3}) of ThingClass zigbeeController</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ZigBee-Kanal geändert</translation>
     </message>
     <message>
         <source>ZigBee controller</source>
         <extracomment>The name of the ThingClass ({ff29c3c5-9f0f-4a04-9cf6-aef34928d781})</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ZigBee-Controller</translation>
     </message>
 </context>
 </TS>
