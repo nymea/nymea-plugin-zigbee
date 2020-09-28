@@ -252,7 +252,8 @@
                             "displayName": "Closed",
                             "displayNameEvent": "Closed changed",
                             "type": "bool",
-                            "defaultValue": true
+                            "defaultValue": true,
+                            "ioType": "digitalInput"
                         }
                     ],
                     "actionTypes": [
@@ -337,7 +338,8 @@
                             "displayName": "Present",
                             "displayNameEvent": "Present changed",
                             "type": "bool",
-                            "defaultValue": true
+                            "defaultValue": true,
+                            "ioType": "digitalInput"
                         },
                         {
                             "id": "021ce190-a775-40e0-b19b-c6307c73e343",
