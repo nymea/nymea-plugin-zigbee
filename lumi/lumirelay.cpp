@@ -64,9 +64,8 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint1;
     } else {
         connect(m_onOffCluster1, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
-            bool state = !power;
-            qCDebug(dcZigbee()) << m_thing << "state changed" << (state ? "pressed" : "released");
-            m_thing->setStateValue(lumiRelayInput1StateTypeId, state);
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (power ? "pressed" : "released");
+            m_thing->setStateValue(lumiRelayRelay1StateTypeId, power);
         });
     }
 
@@ -75,18 +74,11 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
         qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint2;
     } else {
         connect(m_onOffCluster2, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
-            bool state = !power;
-            qCDebug(dcZigbee()) << m_thing << "state changed" << (state ? "pressed" : "released");
-            m_thing->setStateValue(lumiRelayInput2StateTypeId, state);
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (power ? "pressed" : "released");
+            m_thing->setStateValue(lumiRelayRelay2StateTypeId, power);
         });
     }
 
-    //m_binaryOutputCluster1 = m_endpoint1->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdBinaryOutputBasic);
-    //if (!m_binaryOutputCluster1) {
-    //    qCWarning(dcZigbee()) << "Could not find the binary output cluster on" << m_thing << m_endpoint1;
-    //m_binaryOutputCluster2 = m_endpoint2->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdBinaryOutputBasic);
-    //if (!m_binaryOutputCluster2) {
-    //    qCWarning(dcZigbee()) << "Could not find the binary output cluster on" << m_thing << m_endpoint2;
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiRelay::onNetworkStateChanged);
 }
 

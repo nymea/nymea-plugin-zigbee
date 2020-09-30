@@ -519,6 +519,13 @@ void IntegrationPluginZigbee::executeAction(ThingActionInfo *info)
         return;
     }
 
+    // Lumi relay
+    if (thing->thingClassId() == lumiRelayThingClassId) {
+        LumiRelay *relay = qobject_cast<LumiRelay *>(m_zigbeeDevices.value(thing));
+        relay->executeAction(info);
+        return;
+    }
+
     // Generic on/off light
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
         GenericOnOffLight *light = qobject_cast<GenericOnOffLight *>(m_zigbeeDevices.value(thing));

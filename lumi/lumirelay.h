@@ -53,9 +53,6 @@ private:
     ZigbeeClusterOnOff *m_onOffCluster1 = nullptr;
     ZigbeeClusterOnOff *m_onOffCluster2 = nullptr;
 
-    //ZigbeeClusterBinaryOutput *m_binaryOutputCluster1 = nullptr;
-    //ZigbeeClusterBinaryOutput *m_binaryOutputCluster2 = nullptr;
-
     QTimer *m_longPressedTimer = nullptr;
 
     bool m_pressed = false;
