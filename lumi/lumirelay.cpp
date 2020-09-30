@@ -61,7 +61,7 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
     // Get the ZigbeeClusterOnOff server
     m_onOffCluster1 = m_endpoint1->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster1) {
-        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint1;
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing;
     } else {
         connect(m_onOffCluster1, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
             qCDebug(dcZigbee()) << m_thing << "state changed" << (power ? "pressed" : "released");
@@ -71,7 +71,7 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
 
     m_onOffCluster2 = m_endpoint2->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
     if (!m_onOffCluster2) {
-        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint2;
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing;
     } else {
         connect(m_onOffCluster2, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
             qCDebug(dcZigbee()) << m_thing << "state changed" << (power ? "pressed" : "released");
