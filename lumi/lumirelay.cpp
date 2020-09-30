@@ -43,9 +43,13 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
 
     Q_ASSERT_X(m_node, "ZigbeeDevice", "ZigbeeDevice created but the node is not here yet.");
 
-    // Initialize the endpoint 0x01 since that endpoint is sending the button notifications
-    m_endpoint = m_node->getEndpoint(0x01);
-    Q_ASSERT_X(m_endpoint, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
+    // Initialize the endpoint 0x01
+    m_endpoint1 = m_node->getEndpoint(0x01);
+    Q_ASSERT_X(m_endpoint1, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
+
+    // Initialize the endpoint 0x02
+    m_endpoint2 = m_node->getEndpoint(0x02);
+    Q_ASSERT_X(m_endpoint2, "ZigbeeDevice", "ZigbeeDevice created but the endpoint could not be found.");
 
     // Update signal strength
     connect(m_node, &ZigbeeNode::lqiChanged, this, [this](quint8 lqi){
@@ -55,17 +59,34 @@ LumiRelay::LumiRelay(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *t
     });
 
     // Get the ZigbeeClusterOnOff server
-    m_onOffCluster = m_endpoint->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
-    if (!m_onOffCluster) {
-        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint;
+    m_onOffCluster1 = m_endpoint1->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
+    if (!m_onOffCluster1) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint1;
     } else {
-        connect(m_onOffCluster, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
-            bool pressed = !power;
-            qCDebug(dcZigbee()) << m_thing << "state changed" << (pressed ? "pressed" : "released");
-            setPressed(!power);
+        connect(m_onOffCluster1, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
+            bool state = !power;
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (state ? "pressed" : "released");
+            m_thing->setStateValue(lumiRelayInput1StateTypeId, state);
         });
     }
 
+    m_onOffCluster2 = m_endpoint2->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdOnOff);
+    if (!m_onOffCluster2) {
+        qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint2;
+    } else {
+        connect(m_onOffCluster2, &ZigbeeClusterOnOff::powerChanged, this, [this](bool power){
+            bool state = !power;
+            qCDebug(dcZigbee()) << m_thing << "state changed" << (state ? "pressed" : "released");
+            m_thing->setStateValue(lumiRelayInput2StateTypeId, state);
+        });
+    }
+
+    //m_binaryOutputCluster1 = m_endpoint1->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdBinaryOutputBasic);
+    //if (!m_binaryOutputCluster1) {
+    //    qCWarning(dcZigbee()) << "Could not find the binary output cluster on" << m_thing << m_endpoint1;
+    //m_binaryOutputCluster2 = m_endpoint2->inputCluster<ZigbeeClusterOnOff>(ZigbeeClusterLibrary::ClusterIdBinaryOutputBasic);
+    //if (!m_binaryOutputCluster2) {
+    //    qCWarning(dcZigbee()) << "Could not find the binary output cluster on" << m_thing << m_endpoint2;
     connect(m_network, &ZigbeeNetwork::stateChanged, this, &LumiRelay::onNetworkStateChanged);
 }
 
@@ -78,7 +99,7 @@ void LumiRelay::checkOnlineStatus()
 {
     if (m_network->state() == ZigbeeNetwork::StateRunning) {
         m_thing->setStateValue(lumiRelayConnectedStateTypeId, true);
-        m_thing->setStateValue(lumiRelayVersionStateTypeId, m_endpoint->softwareBuildId());
+        m_thing->setStateValue(lumiRelayVersionStateTypeId, m_endpoint1->softwareBuildId());
         m_thing->setStateValue(lumiRelaySignalStrengthStateTypeId, qRound(m_node->lqi() * 100.0 / 255.0));
     } else {
         m_thing->setStateValue(lumiRelayConnectedStateTypeId, false);
@@ -87,9 +108,46 @@ void LumiRelay::checkOnlineStatus()
 
 void LumiRelay::executeAction(ThingActionInfo *info)
 {
-    if (info->action().actionTypeId() == lumiRelayRemoveFromNetworkActionTypeId) {
+    Action action = info->action();
+    if (action.actionTypeId() == lumiRelayRemoveFromNetworkActionTypeId) {
         removeFromNetwork();
         info->finish(Thing::ThingErrorNoError);
+    } else if (action.actionTypeId() == lumiRelayRelay1ActionTypeId) {
+        if (!m_onOffCluster1) {
+            qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint1;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        bool power = info->action().param(lumiRelayRelay1ActionRelay1ParamTypeId).value().toBool();
+        ZigbeeClusterReply *reply = (power ? m_onOffCluster1->commandOn() : m_onOffCluster1->commandOff());
+        connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, power](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                m_thing->setStateValue(lumiRelayRelay1StateTypeId, power);
+            }
+        });
+    } else if (action.actionTypeId() == lumiRelayRelay2ActionTypeId) {
+        if (!m_onOffCluster2) {
+            qCWarning(dcZigbee()) << "Could not find the OnOff input cluster on" << m_thing << m_endpoint2;
+            info->finish(Thing::ThingErrorHardwareFailure);
+            return;
+        }
+
+        bool power = info->action().param(lumiRelayRelay2ActionRelay2ParamTypeId).value().toBool();
+        ZigbeeClusterReply *reply = (power ? m_onOffCluster2->commandOn() : m_onOffCluster2->commandOff());
+        connect(reply, &ZigbeeClusterReply::finished, this, [this, reply, info, power](){
+            // Note: reply will be deleted automatically
+            if (reply->error() != ZigbeeClusterReply::ErrorNoError) {
+                info->finish(Thing::ThingErrorHardwareFailure);
+            } else {
+                info->finish(Thing::ThingErrorNoError);
+                m_thing->setStateValue(lumiRelayRelay2StateTypeId, power);
+            }
+        });
     }
 }
 

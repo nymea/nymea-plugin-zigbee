@@ -47,8 +47,15 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
-    ZigbeeNodeEndpoint *m_endpoint = nullptr;
-    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint1 = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint2 = nullptr;
+
+    ZigbeeClusterOnOff *m_onOffCluster1 = nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster2 = nullptr;
+
+    //ZigbeeClusterBinaryOutput *m_binaryOutputCluster1 = nullptr;
+    //ZigbeeClusterBinaryOutput *m_binaryOutputCluster2 = nullptr;
+
     QTimer *m_longPressedTimer = nullptr;
 
     bool m_pressed = false;
