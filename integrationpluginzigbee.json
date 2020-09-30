@@ -1010,6 +1010,113 @@
                     "eventTypes": [
 
                     ]
+                },
+                {
+                    "name": "lumiRelay",
+                    "displayName": "Relay",
+                    "id": "2080342e-8b5a-475c-bc15-39d851239aaf",
+                    "setupMethod": "JustAdd",
+                    "createMethods": [ "Auto" ],
+                    "interfaces": [ "longpressbutton", "wirelessconnectable" ],
+                    "paramTypes": [
+                        {
+                            "id": "6edc0de3-c671-4fab-b437-83dc42eb6a12",
+                            "name": "ieeeAddress",
+                            "displayName": "IEEE adress",
+                            "type": "QString",
+                            "defaultValue": "00:00:00:00:00:00:00:00"
+                        }
+                    ],
+                    "stateTypes": [
+                        {
+                            "id": "720318d5-7834-477b-a9f4-f498b76220f1",
+                            "name": "connected",
+                            "displayName": "Available",
+                            "displayNameEvent": "Available changed",
+                            "type": "bool",
+                            "cached": false,
+                            "defaultValue": false
+                        },
+                        {
+                            "id": "ad43ae99-292b-46b4-b4a5-3db7b4d181ba",
+                            "name": "signalStrength",
+                            "displayName": "Signal strength",
+                            "displayNameEvent": "Signal strength changed",
+                            "defaultValue": 0,
+                            "maxValue": 100,
+                            "minValue": 0,
+                            "type": "uint",
+                            "unit": "Percentage"
+                        },
+                        {
+                            "id": "4a16ff42-2b4e-4282-a44d-b27454dbbddb",
+                            "name": "version",
+                            "displayName": "Version",
+                            "displayNameEvent": "Version changed",
+                            "type": "QString",
+                            "cached": true,
+                            "defaultValue": ""
+                        },
+                        {
+                            "id": "ea6824a6-365f-4237-b36b-9a542324245f",
+                            "name": "relay1",
+                            "displayName": "Relay 1",
+                            "displayNameEvent": "Relay 1 changed",
+                            "displayNameAction": "Set relay 1",
+                            "type": "bool",
+                            "writable": true,
+                            "defaultValue": false,
+                            "ioType": "digitalOutput"
+                        },
+                        {
+                            "id": "6ec5895e-e3bc-4062-af23-6731de181606",
+                            "name": "relay2",
+                            "displayName": "Relay 2",
+                            "displayNameEvent": "Relay 2 changed",
+                            "displayNameAction": "Set relay 2",
+                            "type": "bool",
+                            "writable": true,
+                            "defaultValue": false,
+                            "ioType": "digitalOutput"
+                        },
+                        {
+                            "id": "9c56041b-53b1-40ee-bdcf-7b62fdd695d4",
+                            "name": "input1",
+                            "displayName": "Input 1",
+                            "displayNameEvent": "Input 1 changed",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "ioType": "digitalInput"
+                        },
+                        {
+                            "id": "b48e93fe-499b-4a8a-8ed0-79c2def2e282",
+                            "name": "input2",
+                            "displayName": "Input 2",
+                            "displayNameEvent": "Input 2 changed",
+                            "type": "bool",
+                            "defaultValue": false,
+                            "ioType": "digitalInput"
+                        }
+                    ],
+                    "actionTypes": [
+                        {
+                            "id": "1eb3d60c-c655-4401-a9ef-ca262c0cd5fd",
+                            "name": "removeFromNetwork",
+                            "displayName": "Remove from network"
+                        }
+                    ],
+                    "eventTypes": [
+                        {
+                            "id": "8e7aa84f-59e0-4ffd-8740-27fc2b61b490",
+                            "name": "pressed",
+                            "displayName": "Pressed"
+                        },
+                        {
+                            "id": "697fb82d-1e0f-4104-95ab-3a8633bd47c5",
+                            "name": "longPressed",
+                            "displayName": "Long pressed"
+                        }
+                    ]
                 }
             ]
         },

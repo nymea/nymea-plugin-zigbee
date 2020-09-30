@@ -347,6 +347,16 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         return;
     }
 
+    if (thing->thingClassId() == lumiRelayThingClassId) {
+        qCDebug(dcZigbee()) << "Lumi relay" << thing;
+        ZigbeeAddress ieeeAddress(thing->paramValue(lumiRelayThingIeeeAddressParamTypeId).toString());
+        ZigbeeNetwork *network = findParentNetwork(thing);
+        LumiRelay *relay = new LumiRelay(network, ieeeAddress, thing, this);
+        m_zigbeeDevices.insert(thing, relay);
+        info->finish(Thing::ThingErrorNoError);
+        return;
+    }
+
     // Generic
     if (thing->thingClassId() == genericOnOffLightThingClassId) {
         qCDebug(dcZigbee()) << "On/OFF light" << thing;
@@ -807,6 +817,27 @@ bool IntegrationPluginZigbee::createLumiDevice(Thing *networkManagerDevice, Zigb
                 qCDebug(dcZigbee()) << "The device for this node has already been created.";
             }
 
+            return true;
+        }
+
+        if (endpoint->profile() == Zigbee::ZigbeeProfile::ZigbeeProfileHomeAutomation &&
+                endpoint->modelIdentifier().startsWith("lumi.relay")) {
+
+            qCDebug(dcZigbee()) << "This device is a lumi relay";
+            if (myThings().filterByThingClassId(lumiRelayThingClassId)
+                    .filterByParam(lumiRelayThingIeeeAddressParamTypeId, node->extendedAddress().toString())
+                    .isEmpty()) {
+                qCDebug(dcZigbee()) << "Adding new lumi relay";
+                ThingDescriptor descriptor(lumiRelayThingClassId);
+                descriptor.setTitle(supportedThings().findById(lumiRelayThingClassId).displayName());
+                ParamList params;
+                params.append(Param(lumiRelayThingIeeeAddressParamTypeId, node->extendedAddress().toString()));
+                descriptor.setParams(params);
+                descriptor.setParentId(networkManagerDevice->id());
+                emit autoThingsAppeared({descriptor});
+            } else {
+                qCDebug(dcZigbee()) << "The device for this node has already been created.";
+            }
             return true;
         }
     }
