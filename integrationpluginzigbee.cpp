@@ -153,8 +153,16 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
                 descriptor.setDescription(serialPortInfo.systemLocation());
                 descriptor.setParams(params);
                 info->addThingDescriptor(descriptor);
+            } else if (serialPortInfo.manufacturer().toLower().contains("nxp")) {
+                params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 115200));
+                params.append(Param(zigbeeControllerThingHardwareParamTypeId, "NXP"));
+                ThingDescriptor descriptor(zigbeeControllerThingClassId);
+                descriptor.setTitle(serialPortInfo.description());
+                descriptor.setDescription(serialPortInfo.systemLocation());
+                descriptor.setParams(params);
+                info->addThingDescriptor(descriptor);
             } else {
-                // FIXME
+                // Default to deconz
                 params.append(Param(zigbeeControllerThingHardwareParamTypeId, "deCONZ"));
                 params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 38400));
                 ThingDescriptor descriptor(zigbeeControllerThingClassId);
@@ -184,9 +192,11 @@ void IntegrationPluginZigbee::setupThing(ThingSetupInfo *info)
         QString backendTypeName = thing->paramValue(zigbeeControllerThingHardwareParamTypeId).toString();
 
         ZigbeeNetworkManager::BackendType backendType = ZigbeeNetworkManager::BackendTypeDeconz;
-        //        if (backendTypeName.toLower() == "deconz") {
-        //            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
-        //        }
+        if (backendTypeName.toLower() == "deconz") {
+            backendType = ZigbeeNetworkManager::BackendTypeDeconz;
+        } else if (backendTypeName.toLower() == "nxp") {
+            backendType = ZigbeeNetworkManager::BackendTypeNxp;
+        }
 
         ZigbeeNetwork *zigbeeNetwork = ZigbeeNetworkManager::createZigbeeNetwork(backendType, this);
         zigbeeNetwork->setSettingsFileName(NymeaSettings::settingsPath() + "/nymea-zigbee.conf");
