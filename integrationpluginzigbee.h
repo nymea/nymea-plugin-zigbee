@@ -45,6 +45,7 @@
 #include "lumi/lumimotionsensor.h"
 #include "lumi/lumitemperaturesensor.h"
 #include "lumi/lumiwatersensor.h"
+#include "lumi/lumirelay.h"
 
 #include "generic/genericonofflight.h"
 #include "generic/genericcolorlight.h"
