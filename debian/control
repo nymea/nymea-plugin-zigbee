@@ -4,7 +4,7 @@ Priority: options
 Maintainer: Simon Stürz <simon.stuerz@nymea.io>
 Build-depends: debhelper (>= 9.0.0),
                libnymea1-dev (>= 0.16),
-               libnymea-zigbee1-dev,
+               libnymea-zigbee-dev,
                libqt5serialport5-dev,
                nymea-dev-tools:native,
                qt5-default,

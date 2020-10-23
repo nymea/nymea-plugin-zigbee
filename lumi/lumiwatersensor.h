@@ -28,40 +28,30 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef XIAOMIMAGNETSENSOR_H
-#define XIAOMIMAGNETSENSOR_H
+#ifndef LUMIWATERSENSOR_H
+#define LUMIWATERSENSOR_H
 
 #include <QObject>
 
-#include "zigbeenode.h"
+#include "zigbeedevice.h"
 
-class XiaomiMagnetSensor : public QObject
+class LumiWaterSensor : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit XiaomiMagnetSensor(ZigbeeNode *node, QObject *parent = nullptr);
+    explicit LumiWaterSensor(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    bool connected() const;
-    bool closed() const;
+    void removeFromNetwork() override;
+    void checkOnlineStatus() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    ZigbeeNode *m_node = nullptr;
-
-    bool m_connected = false;
-    bool m_closed = false;
-
-    void setConnected(bool connected);
-    void setClosed(bool closed);
-
-signals:
-    void connectedChanged(bool connected);
-    void closedChanged(bool closed);
-
+    ZigbeeNodeEndpoint *m_endpoint = nullptr;
 
 private slots:
-    void onNodeConnectedChanged(bool connected);
+    void onNetworkStateChanged(ZigbeeNetwork::State state);
     void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
 
 };
 
-#endif // XIAOMIMAGNETSENSOR_H
+#endif // LUMIWATERSENSOR_H

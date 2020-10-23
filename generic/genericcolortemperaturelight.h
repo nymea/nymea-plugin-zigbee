@@ -28,44 +28,53 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef XIAOMIBUTTONSENSOR_H
-#define XIAOMIBUTTONSENSOR_H
+#ifndef GENERICCOLORTEMPERATURELIGHT_H
+#define GENERICCOLORTEMPERATURELIGHT_H
 
 #include <QObject>
-#include <QTimer>
 
-#include "zigbeenode.h"
+#include "zigbeedevice.h"
 
-class XiaomiButtonSensor : public QObject
+class GenericColorTemperatureLight : public ZigbeeDevice
 {
     Q_OBJECT
 public:
-    explicit XiaomiButtonSensor(ZigbeeNode *node, QObject *parent = nullptr);
+    explicit GenericColorTemperatureLight(ZigbeeNetwork *network, ZigbeeAddress ieeeAddress, Thing *thing, QObject *parent = nullptr);
 
-    bool connected() const;
-    bool pressed() const;
+    void removeFromNetwork() override;
+    void checkOnlineStatus() override;
+    void executeAction(ThingActionInfo *info) override;
 
 private:
-    ZigbeeNode *m_node = nullptr;
-    QTimer *m_longPressedTimer = nullptr;
+    ZigbeeNodeEndpoint *m_endpoint = nullptr;
+    ZigbeeClusterIdentify *m_identifyCluster= nullptr;
+    ZigbeeClusterOnOff *m_onOffCluster = nullptr;
+    ZigbeeClusterLevelControl *m_levelControlCluster = nullptr;
+    ZigbeeClusterColorControl *m_colorCluster = nullptr;
 
-    bool m_connected = false;
-    bool m_pressed = false;
+    void readStates();
+    void readOnOffState();
+    void readLevelValue();
+    void readColorTemperature();
 
-    void setConnected(bool connected);
-    void setPressed(bool pressed);
+    // Use default values until we can load them from the device and map them
+    quint16 m_minColorTemperature = 250;
+    quint16 m_maxColorTemperature = 450;
 
-signals:
-    void connectedChanged(bool connected);
-    void pressedChanged(bool pressed);
-    void buttonPressed();
-    void buttonLongPressed();
+    // Used for scaling
+    int m_minScaleValue = 0;
+    int m_maxScaleValue = 200;
+
+    // Map methods between scale and actual value
+    quint16 mapScaledValueToColorTemperature(int scaledColorTemperature);
+    int mapColorTemperatureToScaledValue(quint16 colorTemperature);
+
+    void readColorTemperatureRange();
+    bool readCachedColorTemperatureRange();
 
 private slots:
-    void onLongPressedTimeout();
-    void onNodeConnectedChanged(bool connected);
-    void onClusterAttributeChanged(ZigbeeCluster *cluster, const ZigbeeClusterAttribute &attribute);
+    void onNetworkStateChanged(ZigbeeNetwork::State state);
 
 };
 
-#endif // XIAOMIBUTTONSENSOR_H
+#endif // GENERICCOLORTEMPERATURELIGHT_H

@@ -28,17 +28,29 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-
-#ifndef DEVICEPLUGINZIGBEE_H
-#define DEVICEPLUGINZIGBEE_H
+#ifndef INTEGRATIONPLUGINZIGBEE_H
+#define INTEGRATIONPLUGINZIGBEE_H
 
 #include <integrations/integrationplugin.h>
-#include "zigbeenetworkmanager.h"
+#include <zigbeenetworkmanager.h>
 
-#include "xiaomi/xiaomibuttonsensor.h"
-#include "xiaomi/xiaomimotionsensor.h"
-#include "xiaomi/xiaomimagnetsensor.h"
-#include "xiaomi/xiaomitemperaturesensor.h"
+#include "ikea/tradfriremote.h"
+#include "ikea/tradfrionoffswitch.h"
+#include "ikea/tradfricolorlight.h"
+#include "ikea/tradfricolortemperaturelight.h"
+#include "ikea/tradfrirangeextender.h"
+
+#include "lumi/lumimagnetsensor.h"
+#include "lumi/lumibuttonsensor.h"
+#include "lumi/lumimotionsensor.h"
+#include "lumi/lumitemperaturesensor.h"
+#include "lumi/lumiwatersensor.h"
+
+#include "generic/genericonofflight.h"
+#include "generic/genericcolorlight.h"
+#include "generic/genericpowersocket.h"
+#include "generic/genericdimmablelight.h"
+#include "generic/genericcolortemperaturelight.h"
 
 class IntegrationPluginZigbee: public IntegrationPlugin
 {
@@ -60,47 +72,24 @@ public:
     void executeAction(ThingActionInfo *info) override;
 
 private:
-    QHash<Thing *, ZigbeeNetworkManager *> m_zigbeeControllers;
-    QHash<Thing *, XiaomiTemperatureSensor *> m_xiaomiTemperatureSensors;
-    QHash<Thing *, XiaomiMagnetSensor *> m_xiaomiMagnetSensors;
-    QHash<Thing *, XiaomiButtonSensor *> m_xiaomiButtonSensors;
-    QHash<Thing *, XiaomiMotionSensor *> m_xiaomiMotionSensors;
+    QHash<Thing *, ZigbeeNetwork *> m_zigbeeNetworks;
+    QHash<Thing *, ZigbeeDevice *> m_zigbeeDevices;
 
-    ZigbeeNetworkManager *findParentController(Thing *thing) const;
-    ZigbeeNetworkManager *findNodeController(ZigbeeNode *node) const;
+    ZigbeeNetwork *findParentNetwork(Thing *thing) const;
+    ZigbeeDevice *findNodeZigbeeDevice(ZigbeeNode *node);
 
-    Thing *findNodeThing(ZigbeeNode *node);
-
-    void createThingForNode(Thing *parentThing, ZigbeeNode *node);
-    void createGenericNodeThingForNode(Thing *parentThing, ZigbeeNode *node);
+    bool createIkeaDevice(Thing *networkManagerDevice, ZigbeeNode *node);
+    bool createLumiDevice(Thing *networkManagerDevice, ZigbeeNode *node);
+    bool createGenericDevice(Thing *networkManagerDevice, ZigbeeNode *node);
 
 private slots:
-    void onZigbeeControllerStateChanged(ZigbeeNetwork::State state);
-    void onZigbeeControllerChannelChanged(uint channel);
-    void onZigbeeControllerPanIdChanged(quint64 extendedPanId);
-    void onZigbeeControllerPermitJoiningChanged(bool permitJoining);
-    void onZigbeeControllerNodeAdded(ZigbeeNode *node);
-    void onZigbeeControllerNodeRemoved(ZigbeeNode *node);
+    void onZigbeeNetworkStateChanged(ZigbeeNetwork::State state);
+    void onZigbeeNetworkChannelChanged(uint channel);
+    void onZigbeeNetworkPanIdChanged(quint16 panId);
+    void onZigbeeNetworkPermitJoiningChanged(bool permitJoining);
 
-    // Xiaomi temperature humidity sensor
-    void onXiaomiTemperatureSensorConnectedChanged(bool connected);
-    void onXiaomiTemperatureSensorTemperatureChanged(double temperature);
-    void onXiaomiTemperatureSensorHumidityChanged(double humidity);
-
-    // Xiaomi magnet sensor
-    void onXiaomiMagnetSensorConnectedChanged(bool connected);
-    void onXiaomiMagnetSensorClosedChanged(bool closed);
-
-    // Xiaomi button sensor
-    void onXiaomiButtonSensorConnectedChanged(bool connected);
-    void onXiaomiButtonSensorPressedChanged(bool pressed);
-    void onXiaomiButtonSensorPressed();
-    void onXiaomiButtonSensorLongPressed();
-
-    // Xiaomi motion sensor
-    void onXiaomiMotionSensorConnectedChanged(bool connected);
-    void onXiaomiMotionSensorPresentChanged(bool present);
-    void onXiaomiMotionSensorMotionDetected();
+    void onZigbeeNetworkNodeAdded(ZigbeeNode *node);
+    void onZigbeeNetworkNodeRemoved(ZigbeeNode *node);
 };
 
-#endif // DEVICEPLUGINZIGBEE_H
+#endif // INTEGRATIONPLUGINZIGBEE_H
