@@ -166,7 +166,11 @@ void IntegrationPluginZigbee::discoverThings(ThingDiscoveryInfo *info)
                 params.append(Param(zigbeeControllerThingHardwareParamTypeId, "deCONZ"));
                 params.append(Param(zigbeeControllerThingBaudrateParamTypeId, 38400));
                 ThingDescriptor descriptor(zigbeeControllerThingClassId);
-                descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
+                if (serialPortInfo.manufacturer().isEmpty()) {
+                    descriptor.setTitle(tr("Zigbee controller"));
+                } else {
+                    descriptor.setTitle(serialPortInfo.manufacturer() + " - " + serialPortInfo.description());
+                }
                 descriptor.setDescription(serialPortInfo.systemLocation());
                 descriptor.setParams(params);
                 info->addThingDescriptor(descriptor);
